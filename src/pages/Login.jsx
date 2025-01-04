@@ -38,7 +38,7 @@ function Login() {
                 localStorage.setItem(ACCESS_TOKEN, response.data.access);
                 localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
 
-                navigate('/');
+                navigate('/teacherpanel');
             } else {
                 console.error('Access or Refresh token is missing:', response.data);
                 setError(response.data.message || 'Invalid credentials. Please try again.');

@@ -1,5 +1,5 @@
-import axios from "axios"; // Corrected import statement
-import { ACCESS_TOKEN } from './constraints.js'; // Ensure ACCESS_TOKEN is defined
+import axios from "axios"; 
+import { ACCESS_TOKEN } from './constraints.js'; 
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,

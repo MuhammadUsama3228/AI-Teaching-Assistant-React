@@ -1,14 +1,15 @@
+import ReadAssignments from "../../../components/teacher/assignment/read_asigment";
 import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import { Link } from "react-router-dom";
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import CssBaseline from "@mui/material/CssBaseline";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
@@ -20,13 +21,9 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import GradeIcon from "@mui/icons-material/Grade";
-import PeopleIcon from "@mui/icons-material/People";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import Teacherview from "../teacherHomepage"; // Ensure this path is correct
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 const drawerWidth = 240;
 
@@ -37,6 +34,7 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
+  // Removed backgroundColor here to make it transparent
 });
 
 const closedMixin = (theme) => ({
@@ -75,6 +73,7 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+  background: theme.palette.primary.dark,
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
@@ -84,15 +83,16 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
     whiteSpace: "nowrap",
     boxSizing: "border-box",
     ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
+    "& .MuiDrawer-paper": open
+      ? openedMixin(theme)
+      : closedMixin(theme),
   })
 );
 
-export default function TeacherPanelDrawer() {
+export default function Assignmentreadpage() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [courseOpen, setCourseOpen] = useState(false);
+  const [assignmentOpen, setAssignmentOpen] = useState(false);  
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -102,16 +102,8 @@ export default function TeacherPanelDrawer() {
     setOpen(false);
   };
 
-  const toggleCourseDrawer = () => {
-    setCourseOpen(!courseOpen);
-  };
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
+  const toggleAssignmentDrawer = () => {
+    setAssignmentOpen(!assignmentOpen); 
   };
 
   return (
@@ -124,44 +116,16 @@ export default function TeacherPanelDrawer() {
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={{ marginRight: 5, ...(open && { display: "none" }) }}
+            sx={{
+              marginRight: 5,
+              ...(open && { display: "none" }),
+            }}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Teacher Panel
+            Assignment Panel
           </Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton
-            color="inherit"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem component={Link} to="/profile" onClick={handleClose}>
-              Profile
-            </MenuItem>
-            <MenuItem component={Link} to="/logout" onClick={handleClose}>
-              Logout
-            </MenuItem>
-          </Menu>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -172,66 +136,54 @@ export default function TeacherPanelDrawer() {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem key="dashboard" disablePadding sx={{ display: "block" }}>
-            <ListItemButton component={Link} to="/teacherpanel" sx={{ minHeight: 48, px: 2.5 }}>
-              <ListItemIcon
-                sx={{ minWidth: 0, justifyContent: "center", ...(open ? { mr: 3 } : { mr: "auto" }) }}
-              >
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" sx={{ ...(open ? { opacity: 1 } : { opacity: 0 }) }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem button onClick={toggleCourseDrawer}>
+          <ListItem button onClick={toggleAssignmentDrawer}>
             <ListItemIcon>
-              <LibraryBooksIcon />
+              <AssignmentIcon />
             </ListItemIcon>
-            <ListItemText primary="My Courses" />
+            <ListItemText primary="Assignments" />
           </ListItem>
-          {courseOpen && (
+          {assignmentOpen && (
             <>
-              <ListItem button component={Link} to="/view-courses">
+            <ListItem button component={Link} to="/view-assignments">
+            <ListItemIcon>
+                <VisibilityIcon /> 
+            </ListItemIcon>
+            <ListItemText primary="View Assignments" />
+            </ListItem>
+              <ListItem button component={Link} to="/create_assignment">
                 <ListItemIcon>
-                  <LibraryBooksIcon />
+                  <AddCircleOutlineIcon />
                 </ListItemIcon>
-                <ListItemText primary="Courses" />
+                <ListItemText primary="Create Assignment" />
               </ListItem>
-
-              <ListItem button component={Link} to="/view-assignments">
+              <ListItem button component={Link} to="/submission-status">
                 <ListItemIcon>
-                  <AssignmentIcon />
+                  <CheckCircleIcon />
                 </ListItemIcon>
-                <ListItemText primary="Assignments" />
+                <ListItemText primary="Submission Status" />
               </ListItem>
-              <ListItem button component={Link} to="/grades">
+              <ListItem button component={Link} to="/assignmentupdate">
                 <ListItemIcon>
-                  <GradeIcon />
+                <AssignmentTurnedInIcon />
                 </ListItemIcon>
-                <ListItemText primary="Grades" />
+                <ListItemText primary="Assignment update" />
               </ListItem>
             </>
           )}
-          <ListItem button component={Link} to="/classroom">
-            <ListItemIcon>
-              <PeopleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Classroom" />
-          </ListItem>
-          <ListItem button component={Link} to="/schedule">
-            <ListItemIcon>
-              <CalendarTodayIcon />
-            </ListItemIcon>
-            <ListItemText primary="Schedule" />
-          </ListItem>
         </List>
         <Divider />
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` } }}
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
+         
+        }}
       >
         <Toolbar />
-        <Teacherview />
+        <  ReadAssignments />
       </Box>
     </Box>
   );

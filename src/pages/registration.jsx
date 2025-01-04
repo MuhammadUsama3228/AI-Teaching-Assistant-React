@@ -1,231 +1,439 @@
-import React, { useState, useEffect } from 'react';
-import { TextField, Button, Typography, Container, Box, ThemeProvider, CircularProgress, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import theme from '../components/Theme'; // Custom theme
-import api from "../api"; // API for making requests
-import { useNavigate } from 'react-router-dom';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constraints.js";
+// import React, { useState, useEffect } from 'react';
+// import { TextField, Button, Typography, Container, Box, ThemeProvider, CircularProgress } from '@mui/material';
+// import theme from '../components/Theme'; 
+// import api from "../api";
+// import { useNavigate, useLocation } from 'react-router-dom';
 
-const Register = () => {
+// function Register() {
+//     useEffect(() => {
+//         document.title = "Sign Up | AI Teaching Assistant"; 
+//     }, []);
+
+//     const [username, setUsername] = useState('');
+//     const [email, setEmail] = useState('');
+//     const [password1, setPassword1] = useState('');
+//     const [password2, setPassword2] = useState('');
+//     const [firstName, setFirstName] = useState('');
+//     const [lastName, setLastName] = useState('');
+//     const [role, setRole] = useState('student'); 
+//     const [loading, setLoading] = useState(false);
+//     const [error, setError] = useState('');
+
+//     const navigate = useNavigate();
+//     const location = useLocation();
+
+//     useEffect(() => {
+//         if (location.state && location.state.role) {
+//             setRole(location.state.role); 
+//         }
+//     }, [location.state]);
+
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+//         setLoading(true);
+
+//         if (password1 !== password2) {
+//             setError('Passwords do not match');
+//             setLoading(false);
+//             return;
+//         }
+
+//         try {
+           
+//             const response = await api.post('api/accounts/registration/', {
+//                 username,
+//                 email,
+//                 password1: password1,
+//                 password2: password2,
+//                 first_name: firstName,
+//                 last_name: lastName,
+//                 role,
+//             });
+
+//             console.log(response);
+//             console.log(response.data.message);
+            
+//             if (response.status==201) {
+//                 navigate('verifyemail/')
+//             }
+            
+//         } catch (error) {
+            
+//             console.error('Registration error:', error);
+//             setError('An error occurred during registration. Please try again.');
+//         } finally {
+            
+//             setLoading(false);
+//         }
+//     };
+
+//     return (
+//         <ThemeProvider theme={theme}>
+//             <Container
+//                 component="main"
+//                 maxWidth="xs"
+//                 sx={{
+//                     display: 'flex',
+//                     alignItems: 'center',
+//                     justifyContent: 'center',
+//                     height: '120vh',
+//                 }}
+//             >
+//                 <Box
+//                     sx={{
+//                         display: 'flex',
+//                         flexDirection: 'column',
+//                         alignItems: 'center',
+//                         justifyContent: 'center',
+//                         padding: 2,
+//                         boxShadow: 2,
+//                         borderRadius: 1,
+//                     }}
+//                 >
+//                     <img
+//                         src='/vite.svg'
+//                         alt="Logo"
+//                         style={{ width: '50px', marginBottom: '50px' }}
+//                     />
+//                     <Typography variant="h5" gutterBottom>
+//                         Sign Up
+//                     </Typography>
+
+//                     {error && (
+//                         <Typography color="error" variant="body2" gutterBottom>
+//                             {error}
+//                         </Typography>
+//                     )}
+
+//                     <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+
+//                     <TextField
+//                             label="First Name"
+//                             type="text"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={firstName}
+//                             onChange={(e) => setFirstName(e.target.value)}
+//                             required
+//                         />
+
+//                         <TextField
+//                             label="Last Name"
+//                             type="text"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={lastName}
+//                             onChange={(e) => setLastName(e.target.value)}
+//                             required
+//                         />
+
+//                         <TextField
+//                             label="Username"
+//                             type="text"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={username}
+//                             onChange={(e) => setUsername(e.target.value)}
+//                             required
+//                         />
+
+//                         <TextField
+//                             label="Email"
+//                             type="email"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={email}
+//                             onChange={(e) => setEmail(e.target.value)}
+//                             required
+//                         />
+
+//                         <TextField
+//                             label="Password"
+//                             type="password"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={password1}
+//                             onChange={(e) => setPassword1(e.target.value)}
+//                             required
+//                         />
+
+//                         <TextField
+//                             label="Confirm Password"
+//                             type="password"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={password2}
+//                             onChange={(e) => setPassword2(e.target.value)}
+//                             required
+//                         />
+
+                      
+
+//                         <TextField
+//                             label="Role"
+//                             type="text"
+//                             variant="outlined"
+//                             fullWidth
+//                             margin="normal"
+//                             value={role}
+//                             onChange={(e) => setRole(e.target.value)}
+//                             required
+//                             disabled // Ensure the role is fixed as "Teacher"
+//                         />
+
+//                         <Button
+//                             type="submit"
+//                             variant="contained"
+//                             fullWidth
+//                             sx={{
+//                                 mt: 2,
+//                                 backgroundColor: 'primary.main',
+//                                 position: 'relative',
+//                                 cursor: loading ? 'not-allowed' : 'pointer',
+//                                 color: loading ? 'black' : 'white',
+//                             }}
+//                             disabled={loading}
+//                         >
+//                             {loading ? (
+//                                 <>
+//                                     Please Wait
+//                                     <CircularProgress
+//                                         size={24}
+//                                         style={{ marginLeft: 3 }}
+//                                     />
+//                                 </>
+//                             ) : (
+//                                 'Sign Up'
+//                             )}
+//                         </Button>
+//                     </form>
+//                 </Box>
+//             </Container>
+//         </ThemeProvider>
+//     );
+// }
+
+// export default Register;
+
+
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Typography, Container, Box, Stepper, Step, StepLabel, CircularProgress, ThemeProvider } from '@mui/material';
+import theme from '../components/Theme';
+import api from "../api";
+import { useNavigate, useLocation } from 'react-router-dom';
+
+function Register() {
     useEffect(() => {
-        document.title = "SignUp | AI Teaching Assistant";
+        document.title = "Sign Up | AI Teaching Assistant";
     }, []);
 
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        username: "",
-        role: "student", // Default role
-        password: "",
-        confirmPassword: "",
-    });
-
-    const [error, setError] = useState("");
+    const [activeStep, setActiveStep] = useState(0);  // State to track the current step
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password1, setPassword1] = useState('');
+    const [password2, setPassword2] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [role, setRole] = useState('student');
     const [loading, setLoading] = useState(false);
-    
-    const navigate = useNavigate();
+    const [error, setError] = useState('');
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state && location.state.role) {
+            setRole(location.state.role); // Set role if passed in state
+        }
+    }, [location.state]);
+
+    const handleNext = () => {
+        if (activeStep === steps.length - 1) {
+            handleSubmit();
+        } else {
+            setActiveStep(activeStep + 1);
+        }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleBack = () => {
+        setActiveStep(activeStep - 1);
+    };
+
+    const handleSubmit = async () => {
         setLoading(true);
 
-        const { firstName, lastName, email, username, password, confirmPassword } = formData;
-
-        if (!firstName || !lastName || !email || !username || !password || !confirmPassword) {
-            setError("All fields are required.");
-            setLoading(false);
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+        if (password1 !== password2) {
+            setError('Passwords do not match');
             setLoading(false);
             return;
         }
 
         try {
-            const response = await api.post('auth/register/', {
-                firstName,
-                lastName,
-                email,
+            const response = await api.post('api/accounts/registration/', {
                 username,
-                role: formData.role,
-                password,
+                email,
+                password1: password1,
+                password2: password2,
+                first_name: firstName,
+                last_name: lastName,
+                role,
             });
 
             console.log(response);
-
-            if (response && response.data && response.data.access && response.data.refresh) {
-                localStorage.setItem(ACCESS_TOKEN, response.data.access);
-                localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
-                navigate('/'); // Redirect to home after successful registration
-            } else {
-                setError(response.data.message || 'An error occurred. Please try again.');
+            if (response.status === 201) {
+                navigate('VerifyEmail/');
             }
         } catch (error) {
-            console.error("Registration error:", error);
-            setError('An error occurred while registering. Please try again.');
+            console.error('Registration error:', error);
+            setError('An error occurred during registration. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <ThemeProvider theme={theme}>
-            <Container
-                component="main"
-                maxWidth="xs"
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh',
-                }}
-            >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 2,
-                        boxShadow: 2,
-                        borderRadius: 1,
-                    }}
-                >
-                    <img
-                        src='/vite.svg' // Adjust the logo path as needed
-                        alt="Logo"
-                        style={{ width: '50px', marginBottom: '50px' }}
-                    />
-                    <Typography variant="h5" gutterBottom>
-                        Sign Up
-                    </Typography>
+    const steps = ['Personal Information', 'Credentials', 'Role & Confirmation'];
 
-                    {error && (
-                        <Typography color="error" variant="body2" gutterBottom>
-                            {error}
-                        </Typography>
-                    )}
-
-                    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+    const getStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return (
+                    <Box>
                         <TextField
                             label="First Name"
-                            type="text"
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            name="firstName"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             required
                         />
-
                         <TextField
                             label="Last Name"
-                            type="text"
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            name="lastName"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             required
                         />
-
+                    </Box>
+                );
+            case 1:
+                return (
+                    <Box>
+                        <TextField
+                            label="Username"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
                         <TextField
                             label="Email"
                             type="email"
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            value={formData.email}
-                            onChange={handleChange}
-                            name="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                         />
-
-                        <TextField
-                            label="Username"
-                            type="text"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={formData.username}
-                            onChange={handleChange}
-                            name="username"
-                            required
-                        />
-
-                        <FormControl fullWidth variant="outlined" margin="normal">
-                            <InputLabel>Role</InputLabel>
-                            <Select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                label="Role"
-                            >
-                                <MenuItem value="student">Student</MenuItem>
-                                <MenuItem value="teacher">Teacher</MenuItem>
-                            </Select>
-                        </FormControl>
-
                         <TextField
                             label="Password"
                             type="password"
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            value={formData.password}
-                            onChange={handleChange}
-                            name="password"
+                            value={password1}
+                            onChange={(e) => setPassword1(e.target.value)}
                             required
                         />
-
                         <TextField
                             label="Confirm Password"
                             type="password"
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            name="confirmPassword"
+                            value={password2}
+                            onChange={(e) => setPassword2(e.target.value)}
                             required
                         />
-
-                        <Button
-                            type="submit"
-                            variant="contained"
+                    </Box>
+                );
+            case 2:
+                return (
+                    <Box>
+                        <TextField
+                            label="Role"
+                            variant="outlined"
                             fullWidth
-                            sx={{
-                                mt: 2,
-                                backgroundColor: 'primary.main',
-                                position: 'relative',
-                                cursor: loading ? 'not-allowed' : 'pointer',
-                                color: loading ? 'black' : 'white',
-                            }}
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    Please Wait
-                                    <CircularProgress size={24} style={{ marginLeft: 3 }} />
-                                </>
-                            ) : (
-                                'Sign Up'
-                            )}
-                        </Button>
+                            margin="normal"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            required
+                            disabled
+                        />
+                    </Box>
+                );
+            default:
+                return 'Unknown step';
+        }
+    };
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Container component="main" maxWidth="xs" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '120vh' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2, boxShadow: 2, borderRadius: 1 }}>
+                    <img src='/vite.svg' alt="Logo" style={{ width: '50px', marginBottom: '50px' }} />
+                    <Typography variant="h5" gutterBottom>Sign Up</Typography>
+
+                    {error && <Typography color="error" variant="body2" gutterBottom>{error}</Typography>}
+
+                    <Stepper activeStep={activeStep} alternativeLabel sx={{ width: '100%', marginBottom: 3 }}>
+                        {steps.map((label) => (
+                            <Step key={label}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
+
+                    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} style={{ width: '100%' }}>
+                        {getStepContent(activeStep)}
+
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                            <Button variant="outlined" color="secondary" onClick={handleBack} disabled={activeStep === 0}>
+                                Back
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleNext}
+                                sx={{ position: 'relative', cursor: loading ? 'not-allowed' : 'pointer', color: loading ? 'black' : 'white' }}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        Please Wait
+                                        <CircularProgress size={24} style={{ marginLeft: 3 }} />
+                                    </>
+                                ) : activeStep === steps.length - 1 ? 'Sign Up' : 'Next'}
+                            </Button>
+                        </Box>
                     </form>
                 </Box>
             </Container>
         </ThemeProvider>
     );
-};
+}
 
 export default Register;
+
+

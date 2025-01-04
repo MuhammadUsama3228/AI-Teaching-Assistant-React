@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Button, Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const RoleChoice = () => {
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState(null);
 
   const handleRoleSelection = (role) => {
     setSelectedRole(role);
-    console.log(`${role} selected`);
-  
+    navigate("/register", { state: { role } })
   };
 
   return (
@@ -29,7 +30,7 @@ const RoleChoice = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => handleRoleSelection("Student")}
+          onClick={() => handleRoleSelection("student")}
           sx={{
             padding: "10px 20px",
             fontSize: "16px",
@@ -42,7 +43,7 @@ const RoleChoice = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => handleRoleSelection("Teacher")}
+          onClick={() => handleRoleSelection("teacher")}
           sx={{
             padding: "10px 20px",
             fontSize: "16px",

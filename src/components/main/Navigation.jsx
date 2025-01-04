@@ -84,7 +84,7 @@ const Navbar = () => {
               <Link to="/login">Login</Link>
             </MenuItem>
             <MenuItem onClick={handleDropdownClose}>
-              <Link to="/signup">Signup</Link>
+              <Link to="/choice">Signup</Link>
             </MenuItem>
           </Menu>
         </Box>
