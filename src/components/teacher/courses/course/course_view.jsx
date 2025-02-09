@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Container, Box, CircularProgress, Card, CardContent, CardActions, Button, Grid, Avatar } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import api from '../../../api';
+import api from '../../../../api';
 
 // Custom styles
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -13,9 +13,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
         transform: 'translateY(-8px)',
         boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
         opacity: 0.9,
+        cursor: 'pointer',
     },
     backgroundColor: theme.palette.background.paper,
-    overflow: 'hidden', // Ensures no overflow for sharp corners
+    overflow: 'hidden',
 }));
 
 const CourseAvatar = styled(Avatar)(({ theme }) => ({
@@ -48,7 +49,7 @@ const ReadCourses = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await api.get('api/courses/course/');
+                const response = await api.get('/api/courses/course/');
                 setCourses(response.data);
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -60,12 +61,13 @@ const ReadCourses = () => {
         fetchCourses();
     }, []);
 
-    const handleViewDetails = (id) => {
-        navigate(`/coursedetail/${id}`);
+    const handleCourseClick = (course) => {
+        console.log(`Clicked on course: ${course.course_title}`);
+        navigate(`/coursedetail/${course.id}`);
     };
 
     return (
-        <Container component="main" maxWidth="lg" sx={{ padding: '3rem 1rem', borderRadius: '12px'}}>
+        <Container component="main" maxWidth="lg" sx={{ padding: '3rem 1rem', borderRadius: '12px' }}>
             <Typography variant="h4" gutterBottom textAlign="center" sx={{ fontWeight: '600', color: '#333', marginBottom: '2rem' }}>
                 Our Courses
             </Typography>
@@ -81,35 +83,40 @@ const ReadCourses = () => {
                 <Grid container spacing={4}>
                     {courses.map((course) => (
                         <Grid item xs={12} sm={6} md={4} key={course.id}>
-                            <StyledCard>
-                                <Box display="flex" flexDirection="column" alignItems="center" p={3}>
-                                    <CourseAvatar>{course.course_title.charAt(0)}</CourseAvatar>
-                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: '600', color: '#333' }}>
-                                        {course.course_title}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
-                                        {course.description || 'No description provided.'}
-                                    </Typography>
-                                </Box>
-                                <CardContent>
-                                    <Typography variant="body2" color="textSecondary">
-                                        <strong>Section:</strong> {course.section || 'N/A'}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        <strong>Duration:</strong> {course.weeks} weeks
-                                    </Typography>
-                                </CardContent>
-                                <CardActions sx={{ justifyContent: 'center', paddingBottom: 2 }}>
-                                    <StyledButton
-                                        size="small"
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={() => handleViewDetails(course.id)}
-                                    >
-                                        View Details
-                                    </StyledButton>
-                                </CardActions>
-                            </StyledCard>
+                            <Box onClick={() => handleCourseClick(course)}>
+                                <StyledCard>
+                                    <Box display="flex" flexDirection="column" alignItems="center" p={3}>
+                                        <CourseAvatar>{course.course_title.charAt(0)}</CourseAvatar>
+                                        <Typography variant="h6" gutterBottom sx={{ fontWeight: '600', color: '#333' }}>
+                                            {course.course_title}
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
+                                            {course.description || 'No description provided.'}
+                                        </Typography>
+                                    </Box>
+                                    <CardContent>
+                                        <Typography variant="body2" color="textSecondary">
+                                            <strong>Section:</strong> {course.section || 'N/A'}
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            <strong>Duration:</strong> {course.weeks} weeks
+                                        </Typography>
+                                    </CardContent>
+                                    <CardActions sx={{ justifyContent: 'center', paddingBottom: 2 }}>
+                                        <StyledButton
+                                            size="small"
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevents triggering card click
+                                                handleCourseClick(course);
+                                            }}
+                                        >
+                                            View Details
+                                        </StyledButton>
+                                    </CardActions>
+                                </StyledCard>
+                            </Box>
                         </Grid>
                     ))}
                 </Grid>

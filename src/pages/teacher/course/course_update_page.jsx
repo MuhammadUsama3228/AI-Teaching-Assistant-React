@@ -21,7 +21,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
-import CourseUpdate from "../../../components/teacher/courses/course_update";
+import CourseUpdate from "../../../components/teacher/courses/course/course_update";
 
 
 const drawerWidth = 240;

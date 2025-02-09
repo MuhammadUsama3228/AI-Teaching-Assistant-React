@@ -1,10 +1,7 @@
-import ReadAssignments from "../../../components/teacher/assignment/read_asigment";
 import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import { Link } from "react-router-dom";
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -20,10 +17,15 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SchoolIcon from "@mui/icons-material/School";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import AssignmentIcon from "@mui/icons-material/Assignment"; // For WeekAnnouncement
+
+import CourseWeekForm from "../../../components/teacher/courses/course_week/course_week_create";
+import WeekAnnouncementView from "../../../components/teacher/courses/week_announcement/week_announcement_view";
 
 const drawerWidth = 240;
 
@@ -34,7 +36,6 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
-  // Removed backgroundColor here to make it transparent
 });
 
 const closedMixin = (theme) => ({
@@ -76,23 +77,21 @@ const AppBar = styled(MuiAppBar, {
   background: theme.palette.primary.dark,
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })( 
   ({ theme, open }) => ({
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: "nowrap",
     boxSizing: "border-box",
     ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open
-      ? openedMixin(theme)
-      : closedMixin(theme),
+    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
   })
 );
 
-export default function Assignmentreadpage() {
+export default function WeekAnnViewPage() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-  const [assignmentOpen, setAssignmentOpen] = useState(false);  
+  const [courseOpen, setCourseOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -102,8 +101,8 @@ export default function Assignmentreadpage() {
     setOpen(false);
   };
 
-  const toggleAssignmentDrawer = () => {
-    setAssignmentOpen(!assignmentOpen); 
+  const toggleCourseDrawer = () => {
+    setCourseOpen(!courseOpen);
   };
 
   return (
@@ -124,7 +123,7 @@ export default function Assignmentreadpage() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Assignment Panel
+            Course Management Panel
           </Typography>
         </Toolbar>
       </AppBar>
@@ -136,30 +135,53 @@ export default function Assignmentreadpage() {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem button onClick={toggleAssignmentDrawer}>
+          <ListItem button onClick={toggleCourseDrawer}>
+            <ListItemIcon>
+              <SchoolIcon />
+            </ListItemIcon>
+            <ListItemText primary="Courses" />
+          </ListItem>
+          {courseOpen && (
+            <>
+              <ListItem button component={Link} to="/view-courses">
+                <ListItemIcon>
+                  <VisibilityIcon />
+                </ListItemIcon>
+                <ListItemText primary="View Courses" />
+              </ListItem>
+              <ListItem button component={Link} to="/create-course">
+                <ListItemIcon>
+                  <AddCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText primary="Create Course" />
+              </ListItem>
+              <ListItem button component={Link} to="/course_week_create">
+                <ListItemIcon>
+                  <EventNoteIcon />
+                </ListItemIcon>
+                <ListItemText primary="Create Course Week" />
+              </ListItem>
+              <ListItem button component={Link} to="/course_week_view">
+                <ListItemIcon>
+                  <ViewListIcon />
+                </ListItemIcon>
+                <ListItemText primary="View Course Weeks" />
+              </ListItem>
+            </>
+          )}
+          {/* Add Week Announcement Links */}
+          <ListItem button component={Link} to="/week-announcement-create">
             <ListItemIcon>
               <AssignmentIcon />
             </ListItemIcon>
-            <ListItemText primary="Assignments" />
+            <ListItemText primary="Create Announcement" />
           </ListItem>
-          {assignmentOpen && (
-            <>
-            <ListItem button component={Link} to="/view-assignments">
+          <ListItem button component={Link} to="/week_announcement_view">
             <ListItemIcon>
-                <VisibilityIcon /> 
+              <VisibilityIcon />
             </ListItemIcon>
-            <ListItemText primary="View Assignments" />
-            </ListItem>
-           
-              <ListItem button component={Link} to="/submission-status">
-                <ListItemIcon>
-                  <CheckCircleIcon />
-                </ListItemIcon>
-                <ListItemText primary="Submission Status" />
-              </ListItem>
-             
-            </>
-          )}
+            <ListItemText primary="View Announcements" />
+          </ListItem>
         </List>
         <Divider />
       </Drawer>
@@ -169,11 +191,10 @@ export default function Assignmentreadpage() {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
-         
         }}
       >
         <Toolbar />
-        <  ReadAssignments />
+        <WeekAnnouncementView />
       </Box>
     </Box>
   );

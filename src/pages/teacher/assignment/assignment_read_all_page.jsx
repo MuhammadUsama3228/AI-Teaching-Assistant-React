@@ -24,6 +24,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import AssignmentAllRead from "../../../components/teacher/assignment/all_assignemt_view";
 
 const drawerWidth = 240;
 
@@ -89,7 +90,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
   })
 );
 
-export default function Assignmentreadpage() {
+export default function AssignmentAllread() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [assignmentOpen, setAssignmentOpen] = useState(false);  
@@ -157,7 +158,7 @@ export default function Assignmentreadpage() {
                 </ListItemIcon>
                 <ListItemText primary="Submission Status" />
               </ListItem>
-             
+           
             </>
           )}
         </List>
@@ -173,7 +174,7 @@ export default function Assignmentreadpage() {
         }}
       >
         <Toolbar />
-        <  ReadAssignments />
+        <  AssignmentAllRead />
       </Box>
     </Box>
   );

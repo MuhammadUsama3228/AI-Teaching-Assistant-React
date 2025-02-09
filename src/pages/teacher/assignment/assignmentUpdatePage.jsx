@@ -145,24 +145,15 @@ export default function AssignmentUpdatePage() {
                 </ListItemIcon>
                 <ListItemText primary="View Assignments" />
               </ListItem>
-              <ListItem button component={Link} to="/create-assignment">
-                <ListItemIcon>
-                  <AddCircleOutlineIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Assignment" />
-              </ListItem>
+           
+              
               <ListItem button component={Link} to="/submission-status">
                 <ListItemIcon>
                   <CheckCircleIcon />
                 </ListItemIcon>
                 <ListItemText primary="Submission Status" />
               </ListItem>
-              <ListItem button component={Link} to="/assignmentupdate">
-                <ListItemIcon>
-                  <AssignmentTurnedInIcon />
-                </ListItemIcon>
-                <ListItemText primary="Assignment Update" />
-              </ListItem>
+           
             </>
           )}
         </List>

@@ -21,7 +21,12 @@ import SchoolIcon from "@mui/icons-material/School";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
-import ReadCourses from "../../../components/teacher/courses/course_view";
+import ReadCourses from "../../../components/teacher/courses/course/course_view";
+
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import CourseWeekView from "../../../components/teacher/courses/course_week/course_week_view"; 
+
 
 const drawerWidth = 240;
 
@@ -151,6 +156,20 @@ export default function CourseViewPage() {
                 </ListItemIcon>
                 <ListItemText primary="Create Course" />
               </ListItem>
+
+              <ListItem button component={Link} to="/course_week_create">
+              <ListItemIcon>
+                <EventNoteIcon />
+              </ListItemIcon>
+              <ListItemText primary="Create Course Week" />
+            </ListItem>
+            <ListItem button component={Link} to="/course_week_view">
+              <ListItemIcon>
+                <ViewListIcon />
+              </ListItemIcon>
+              <ListItemText primary="View Course Weeks" />
+            </ListItem>
+
              
             </>
           )}

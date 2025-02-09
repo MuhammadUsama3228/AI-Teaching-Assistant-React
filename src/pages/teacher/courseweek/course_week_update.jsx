@@ -1,10 +1,7 @@
-import ReadAssignments from "../../../components/teacher/assignment/read_asigment";
 import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import { Link } from "react-router-dom";
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -20,10 +17,15 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SchoolIcon from "@mui/icons-material/School";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import CourseWeekUpdate from "../../../components/teacher/courses/course_week/course_week_update";
+
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import ViewListIcon from "@mui/icons-material/ViewList";
+
 
 const drawerWidth = 240;
 
@@ -34,7 +36,6 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
-  // Removed backgroundColor here to make it transparent
 });
 
 const closedMixin = (theme) => ({
@@ -83,16 +84,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
     whiteSpace: "nowrap",
     boxSizing: "border-box",
     ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open
-      ? openedMixin(theme)
-      : closedMixin(theme),
+    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
   })
 );
 
-export default function Assignmentreadpage() {
+export default function CourseWeekUpdatePage() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-  const [assignmentOpen, setAssignmentOpen] = useState(false);  
+  const [courseOpen, setCourseOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -102,8 +101,8 @@ export default function Assignmentreadpage() {
     setOpen(false);
   };
 
-  const toggleAssignmentDrawer = () => {
-    setAssignmentOpen(!assignmentOpen); 
+  const toggleCourseDrawer = () => {
+    setCourseOpen(!courseOpen);
   };
 
   return (
@@ -124,7 +123,7 @@ export default function Assignmentreadpage() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Assignment Panel
+            Course Management Panel
           </Typography>
         </Toolbar>
       </AppBar>
@@ -136,27 +135,40 @@ export default function Assignmentreadpage() {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem button onClick={toggleAssignmentDrawer}>
+          <ListItem button onClick={toggleCourseDrawer}>
             <ListItemIcon>
-              <AssignmentIcon />
+              <SchoolIcon />
             </ListItemIcon>
-            <ListItemText primary="Assignments" />
+            <ListItemText primary="Courses" />
           </ListItem>
-          {assignmentOpen && (
+          {courseOpen && (
             <>
-            <ListItem button component={Link} to="/view-assignments">
-            <ListItemIcon>
-                <VisibilityIcon /> 
-            </ListItemIcon>
-            <ListItemText primary="View Assignments" />
-            </ListItem>
-           
-              <ListItem button component={Link} to="/submission-status">
+              <ListItem button component={Link} to="/view-courses">
                 <ListItemIcon>
-                  <CheckCircleIcon />
+                  <VisibilityIcon />
                 </ListItemIcon>
-                <ListItemText primary="Submission Status" />
+                <ListItemText primary="View Courses" />
               </ListItem>
+              <ListItem button component={Link} to="/create-course">
+                <ListItemIcon>
+                  <AddCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText primary="Create Course" />
+              </ListItem>
+
+              <ListItem button component={Link} to="/course_week_create">
+              <ListItemIcon>
+                <EventNoteIcon />
+              </ListItemIcon>
+              <ListItemText primary="Create Course Week" />
+            </ListItem>
+            <ListItem button component={Link} to="/course_week_view">
+              <ListItemIcon>
+                <ViewListIcon />
+              </ListItemIcon>
+              <ListItemText primary="View Course Weeks" />
+            </ListItem>
+
              
             </>
           )}
@@ -169,11 +181,11 @@ export default function Assignmentreadpage() {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
-         
         }}
       >
         <Toolbar />
-        <  ReadAssignments />
+        <CourseWeekUpdate />
+     
       </Box>
     </Box>
   );

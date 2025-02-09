@@ -1,175 +1,234 @@
-import React, { useState } from 'react';
-import { TextField, Checkbox, FormControlLabel, Button, Box, Grid, Typography, Container, InputLabel, Select, MenuItem, FormControl, Divider } from '@mui/material';
-import { blue } from '@mui/material/colors';
+import React, { useState, useEffect } from 'react';
+import {
+    TextField,
+    Button,
+    Typography,
+    Container,
+    Box,
+    CircularProgress,
+    ThemeProvider,
+    Skeleton,
+    Switch,
+    FormControlLabel,
+} from '@mui/material';
+import { useParams } from 'react-router-dom';
+import theme from '../../Theme';
+import api from '../../../api';
 
-const CreateAssignmentForm = () => {
-  const [formData, setFormData] = useState({
+
+const AssignmentModel = {
     course: '',
     title: '',
     marks: '',
     description: '',
-    dueDate: '',
-    allowedFileTypes: '',
+    due_date: '',
+    allowed_file_types: '',
     attempts: '',
-    maxFileSize: 5, 
-    acceptWithinDueDate: false,
-  });
+    max_file_size: 5 * (1024 * 1024), 
+    accept_within_due_date: false,
+};
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    // Handle form submission here (e.g., send data to API)
-  };
-
-  return (
-    <Container maxWidth="sm" sx={{ marginTop: 5, backgroundColor: '#fff', borderRadius: 2, padding: 3, boxShadow: 4 }}>
-      <Typography variant="h4" color={blue[900]} gutterBottom textAlign="center">
-        Create New Assignment
-      </Typography>
-      <Typography variant="body1" color="textSecondary" gutterBottom textAlign="center">
-        Please fill in the details below to create a new assignment for your course.
-      </Typography>
-      <Divider sx={{ marginBottom: 3 }} />
-
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          {/* Course Field */}
-          <Grid item xs={12}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>Course</InputLabel>
-              <Select
-                label="Course"
-                name="course"
-                value={formData.course}
-                onChange={handleChange}
-                fullWidth
-              >
-              
-              </Select>
-            </FormControl>
-          </Grid>
-
-      
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Assignment Title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              variant="outlined"
-              required
-            />
-          </Grid>
-
-      
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Marks"
-              name="marks"
-              type="number"
-              value={formData.marks}
-              onChange={handleChange}
-              variant="outlined"
-              required
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              variant="outlined"
-              multiline
-              rows={4}
-              required
-            />
-          </Grid>
+function CreateAssignmentForm() {
+    const { id } = useParams();
+    const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [coursesLoading, setCoursesLoading] = useState(true); 
+    const [formData, setFormData] = useState({ ...AssignmentModel, course: id || '' });
+    const [success, setSuccess] = useState('');
 
   
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Due Date"
-              name="dueDate"
-              type="datetime-local"
-              value={formData.dueDate}
-              onChange={handleChange}
-              variant="outlined"
-              required
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await api.get('/api/courses/course/');
+                setCourses(response.data);
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            } finally {
+                setCoursesLoading(false);
+            }
+        };
+        fetchCourses();
+    }, []);
 
-       
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Allowed File Types (comma separated)"
-              name="allowedFileTypes"
-              value={formData.allowedFileTypes}
-              onChange={handleChange}
-              variant="outlined"
-            />
-          </Grid>
+  
+    useEffect(() => {
+        setFormData((prev) => ({ ...prev, course: id }));
+    }, [id]);
 
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Attempts"
-              name="attempts"
-              type="number"
-              value={formData.attempts}
-              onChange={handleChange}
-              variant="outlined"
-              required
-            />
-          </Grid>
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
 
-     
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Max File Size (MB)"
-              name="maxFileSize"
-              type="number"
-              value={formData.maxFileSize}
-              onChange={handleChange}
-              variant="outlined"
-            />
-          </Grid>
+        if (success) setSuccess('');
+    };
 
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={<Checkbox checked={formData.acceptWithinDueDate} onChange={handleChange} name="acceptWithinDueDate" />}
-              label="Accept submissions within the due date?"
-            />
-          </Grid>
+    const handleSwitchChange = (e) => {
+        const { name, checked } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: checked }));
+    };
 
-         
-          <Grid item xs={12}>
-            <Button variant="contained" color="primary" type="submit" fullWidth sx={{ padding: 1.5 }}>
-              Create Assignment
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-    </Container>
-  );
-};
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setSuccess('');
+
+        try {
+            await api.post('/api/courses/assignment/', formData);
+            setSuccess('Assignment created successfully!');
+            setFormData({ ...AssignmentModel, course: id || '' });
+        } catch (err) {
+            console.error('Error creating assignment:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Container maxWidth="sm" sx={{ mt: 5 }}>
+                <Box
+                    sx={{
+                        p: 3,
+                        boxShadow: 3,
+                        borderRadius: 2,
+                        backgroundColor: 'background.paper',
+                    }}
+                >
+                    <Typography variant="h4" gutterBottom>
+                        Create Assignment
+                    </Typography>
+
+                    {success && (
+                        <Typography color="primary" gutterBottom>
+                            {success}
+                        </Typography>
+                    )}
+
+                    {coursesLoading ? (
+                        <>
+                            <Skeleton variant="text" width="100%" height={40} />
+                            <Skeleton variant="text" width="60%" height={40} sx={{ my: 2 }} />
+                            <Skeleton variant="rectangular" width="100%" height={100} sx={{ mb: 3 }} />
+                        </>
+                    ) : (
+                        <form onSubmit={handleSubmit}>
+                            <TextField
+                                label="Title"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                required
+                            />
+
+                            <TextField
+                                label="Marks"
+                                name="marks"
+                                type="number"
+                                value={formData.marks}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                            />
+
+                            <TextField
+                                label="Description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                fullWidth
+                                multiline
+                                rows={4}
+                                margin="normal"
+                            />
+
+                            <TextField
+                                label="Due Date"
+                                name="due_date"
+                                type="datetime-local"
+                                value={formData.due_date}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                required
+                            />
+
+                            <TextField
+                                label="Allowed File Types"
+                                name="allowed_file_types"
+                                value={formData.allowed_file_types}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                placeholder="e.g., zip,py"
+                            />
+
+                            <TextField
+                                label="Attempts"
+                                name="attempts"
+                                type="number"
+                                value={formData.attempts}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                            />
+
+                            <TextField
+                                label="Max File Size (MB)"
+                                name="max_file_size"
+                                type="number"
+                                value={formData.max_file_size / (1024 * 1024)}
+                                onChange={(e) =>
+                                    handleInputChange({
+                                        target: {
+                                            name: 'max_file_size',
+                                            value: e.target.value * (1024 * 1024),
+                                        },
+                                    })
+                                }
+                                fullWidth
+                                margin="normal"
+                            />
+
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        name="accept_within_due_date"
+                                        checked={formData.accept_within_due_date}
+                                        onChange={handleSwitchChange}
+                                    />
+                                }
+                                label="Accept Submissions Within Due Date"
+                                sx={{ mt: 2 }}
+                            />
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                fullWidth
+                                sx={{ mt: 3 }}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        Submitting
+                                        <CircularProgress size={20} sx={{ ml: 2 }} />
+                                    </>
+                                ) : (
+                                    'Create Assignment'
+                                )}
+                            </Button>
+                        </form>
+                    )}
+                </Box>
+            </Container>
+        </ThemeProvider>
+    );
+}
 
 export default CreateAssignmentForm;

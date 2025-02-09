@@ -21,8 +21,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import ReadSubmissionsStatus from "../../../components/teacher/assignment/assignment_submission_status"; // Correct spelling if necessary
-
+import AssignmentStatusSubmissions from "../../../components/teacher/assignment/submission";
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -177,7 +176,7 @@ export default function AssignmentSubmissionStatusPage() {
         }}
       >
         <Toolbar />
-        <ReadSubmissionsStatus />
+        <AssignmentStatusSubmissions />
       </Box>
     </Box>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
     Typography,
     Container,
@@ -20,32 +20,29 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Grid,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import api from '../../../api';
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     marginTop: theme.spacing(2),
+    overflowX: 'auto', // Ensures table can scroll on small screens
 }));
 
-const AssignmentReadPage = () => {
-    const { id } = useParams(); 
+const AssignmentAllRead = () => {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('id');
     const [selectedAssignments, setSelectedAssignments] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchAssignments = async () => {
             try {
-                const response = await api.get(`/api/courses/assignment/`, {
-                    params: {
-                        course: id,
-                    },
-                });
+                const response = await api.get('/api/courses/assignment/');
                 setAssignments(response.data);
             } catch (err) {
                 console.error('Error fetching assignments:', err);
@@ -53,12 +50,12 @@ const AssignmentReadPage = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchAssignments();
-    }, [id]); 
+    }, []);
 
     const handleCardClick = (assignmentId) => {
-        navigate(`/courses/assignments/${assignmentId}/details`); 
+        navigate(`/courses/assignments/${assignmentId}/details`);
     };
 
     const handleRequestSort = (property) => {
@@ -102,25 +99,17 @@ const AssignmentReadPage = () => {
 
     const confirmDelete = async () => {
         try {
-            
             await Promise.all(selectedAssignments.map((assignmentId) => 
-                api.delete(`/api/courses/assignment/${assignmentId}/`, {
-                    params: {
-                        course: id, 
-                    },
-                })
+                api.delete(`/api/courses/assignment/${assignmentId}/`)
             ));
-            
-        
             setAssignments(assignments.filter((assignment) => !selectedAssignments.includes(assignment.id)));
-            setSelectedAssignments([]); 
+            setSelectedAssignments([]);
         } catch (err) {
             console.error('Error deleting assignments:', err);
         } finally {
-            setOpenDialog(false); 
+            setOpenDialog(false);
         }
     };
-    
 
     const sortedAssignments = [...assignments].sort((a, b) => {
         const isAsc = order === 'asc';
@@ -135,7 +124,7 @@ const AssignmentReadPage = () => {
     return (
         <Container maxWidth="lg" sx={{ mt: 5 }}>
             <Typography variant="h4" gutterBottom textAlign="center" sx={{ fontWeight: '600', color: '#333', marginBottom: '2rem' }}>
-                Assignments for Course ID: {id}
+                All Assignments
             </Typography>
 
             {loading ? (
@@ -145,7 +134,7 @@ const AssignmentReadPage = () => {
                 </Box>
             ) : !Array.isArray(assignments) || assignments.length === 0 ? (
                 <Typography variant="body1" textAlign="center" color="textSecondary">
-                    No assignments available for this course.
+                    No assignments available.
                 </Typography>
             ) : (
                 <>
@@ -199,10 +188,7 @@ const AssignmentReadPage = () => {
                                         <TableCell padding="checkbox">
                                             <Checkbox
                                                 checked={selectedAssignments.indexOf(assignment.id) !== -1}
-                                                onChange={(event) => {
-                                                    event.stopPropagation(); 
-                                                    handleSelectOne(assignment.id);
-                                                }}
+                                                onChange={() => handleSelectOne(assignment.id)}
                                             />
                                         </TableCell>
                                         <TableCell onClick={() => handleCardClick(assignment.id)} style={{ cursor: 'pointer' }}>
@@ -244,4 +230,4 @@ const AssignmentReadPage = () => {
     );
 };
 
-export default AssignmentReadPage;
+export default AssignmentAllRead;

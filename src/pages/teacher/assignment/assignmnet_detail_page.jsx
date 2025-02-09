@@ -24,7 +24,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-
+import AssignmentDetailPage from "../../../components/teacher/assignment/detail_assignmet";
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -34,7 +34,7 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
-  // Removed backgroundColor here to make it transparent
+ 
 });
 
 const closedMixin = (theme) => ({
@@ -89,7 +89,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
   })
 );
 
-export default function Assignmentreadpage() {
+export default function Assignmentdetailpage() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [assignmentOpen, setAssignmentOpen] = useState(false);  
@@ -173,7 +173,7 @@ export default function Assignmentreadpage() {
         }}
       >
         <Toolbar />
-        <  ReadAssignments />
+        <  AssignmentDetailPage />
       </Box>
     </Box>
   );
