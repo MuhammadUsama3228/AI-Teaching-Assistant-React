@@ -36,6 +36,9 @@ import AssignmentSubmissionStatusPage from './pages/teacher/assignment/assignmen
 import WeekAnnouncementForm from './components/teacher/courses/week_announcement/week_announcement_create';
 import TimeSlotForm from './components/teacher/courses/timeslot/timeslot_create';
 import AssignmentAllread from './pages/teacher/assignment/assignment_read_all_page';
+
+
+import ButtonBar from './components/student/studentnav';
 function RegisterAndLogout() {
   localStorage.clear();
   return <Register />;
@@ -86,6 +89,11 @@ function App() {
         {/* Submission */}
        
         <Route path='*' element={<PageNotFound />} />
+
+        Studentview
+        {/* {Student page links} */}
+        <Route path='/studentpanal' element={<ButtonBar/>} />
+
       </Routes>
     </BrowserRouter>
   );
