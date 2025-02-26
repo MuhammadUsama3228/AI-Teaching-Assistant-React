@@ -3,7 +3,9 @@ import { createTheme } from '@mui/material';
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#338f8f',  // Custom primary color (green)
+            main: "rgb(10, 72, 109)",  // Sea Green
+            dark: "#1a237e",
+           
         },
         disabled:{
             main: '#297373',

@@ -42,7 +42,7 @@ const TeacherProfileForm = () => {
     };
 
     try {
-      const response = await axios.post('api/teacher_profiles/', profileData);
+      const response = await axios.post('api/manage_profile/', profileData);
       console.log('Profile created:', response.data);
       // Handle success (redirect or show message)
     } catch (error) {

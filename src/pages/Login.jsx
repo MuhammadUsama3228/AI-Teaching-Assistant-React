@@ -158,7 +158,7 @@ function Login() {
                         display: { xs: "none", md: "flex" }, 
                         alignItems: "center", 
                         justifyContent: "center", 
-                        background: "rgb(53, 80, 87)"
+                        background:"rgb(6, 52, 79)",
 
                     }}
 

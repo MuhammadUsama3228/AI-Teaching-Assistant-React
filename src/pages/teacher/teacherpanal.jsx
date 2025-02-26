@@ -8,6 +8,7 @@ function TeacherPanel(){
             
              <TeacherPortalFooter />
         </div>
+        
     );
 }
 export default TeacherPanel;

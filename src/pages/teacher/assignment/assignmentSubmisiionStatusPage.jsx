@@ -69,7 +69,7 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background: theme.palette.primary.dark,
+  background:"rgb(10, 72, 109)",
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
@@ -176,7 +176,8 @@ export default function AssignmentSubmissionStatusPage() {
         }}
       >
         <Toolbar />
-        <AssignmentStatusSubmissions />
+        <AssignmentStatusSubmissions
+         />
       </Box>
     </Box>
   );

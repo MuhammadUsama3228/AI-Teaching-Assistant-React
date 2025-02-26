@@ -100,7 +100,7 @@ const AssignmentAllRead = () => {
     const confirmDelete = async () => {
         try {
             await Promise.all(selectedAssignments.map((assignmentId) => 
-                api.delete(`/api/courses/assignment/${assignmentId}/`)
+                api.delete(`${assignmentId}/`)
             ));
             setAssignments(assignments.filter((assignment) => !selectedAssignments.includes(assignment.id)));
             setSelectedAssignments([]);

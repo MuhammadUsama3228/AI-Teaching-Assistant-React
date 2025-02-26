@@ -49,7 +49,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/login' element={<Login />} />CourseUpdatePage
+        <Route path='/login' element={<Login />} />
         <Route path='/register' element={<RegisterAndLogout />} />
         <Route path='/verifyemail' element={<VerifyEmail />} />
         <Route path='/logout' element={<Logout />} />

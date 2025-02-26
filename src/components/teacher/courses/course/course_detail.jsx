@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ExpandMore, MoreVert, Menu as MenuIcon } from '@mui/icons-material';
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import api from '../../../../api';
 import CourseUpdate from './course_update';
@@ -53,6 +54,7 @@ const CourseDetail = () => {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [iconMenuAnchorEl, setIconMenuAnchorEl] = useState(null);
+    
     const [updatedCourse, setUpdatedCourse] = useState({
         course_title: '',
         course_code: '',
@@ -88,6 +90,8 @@ const CourseDetail = () => {
     const handleUpdateClose = () => {
         setOpenUpdateDialog(false);
     };
+      const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     const handleDelete = async () => {
         if (window.confirm('Are you sure you want to delete this course?')) {
@@ -192,6 +196,8 @@ const CourseDetail = () => {
                         <MoreVert />
                     </IconButton>
                 </Grid>
+
+               
 
                 <Grid item xs={12} textAlign="left">
                 <IconButton onClick={handleIconMenuOpen}>
