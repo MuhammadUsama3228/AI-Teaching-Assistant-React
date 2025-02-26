@@ -6,7 +6,6 @@ function TeacherPanel(){
         <div>
              <TeacherPanelDrawer />
             
-             <TeacherPortalFooter />
         </div>
         
     );
