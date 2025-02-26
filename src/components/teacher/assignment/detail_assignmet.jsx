@@ -21,10 +21,11 @@ import {
     MenuItem,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ExpandMore, MoreVert } from '@mui/icons-material';
+import { ExpandMore, MoreVert, Gavel } from '@mui/icons-material';
 import api from '../../../api';
 import UpdateAssignmentForm from './update_assignment'; // Ensure correct import path
-
+import CreatePenaltyForm from './simple_panality';
+import CreateVariationPenaltyForm from './variation_panality'
 const StyledContainer = styled(Container)(({ theme }) => ({
     marginTop: theme.spacing(10),
     marginBottom: theme.spacing(6),
@@ -48,7 +49,10 @@ const AssignmentDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [anchorEl, setAnchorEl] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
+    const [penaltyAnchorEl, setPenaltyAnchorEl] = useState(null);
     const [openUpdateDialog, setOpenUpdateDialog] = useState(false); 
+    const [openPenaltyDialog, setOpenPenaltyDialog] = useState(false);
+    const [penaltyType, setPenaltyType] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -103,6 +107,20 @@ const AssignmentDetailPage = () => {
         setOpenUpdateDialog(false); // Close the update dialog
     };
 
+    const handlePenaltyMenuOpen = (event) => {
+        setPenaltyAnchorEl(event.currentTarget);
+    };
+
+    const handlePenaltyMenuClose = () => {
+        setPenaltyAnchorEl(null);
+    };
+
+    const handlePenaltyClick = (type) => {
+        setPenaltyType(type);
+        setPenaltyAnchorEl(null);
+        setOpenPenaltyDialog(true);
+    };
+
     if (loading) {
         return (
             <StyledContainer maxWidth="md">
@@ -145,6 +163,13 @@ const AssignmentDetailPage = () => {
                 <Grid item xs={12} textAlign="right">
                     <IconButton onClick={handleMenuOpen}>
                         <MoreVert />
+                    </IconButton>
+                </Grid>
+
+                <Grid item xs={12} textAlign="right">
+                    
+                    <IconButton onClick={handlePenaltyMenuOpen} sx={{ ml: 1 }}>
+                        <Gavel />
                     </IconButton>
                 </Grid>
             </Grid>
@@ -228,6 +253,29 @@ const AssignmentDetailPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Menu anchorEl={penaltyAnchorEl} open={Boolean(penaltyAnchorEl)} onClose={handlePenaltyMenuClose}>
+                <MenuItem onClick={() => handlePenaltyClick('simple')}>Apply Simple Penalty</MenuItem>
+                <MenuItem onClick={() => handlePenaltyClick('variation')}>Apply Variation Penalty</MenuItem>
+            </Menu>
+
+            <Dialog open={openPenaltyDialog} onClose={() => setOpenPenaltyDialog(false)} fullWidth maxWidth="sm">
+                <DialogTitle>{penaltyType === 'simple' ? 'Apply Simple Penalty' : 'Apply Variation Penalty'}</DialogTitle>
+                <DialogContent>
+                    {penaltyType === 'simple' ? (
+                        <CreatePenaltyForm assignmentId={assignmentId} />
+                    ) : (
+                        <CreateVariationPenaltyForm assignmentId={assignmentId} />
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenPenaltyDialog(false)} color="secondary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            
         </StyledContainer>
     );
 };

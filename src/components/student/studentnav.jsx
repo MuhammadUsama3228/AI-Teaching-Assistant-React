@@ -7,7 +7,7 @@ const Navbar = () => {
     <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h6" sx={{ color: "#333" }}>
-          My App
+          AI-TA
         </Typography>
         <Box>
           <Button startIcon={<AccountCircle />} sx={{ color: "#333" }}>Profile</Button>
