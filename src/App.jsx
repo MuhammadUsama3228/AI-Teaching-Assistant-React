@@ -8,7 +8,7 @@ import Logout from './pages/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
 import TeacherPanel from './pages/teacher/teacherpanal';
 import TeacherProfileForm from './components/teacher/profile/profile_create';
-import VerifyEmail from './pages/emailverifiactionsent';
+
 import Choicerole from './pages/rolechoice';
 import ForgotPassword from './pages/Forgetpassword';
 import ResetPassword from './pages/forgetpasswordconfirm';
@@ -32,6 +32,7 @@ import WeekAnnCreatePage from './pages/teacher/weekannouncement/week_announcemen
 import AssignmentDetailPage from './components/teacher/assignment/detail_assignmet';
 import WeekAnnUpdatePage from './pages/teacher/weekannouncement/week_announcement_update_page';
 import AssignmentSubmissionStatusPage from './pages/teacher/assignment/assignmentSubmisiionStatusPage';
+import VerifyEmail from './pages/emailverifiactionsent';
 
 import WeekAnnouncementForm from './components/teacher/courses/week_announcement/week_announcement_create';
 import TimeSlotForm from './components/teacher/courses/timeslot/timeslot_create';
@@ -55,7 +56,7 @@ function App() {
         <Route path='/logout' element={<Logout />} />
         <Route path='/choice' element={<Choicerole />} />
         <Route path='/forgetpassword' element={<ForgotPassword />} />
-        <Route path='/confirmresetpasword' element={<ResetPassword />} />
+        <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
         <Route path='/teacherpanel' element={<TeacherPanel />} />
         <Route path='/t' element={<TeacherProfileForm />} />
         {/* Courses */}
