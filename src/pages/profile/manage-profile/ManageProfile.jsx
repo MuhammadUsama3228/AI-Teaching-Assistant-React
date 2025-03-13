@@ -4,19 +4,12 @@ import {
     Container,
     Box,
     Typography,
-    Avatar,
-    Grid,
     Button,
-    TextField,
     Paper,
     Divider,
     IconButton,
     Snackbar,
     Alert,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     ThemeProvider
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../constraints';
+import { REFRESH_TOKEN } from '../constraints';
 import api from '../api';
 import { logoutSuccess } from "./auth.js";
 import { useDispatch } from 'react-redux';
