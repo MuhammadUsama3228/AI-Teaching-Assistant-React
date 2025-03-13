@@ -10,11 +10,8 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions,
-    IconButton,
-    Tooltip
+    DialogActions
 } from '@mui/material';
-import { Edit } from '@mui/icons-material'; // ✅ Import update/edit icon
 import theme from '../../Theme';
 import api from '../../../api';
 import VariationPenaltyRangeForm from './VariationPenaltyRangeForm'; // Import the range form component
@@ -28,7 +25,6 @@ function CreateVariationPenaltyForm({ assignmentId }) {
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [openDialog, setOpenDialog] = useState(false); // Modal state
-    const [isUpdating, setIsUpdating] = useState(false); // ✅ Track update state
 
     useEffect(() => {
         const fetchData = async () => {
@@ -84,19 +80,15 @@ function CreateVariationPenaltyForm({ assignmentId }) {
         }
 
         try {
-            if (existingPenalty) {
-                // ✅ Update existing penalty
-                await api.put(`/api/courses/variation_penalty/${existingPenalty.id}/`, formattedData);
-                setSuccess('Variation penalty updated successfully!');
-            } else {
-                // ✅ Create new penalty
+            if (!existingPenalty) {
+                // ✅ Create new penalty (No update option)
                 const response = await api.post('/api/courses/variation_penalty/', formattedData);
                 setSuccess('Variation penalty applied successfully!');
                 setExistingPenalty(response.data);
+                setOpenDialog(true); // ✅ Open dialog to set penalty ranges
+            } else {
+                setError('Variation penalty is already set and cannot be updated.');
             }
-
-            setFormData({ assignment: assignmentId, late_submission: '' });
-            setOpenDialog(true); // ✅ Open dialog to set penalty ranges
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to apply variation penalty.');
         } finally {
@@ -110,13 +102,6 @@ function CreateVariationPenaltyForm({ assignmentId }) {
                 <Box sx={{ p: 3, boxShadow: 3, borderRadius: 2, backgroundColor: 'background.paper' }}>
                     <Typography variant="h5" gutterBottom>
                         Apply Variation Penalty
-                        {existingPenalty && (
-                            <Tooltip title="Update Variation Penalty">
-                                <IconButton onClick={() => setIsUpdating(true)} sx={{ ml: 1 }}>
-                                    <Edit color="primary" /> {/* ✅ Edit icon */}
-                                </IconButton>
-                            </Tooltip>
-                        )}
                     </Typography>
 
                     {success && <Typography color="primary">{success}</Typography>}
@@ -142,7 +127,7 @@ function CreateVariationPenaltyForm({ assignmentId }) {
                             margin="normal"
                             required
                             inputProps={{ min: 1 }}
-                            disabled={!isUpdating && existingPenalty !== null} // ✅ Enable only for update
+                            disabled={existingPenalty !== null} // ✅ Disable if penalty is already set
                         />
 
                         <Button 
@@ -150,9 +135,9 @@ function CreateVariationPenaltyForm({ assignmentId }) {
                             variant="contained" 
                             fullWidth 
                             sx={{ mt: 3 }} 
-                            disabled={loading || (!isUpdating && existingPenalty !== null)} // ✅ Prevent unnecessary submissions
+                            disabled={loading || existingPenalty !== null} // ✅ Prevent resubmission
                         >
-                            {loading ? <>Processing <CircularProgress size={20} sx={{ ml: 2 }} /></> : isUpdating ? 'Update Variation Penalty' : 'Apply Variation Penalty'}
+                            {loading ? <>Processing <CircularProgress size={20} sx={{ ml: 2 }} /></> : 'Apply Variation Penalty'}
                         </Button>
                     </form>
                 </Box>
