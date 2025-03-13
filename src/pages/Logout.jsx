@@ -1,18 +1,27 @@
-import { Navigate } from 'react-router-dom'; // Ensure Navigate is imported from react-router-dom
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../constraints'; // Make sure to import ACCESS_TOKEN if needed
-import api from '../api'; // Import the api module for making requests
+import { Navigate } from 'react-router-dom';
+import { REFRESH_TOKEN, ACCESS_TOKEN } from '../constraints';
+import api from '../api';
+import { logoutSuccess } from "./auth.js";
+import { useDispatch } from 'react-redux';
+import { persistor } from '../app/store.js';
 
 function Logout() {
-
+    const dispatch = useDispatch();
     let refresh = localStorage.getItem(REFRESH_TOKEN); 
 
     const handleLogout = async () => {
         try {
             const response = await api.post('auth/logout/', { refresh });
-
+            dispatch(logoutSuccess(response));
+            
+            // Clear the persisted Redux state
+            await persistor.purge();
+            
+            // Clear local storage
+            localStorage.clear();
         } catch (error) {
             alert(`Error during logout: ${error.message}`);
-        } finally {
+            await persistor.purge();
             localStorage.clear();
         }
     };
