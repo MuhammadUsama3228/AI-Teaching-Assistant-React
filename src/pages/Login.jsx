@@ -190,7 +190,7 @@ function Login() {
 
                                 {/* Forgot Password and Signup Links */}
                                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                                    <Link href="/forgetpassword" variant="body2">
+                                    <Link href="/forgot-password" variant="body2">
                                         Forgot Password?
                                     </Link>
                                     <Link href="/register" variant="body2">
