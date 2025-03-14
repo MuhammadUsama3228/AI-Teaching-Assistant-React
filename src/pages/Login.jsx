@@ -1,77 +1,66 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Typography, Container, Box, ThemeProvider, CircularProgress } from '@mui/material';
-import theme from '../components/Theme'; // Custom theme
+import { TextField, Button, Typography, Container, Box, ThemeProvider, CircularProgress, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import theme from '../components/Theme';
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constraints.js";
 import { loginSuccess } from './auth';
 import { useDispatch } from 'react-redux';
-import {setUser} from "./profile/manage-profile/manage-profile.js";
+import { setUser } from "./profile/manage-profile/manage-profile.js";
 import { Grid, Link } from '@mui/material';
 import { motion } from 'framer-motion';
 
 function Login() {
-
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.title = "Login | AI Teaching Assistant";
     }, []);
 
+    const [showPassword, setShowPassword] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const navigate = useNavigate();
+    const handleToggleVisibility = () => setShowPassword((prev) => !prev);
 
     const getProfile = async () => {
         try {
-            const res = await api.get('/api/manage_profile/', {});
+            const res = await api.get('/api/manage_profile/');
 
             if (res.status === 200) {
                 dispatch(setUser(res.data));
+                navigate('/teacherpanel'); // Ensure navigation happens after fetching profile
             } else {
                 console.error('Unexpected response status:', res.status);
             }
-
         } catch (error) {
             console.error('Error fetching profile:', error);
-        } finally {
-            console.log('Profile fetch completed.');
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError(""); // Reset error state
+        setError("");
 
         try {
-            const response = await api.post('auth/login/', {
-                username,
-                password,
-            });
+            const response = await api.post('auth/login/', { username, password });
 
-            dispatch(loginSuccess(response.data));
-
-            console.log(response);
-
-            
-            if (response && response.data && response.data.access && response.data.refresh && response.status === 200) {
+            if (response?.data?.access && response?.data?.refresh) {
                 localStorage.setItem(ACCESS_TOKEN, response.data.access);
                 localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+                dispatch(loginSuccess(response.data));
 
-                getProfile();
-
-                navigate('/teacherpanel');
+                getProfile(); // Fetch profile and navigate inside it
             } else {
                 setError("Invalid credentials. Please try again.");
             }
         } catch (error) {
-
-            console.error('Login error:', error);
-            setError('An error occurred while logging in. Please try again.');
+            setError(error.response?.data?.detail || "An error occurred while logging in. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -100,7 +89,7 @@ function Login() {
                             }}
                         >
                             <img
-                                src="/vite.svg" // Adjust the logo path as needed
+                                src="/vite.svg"
                                 alt="Logo"
                                 style={{ width: "50px", marginBottom: "30px" }}
                             />
@@ -128,12 +117,21 @@ function Login() {
 
                                 <TextField
                                     label="Password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"} // Dynamically change type
                                     variant="outlined"
                                     fullWidth
                                     margin="normal"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    InputProps={{
+                                        endAdornment: (
+                                          <InputAdornment position="end">
+                                            <IconButton onClick={handleToggleVisibility} edge="end">
+                                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                          </InputAdornment>
+                                        ),
+                                    }}
                                     required
                                 />
 
@@ -162,7 +160,7 @@ function Login() {
 
                                 {/* Forgot Password and Signup Links */}
                                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                                    <Link href="/forgot-password" variant="body2">
+                                    <Link href="/forget-password" variant="body2">
                                         Forgot Password?
                                     </Link>
                                     <Link href="/register" variant="body2">

@@ -87,8 +87,9 @@ function App() {
                 <Route path='/verifyemail' element={<VerifyEmail />} />
                 <Route path='/logout' element={<Logout />} />
                 <Route path='/choice' element={<Choicerole />} />
-                <Route path='/forgetpassword' element={<ForgotPassword />} />
-                <Route path='/confirmresetpasword' element={<ResetPassword />} />
+                <Route path='/forget-password' element={<ForgotPassword />} />
+                <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+
                 <Route path='/teacherpanel' element={<TeacherPanel />} />
                 <Route path='/create_profile/:id' element={<TeacherProfileForm />} />
                 <Route path="/profile/:slug" element={<Profile_Page />} />
