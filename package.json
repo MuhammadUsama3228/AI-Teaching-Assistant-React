@@ -22,27 +22,19 @@
     "@react-spring/web": "^9.7.5",
     "@reduxjs/toolkit": "^2.6.0",
     "axios": "^1.7.9",
-<<<<<<< HEAD
     "date-fns": "^3.6.0",
     "framer-motion": "^12.4.7",
-=======
     "cookies": "^0.9.1",
     "js-cookie": "^3.0.5",
->>>>>>> moeed
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-avatar": "^5.0.3",
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-phone-input-2": "^2.15.1",
-<<<<<<< HEAD
-    "react-router-dom": "^7.1.0",
-    "three": "^0.173.0"
-=======
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.0",
     "redux-persist": "^6.0.0"
->>>>>>> moeed
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
