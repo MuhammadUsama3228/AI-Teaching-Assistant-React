@@ -16,6 +16,10 @@ const theme = createTheme({
         background: {
             default: '#f4f4f4', // Custom background color
         },
+        text : {
+            default: '#000000',
+        }
+
     },
     components: {
         MuiTextField: {

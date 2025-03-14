@@ -1,17 +1,34 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { 
     TextField, Button, Typography, Container, Box, 
     ThemeProvider, CircularProgress, Grid, Link 
 } from "@mui/material";
 import theme from "../components/Theme"; // Custom theme
+=======
+import { useState, useEffect } from 'react';
+import { TextField, Button, Typography, Container, Box, ThemeProvider, CircularProgress } from '@mui/material';
+import theme from '../components/Theme'; // Custom theme
+>>>>>>> moeed
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constraints.js";
+<<<<<<< HEAD
 import { motion } from "framer-motion";
 
 
 
 function Login() {
+=======
+import { loginSuccess } from './auth';
+import { useDispatch } from 'react-redux';
+import {setUser} from "./profile/manage-profile/manage-profile.js";
+
+function Login() {
+
+    const dispatch = useDispatch();
+
+>>>>>>> moeed
     useEffect(() => {
         document.title = "Login | AI Teaching Assistant";
     }, []);
@@ -23,23 +40,66 @@ function Login() {
 
     const navigate = useNavigate();
 
+    const getProfile = async () => {
+        try {
+            const res = await api.get('/api/manage_profile/', {});
+
+            if (res.status === 200) {
+                dispatch(setUser(res.data));
+            } else {
+                console.error('Unexpected response status:', res.status);
+            }
+
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+        } finally {
+            console.log('Profile fetch completed.');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(""); // Reset error state
 
         try {
+<<<<<<< HEAD
             const response = await api.post("auth/login/", { username, password });
 
             if (response?.data?.access && response?.data?.refresh) {
                 localStorage.setItem(ACCESS_TOKEN, response.data.access);
                 localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
                 navigate("/teacherpanel");
+=======
+            const response = await api.post('auth/login/', {
+                username,
+                password,
+            });
+
+            dispatch(loginSuccess(response.data));
+
+            console.log(response);
+
+            
+            if (response && response.data && response.data.access && response.data.refresh && response.status === 200) {
+                localStorage.setItem(ACCESS_TOKEN, response.data.access);
+                localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+
+                getProfile();
+
+                navigate('/teacherpanel');
+>>>>>>> moeed
             } else {
                 setError("Invalid credentials. Please try again.");
             }
         } catch (error) {
+<<<<<<< HEAD
             setError(error?.response?.data?.message || "Login failed. Please try again.");
+=======
+
+            console.error('Login error:', error);
+            setError('An error occurred while logging in. Please try again.');
+>>>>>>> moeed
         } finally {
             setLoading(false);
         }
