@@ -10,7 +10,7 @@ import {
     IconButton,
     Snackbar,
     Alert,
-    ThemeProvider
+    ThemeProvider, Grid, Avatar, TextField
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -18,7 +18,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import theme from '../../../components/Theme';
 import api from '../../../api';
-import {setUser} from './manage-profile.js';
+import {updateUser} from './manage-profile.js';
 
 import * as React from 'react';
 import Tabs from '@mui/material/Tabs';
@@ -35,6 +35,10 @@ const ManageProfile = () => {
     const dispatch = useDispatch();
     const userData = useSelector((state) => state.user);
     const user = userData?.user;
+
+    const [UpdateFirstName, setUpdateFirstName] = React.useState('');
+    const [UpdateLastName, setUpdateLastName] = React.useState('');
+    const [UpdateImage, setUpdate] = React.useState('');
 
     const [isEditing, setIsEditing] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
@@ -160,14 +164,15 @@ const ManageProfile = () => {
                 submitData.append('profile_picture', profileImage);
             }
 
-            const response = await api.put('/api/manage_profile/', submitData, {
+            const response = await api.patch('/api/manage_profile/',
+                submitData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
             if (response.status === 200) {
-                dispatch(setUser(response.data));
+                dispatch(updateUser(response.data));
                 setIsEditing(false);
                 showMessage('success', 'Profile updated successfully');
             }
@@ -183,6 +188,33 @@ const ManageProfile = () => {
     const handleCloseMessage = () => {
         setMessage({...message, open: false});
     };
+
+    const fetchProfileImage = async () => {
+        try {
+            if (!user?.profile_picture) return;
+
+            const imageUrl = user.profile_picture;
+
+            const response = await api.get(imageUrl, {
+                responseType: 'blob'
+            });
+
+            if (response.status === 200) {
+                const imageBlob = response.data;
+                const imageObjectURL = URL.createObjectURL(imageBlob);
+                setProfileImage(imageObjectURL);
+            }
+        } catch (error) {
+            console.error('Error fetching profile image:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            fetchProfileImage();
+            // last_loginTime();
+        }
+    }, [user]);
 
     if (!user) {
         return (
@@ -258,7 +290,8 @@ const ManageProfile = () => {
                         <Tabs
                             value={value}
                             onChange={handleTabChange}
-                            aria-label="tabs" centered
+                            aria-label="tabs"
+                            centered
                         >
                             <Tab
                                 value="one"
@@ -269,131 +302,162 @@ const ManageProfile = () => {
                             <Tab value="two" label={
                                 user.role === "admin"
                                     ? "Admin Details"
-                                    : user.role === "teacher" ? "Teacher Details" : "Student"
+                                    : user.role === "teacher" ? "Teacher Details" : "Student Details"
                             }/>
-                            {user.role != "admin" && (<Tab value="three" label="Experiences"/>)}
 
+                            {user.role !== "admin" && (
+                                <Tab value="three" label="Experiences"/>
+                            )}
                         </Tabs>
+
+                        <Box sx={{ padding: 2 }}>
+                            {value === 'one' && (
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} md={4}>
+                                        <Box display="flex" flexDirection="column" alignItems="center">
+                                            <Avatar
+                                                src={imagePreview || user.profile_picture || ''}
+                                                alt={formData.username}
+                                                sx={{
+                                                    width: { xs: 150, sm: 180, md: 200 },
+                                                    height: { xs: 150, sm: 180, md: 200 },
+                                                    mb: 2,
+                                                }}
+                                            />
+
+                                            {isEditing && (
+                                                <Button
+                                                    variant="outlined"
+                                                    component="label"
+                                                    startIcon={<PhotoCameraIcon />}
+                                                    sx={{ width: { xs: '100%', sm: 'auto' } }}
+                                                >
+                                                    Change Photo
+                                                    <input
+                                                        type="file"
+                                                        hidden
+                                                        accept="image/*"
+                                                        onChange={handleImageChange}
+                                                    />
+                                                </Button>
+                                            )}
+
+                                            <Typography
+                                                variant="h6"
+                                                textAlign="center"
+                                                mt={2}
+                                                sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                                            >
+                                                {formData.first_name || formData.username}
+                                                {formData.last_name && ` ${formData.last_name}`}
+                                            </Typography>
+
+                                            <Typography
+                                                variant="body2"
+                                                color="textSecondary"
+                                                textAlign="center"
+                                            >
+                                                {formData.role}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+
+                                    <Grid item xs={12} md={8}>
+                                        <form onSubmit={handleSubmit}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Username"
+                                                        name="username"
+                                                        value={formData.username}
+                                                        onChange={handleChange}
+                                                        disabled
+                                                        required
+                                                        size="small"
+                                                        margin="normal"
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Email"
+                                                        name="email"
+                                                        value={formData.email}
+                                                        onChange={handleChange}
+                                                        disabled
+                                                        required
+                                                        size="small"
+                                                        margin="normal"
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="First Name"
+                                                        name="first_name"
+                                                        value={formData.first_name}
+                                                        onChange={handleChange}
+                                                        disabled={!isEditing || loading}
+                                                        size="small"
+                                                        margin="normal"
+                                                    />
+                                                </Grid>
+
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Last Name"
+                                                        name="last_name"
+                                                        value={formData.last_name}
+                                                        onChange={handleChange}
+                                                        disabled={!isEditing || loading}
+                                                        size="small"
+                                                        margin="normal"
+                                                    />
+                                                </Grid>
+
+                                                {isEditing && (
+                                                    <Grid item xs={12}>
+                                                        <Button
+                                                            type="submit"
+                                                            variant="contained"
+                                                            color="primary"
+                                                            disabled={loading}
+                                                        >
+                                                            {loading ? 'Saving...' : 'Save Changes'}
+                                                        </Button>
+                                                    </Grid>
+                                                )}
+                                            </Grid>
+                                        </form>
+                                    </Grid>
+                                </Grid>
+                            )}
+
+                            {value === 'two' && (
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="h5" gutterBottom>
+                                        Content for Tab Two
+                                    </Typography>
+                                </Box>
+                            )}
+
+                            {value === 'three' && (
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="h5" gutterBottom>
+                                        Content for Tab Three
+                                    </Typography>
+
+                                </Box>
+                            )}
+                        </Box>
+
                     </Box>
-
-                    {/*<Grid container spacing={{xs: 2, md: 4}}>*/}
-                    {/*    /!* Profile Image Section *!/*/}
-                    {/*    <Grid item xs={12} md={4} sx={{mb: {xs: 3, md: 0}}}>*/}
-                    {/*        <Box display="flex" flexDirection="column" alignItems="center">*/}
-                    {/*            <Avatar*/}
-                    {/*                src={imagePreview || (user.profile_picture || '')}*/}
-                    {/*                alt={formData.username}*/}
-                    {/*                sx={{*/}
-                    {/*                    width: {xs: 150, sm: 180, md: 200},*/}
-                    {/*                    height: {xs: 150, sm: 180, md: 200},*/}
-                    {/*                    mb: 2*/}
-                    {/*                }}*/}
-                    {/*            />*/}
-
-                    {/*            {isEditing && (*/}
-                    {/*                <Button*/}
-                    {/*                    variant="outlined"*/}
-                    {/*                    component="label"*/}
-                    {/*                    startIcon={<PhotoCameraIcon/>}*/}
-                    {/*                    sx={{width: {xs: '100%', sm: 'auto'}}}*/}
-                    {/*                >*/}
-                    {/*                    Change Photo*/}
-                    {/*                    <input*/}
-                    {/*                        type="file"*/}
-                    {/*                        hidden*/}
-                    {/*                        accept="image/*"*/}
-                    {/*                        onChange={handleImageChange}*/}
-                    {/*                    />*/}
-                    {/*                </Button>*/}
-                    {/*            )}*/}
-
-                    {/*            <Typography*/}
-                    {/*                variant="h6"*/}
-                    {/*                textAlign="center"*/}
-                    {/*                mt={2}*/}
-                    {/*                sx={{fontSize: {xs: '1rem', sm: '1.25rem'}}}*/}
-                    {/*            >*/}
-                    {/*                {formData.first_name || formData.username}*/}
-                    {/*                {formData.last_name && ` ${formData.last_name}`}*/}
-                    {/*            </Typography>*/}
-
-                    {/*            <Typography*/}
-                    {/*                variant="body2"*/}
-                    {/*                color="textSecondary"*/}
-                    {/*                textAlign="center"*/}
-                    {/*            >*/}
-                    {/*                {formData.role}*/}
-                    {/*            </Typography>*/}
-                    {/*        </Box>*/}
-                    {/*    </Grid>*/}
-
-                    {/*    /!* Profile Details Section *!/*/}
-                    {/*    <Grid item xs={12} md={8}>*/}
-                    {/*        <form onSubmit={handleSubmit}>*/}
-                    {/*            <Grid container spacing={{xs: 1, sm: 2}}>*/}
-
-                    {/*                <Grid item xs={12} sm={6}>*/}
-                    {/*                    <TextField*/}
-                    {/*                        fullWidth*/}
-                    {/*                        label="Username"*/}
-                    {/*                        name="username"*/}
-                    {/*                        value={formData.username}*/}
-                    {/*                        onChange={handleChange}*/}
-                    {/*                        disabled={true}*/}
-                    {/*                        required*/}
-                    {/*                        size="small"*/}
-                    {/*                        margin="normal"*/}
-                    {/*                        sx={{mt: {xs: 1, sm: 2}}}*/}
-                    {/*                    />*/}
-                    {/*                </Grid>*/}
-
-                    {/*                <Grid item xs={12} sm={6}>*/}
-                    {/*                    <TextField*/}
-                    {/*                        fullWidth*/}
-                    {/*                        label="Email"*/}
-                    {/*                        name="email"*/}
-                    {/*                        value={formData.email}*/}
-                    {/*                        onChange={handleChange}*/}
-                    {/*                        disabled={true}*/}
-                    {/*                        required*/}
-                    {/*                        size="small"*/}
-                    {/*                        margin="normal"*/}
-                    {/*                        sx={{mt: {xs: 1, sm: 2}}}*/}
-                    {/*                    />*/}
-                    {/*                </Grid>*/}
-
-                    {/*                <Grid item xs={12} sm={6}>*/}
-                    {/*                    <TextField*/}
-                    {/*                        fullWidth*/}
-                    {/*                        label="First Name"*/}
-                    {/*                        name="first_name"*/}
-                    {/*                        value={formData.first_name}*/}
-                    {/*                        onChange={handleChange}*/}
-                    {/*                        disabled={!isEditing || loading}*/}
-                    {/*                        size="small"*/}
-                    {/*                        margin="normal"*/}
-                    {/*                    />*/}
-                    {/*                </Grid>*/}
-
-                    {/*                <Grid item xs={12} sm={6}>*/}
-                    {/*                    <TextField*/}
-                    {/*                        fullWidth*/}
-                    {/*                        label="Last Name"*/}
-                    {/*                        name="last_name"*/}
-                    {/*                        value={formData.last_name}*/}
-                    {/*                        onChange={handleChange}*/}
-                    {/*                        disabled={!isEditing || loading}*/}
-                    {/*                        size="small"*/}
-                    {/*                        margin="normal"*/}
-                    {/*                    />*/}
-                    {/*                </Grid>*/}
-                    {/*            </Grid>*/}
-                    {/*        </form>*/}
-                    {/*    </Grid>*/}
-                    {/*</Grid>*/}
                 </Paper>
 
-                {/* Messages */}
                 <Snackbar
                     open={message.open}
                     autoHideDuration={6000}
