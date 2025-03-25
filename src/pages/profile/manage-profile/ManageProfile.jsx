@@ -162,9 +162,7 @@ const ManageProfile = () => {
                     submitData.append(key, formData[key]);
                 }
             });
-            submitData.append('profile_picture', imagePreview);
-            
-            formData.append('profile_picture[profile_picture]', imageFile);
+
             for (let [key, value] of submitData.entries()) {
                 console.log(`${key}: ${value}`);
             }
