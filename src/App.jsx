@@ -87,14 +87,8 @@ function App() {
                 <Route path='/verifyemail' element={<VerifyEmail />} />
                 <Route path='/logout' element={<Logout />} />
                 <Route path='/choice' element={<Choicerole />} />
-<<<<<<< Updated upstream
-                <Route path='/forget-password' element={<ForgotPassword />} />
-                <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
-
-=======
                 <Route path='/forgot-password' element={<ForgotPassword />} />
                 <Route path='/confirmresetpasword' element={<ResetPassword />} />
->>>>>>> Stashed changes
                 <Route path='/teacherpanel' element={<TeacherPanel />} />
                 <Route path='/create_profile/:id' element={<TeacherProfileForm />} />
                 <Route path="/profile/:slug" element={<Profile_Page />} />
