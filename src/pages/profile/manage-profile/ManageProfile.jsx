@@ -18,7 +18,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import theme from '../../../components/Theme';
 import api from '../../../api';
-import {updateUser} from './manage-profile.js';
+import {setUser, updateUser} from './manage-profile.js';
 
 import * as React from 'react';
 import Tabs from '@mui/material/Tabs';
@@ -36,15 +36,16 @@ const ManageProfile = () => {
     const userData = useSelector((state) => state.user);
     const user = userData?.user;
 
-    const [UpdateFirstName, setUpdateFirstName] = React.useState('');
-    const [UpdateLastName, setUpdateLastName] = React.useState('');
-    const [UpdateImage, setUpdate] = React.useState('');
-
     const [isEditing, setIsEditing] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [message, setMessage] = useState({open: false, type: 'success', text: ''});
     const [loading, setLoading] = useState(false);
+    // const [username, setUsername] = React.useState('');
+    // const [email, setEmail] = React.useState('');
+    // const [firstName, setFirstName] = React.useState('');
+    // const [lastName, setLastName] = React.useState('');
+
 
     const [formData, setFormData] = useState({
         id: "",
@@ -154,15 +155,27 @@ const ManageProfile = () => {
         try {
             const submitData = new FormData();
 
+            console.log(submitData);
+
             Object.keys(formData).forEach(key => {
                 if (formData[key]) {
                     submitData.append(key, formData[key]);
                 }
             });
-
-            if (profileImage) {
-                submitData.append('profile_picture', profileImage);
+            submitData.append('profile_picture', imagePreview);
+            
+            formData.append('profile_picture[profile_picture]', imageFile);
+            for (let [key, value] of submitData.entries()) {
+                console.log(`${key}: ${value}`);
             }
+            if (user.profile_picture !== profileImage) {
+                console.log("Profile Picture (user):", user.profile_picture);
+                console.log("Profile Picture (new):", profileImage);
+            }
+            //
+            // if (profileImage) {
+            //     submitData.append('profile_picture', profileImage);
+            // }
 
             const response = await api.patch('/api/manage_profile/',
                 submitData, {
@@ -212,7 +225,6 @@ const ManageProfile = () => {
     useEffect(() => {
         if (user) {
             fetchProfileImage();
-            // last_loginTime();
         }
     }, [user]);
 
