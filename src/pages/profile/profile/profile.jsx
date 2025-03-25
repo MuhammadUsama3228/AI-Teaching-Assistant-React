@@ -8,7 +8,7 @@ import {
     Paper,
     Divider,
     Avatar,
-    ThemeProvider, Badge, Chip, Tooltip
+    ThemeProvider, Chip, Tooltip
 } from '@mui/material';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -16,7 +16,7 @@ import theme from '../../../components/Theme';
 import api from '../../../api';
 import {convertUTCToLocalTime} from '../../../utils/timeUtils.js';
 import {setUser} from '../manage-profile/manage-profile.js';
-import {fontSize} from "@mui/system";
+// import {fontSize} from "@mui/system";
 
 const Profile = () => {
     const dispatch = useDispatch();

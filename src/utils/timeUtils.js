@@ -1,4 +1,5 @@
 export const convertUTCToLocalTime = (utcDateTimeStr, options = {}) => {
+
     if (!utcDateTimeStr) return null;
 
     try {
@@ -7,11 +8,12 @@ export const convertUTCToLocalTime = (utcDateTimeStr, options = {}) => {
 
         const formatter = new Intl.DateTimeFormat(undefined, {
             year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
+            hourCycle: 'h23',
             timeZoneName: 'short',
             ...options
         });
@@ -23,4 +25,4 @@ export const convertUTCToLocalTime = (utcDateTimeStr, options = {}) => {
     }
 };
 
-// console.log(convertUTCToLocalTime("2025-03-13T15:22:20.780137Z"))
+// console.log(convertUTCToLocalTime("2025-03-13T15:22:20.780137Z", {timeZoneName: undefined, hour:undefined, minute:undefined, second:undefined}));
