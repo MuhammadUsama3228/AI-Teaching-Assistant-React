@@ -1,366 +1,194 @@
-import {useState, useEffect} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
-
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
     Container,
     Box,
     Typography,
     Paper,
-    Divider,
     Avatar,
-    ThemeProvider, Chip, Tooltip
+    ThemeProvider,
+    Tooltip,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    IconButton,
+    CircularProgress,
+    Button,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
-
+import TeacherExperienceForm from '../../../components/teacher/profile/teacher_experience';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 import theme from '../../../components/Theme';
 import api from '../../../api';
-import {convertUTCToLocalTime} from '../../../utils/timeUtils.js';
-import {setUser} from '../manage-profile/manage-profile.js';
-// import {fontSize} from "@mui/system";
+import { setUser } from '../manage-profile/manage-profile';
 
 const Profile = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const userData = useSelector((state) => state.user);
     const user = userData?.user;
 
     const [loading, setLoading] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
-    const [lastLoginTime, setLastLoginTime] = useState(null);
+    const [experienceDialogOpen, setExperienceDialogOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [selectedExperience, setSelectedExperience] = useState(null);
 
     const fetchProfileData = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
             const response = await api.get('/api/manage_profile/');
             if (response.status === 200) {
                 dispatch(setUser(response.data));
+                setProfileImage(response.data.profile_picture || null);
             }
         } catch (error) {
-            console.error('Error fetching profile data', error);
+            console.error('Error fetching profile data:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchProfileImage = async () => {
-        try {
-            if (!user?.profile_picture) return;
-
-            const imageUrl = user.profile_picture;
-
-            const response = await api.get(imageUrl, {
-                responseType: 'blob'
-            });
-
-            if (response.status === 200) {
-                const imageBlob = response.data;
-                const imageObjectURL = URL.createObjectURL(imageBlob);
-                setProfileImage(imageObjectURL);
-            }
-        } catch (error) {
-            console.error('Error fetching profile image:', error);
-        }
-    };
-
-    const last_loginTime = async () => {
-        if (user.last_login) {
-            const time = convertUTCToLocalTime(user.last_login);
-            setLastLoginTime(time);
-        }
-    };
-
     useEffect(() => {
-        if (user) {
-            fetchProfileImage();
-            last_loginTime();
-        }
-    }, [user]);
-
-    useEffect(() => {
-        if (!user) {
-            fetchProfileData();
-        }
+        fetchProfileData();
     }, []);
-    console.log(user.profile.experience);
-    if (!user) {
-        return (
-            <ThemeProvider theme={theme}>
-                <Container>
-                    <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-                        <Typography variant="h6">
-                            {loading ? 'Loading profile data...' : 'No user profile found. Please log in.'}
-                        </Typography>
-                    </Box>
-                </Container>
-            </ThemeProvider>
-        );
-    }
+
+    const handleDeleteExperience = async () => {
+        if (!selectedExperience) return;
+        try {
+            await api.delete(`/api/manage_profile/experience/${selectedExperience.id}/`);
+            fetchProfileData();
+        } catch (error) {
+            console.error('Error deleting experience:', error);
+        } finally {
+            setDeleteDialogOpen(false);
+            setSelectedExperience(null);
+        }
+    };
 
     return (
         <ThemeProvider theme={theme}>
-            <Container maxWidth="lg" sx={{py: {xs: 2, md: 4}}}>
-                <Paper sx={{p: {xs: 2, sm: 3}, borderRadius: 2, boxShadow: 3}}>
-                    <Box
-                        display="flex"
-                        flexDirection={{xs: 'column', sm: 'row'}}
-                        justifyContent={{xs: 'center', sm: 'left', md: 'left'}}
-                        alignItems="center"
-                        mb={3}
-                        gap={{xs: 2, sm: 3}}
-                    >
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                width: {xs: '100%', sm: 'auto'}
-                            }}
-                        >
-                            <Avatar
-                                alt={user.get_full_name}
-                                src={profileImage}
-                                sx={{
-                                    width: {xs: 100, sm: 150, md: 200},
-                                    height: {xs: 100, sm: 150, md: 200},
-                                    bgcolor: 'grey.600'
-                                }}
-                            >
-                                {!profileImage && (
-                                    <AccountCircleIcon
-                                        sx={{
-                                            fontSize: {xs: 60, sm: 80, md: 100},
-                                            color: '#757575'
-                                        }}
-                                    />
-                                )}
-                            </Avatar>
-                        </Box>
-                        <Box
-                            display="flex"
-                            flexDirection="column"
-                            alignItems={{
-                                xs: 'center',
-                                sm: 'center',
-                                md: 'flex-start',
-                                lg: 'flex-start'
-                            }}
-                        >
-                            <Typography
-                                variant="h4"
-                                color="primary"
-                                sx={{
-                                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-                                    textAlign: { xs: 'center', sm: 'left' },
-                                    wordBreak: 'break-word'
-                                }}
-                            >
-                                {loading ? 'Profile' : user.get_full_name || user.username}
-
-                                {(user.role === 'admin' || user.role === 'staff') && (
-                                    <Tooltip title={`Role is ${user.role}`}>
-                                        <Chip
-                                            label={user.role.toUpperCase()}
-                                            color="error"
-                                            size="small"
-                                            variant="outlined"
-                                        />
-                                    </Tooltip>
-                                )}
-                            </Typography>
-
-                            <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                sx={{
-                                    fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' },
-                                }}
-                            >
-                                {user.email}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                sx={{
-                                    fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' },
-                                }}
-                            >
-
-                                {
-                                    user.role === 'teacher' && user.profile && user.profile.teacher && user.profile.teacher.phone_number && user.profile.teacher.phone_hide
-                                        ? user.profile.teacher.phone_number
-                                        : user.username
-                                }
-
-                            </Typography>
-                        </Box>
-
-                    </Box>
-
-
-                    <Divider sx={{mb: 3}}/>
-
-                    <Typography variant="caption" color="text">
-                        {/*Last Login: {lastLoginTime}*/}
-
-                        {user.role === "teacher" && user.profile && user.profile.teacher.about && (
-                            <Typography
-                                variant="body2"
-                                color="textPrimary"
-                                sx={{
-                                    fontSize: { xs: '1rem', sm: '1.2rem' },
-                                    fontWeight: '500',
-                                    lineHeight: 1.5,
-                                    marginTop: 1,
-                                    textAlign: { xs: 'center', sm: 'left' },
-                                    color: 'text.secondary',
-                                }}
-                            >
-                                {user.profile.teacher.about}
-                            </Typography>
-                        )}
-                    </Typography>
-
-                    <Box sx={{ mt: 3 }}>
-                        <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>Personal Information</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-
-                            {/* Full Name */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Full Name:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.get_full_name || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Date of Birth */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Date of Birth:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.date_of_birth || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Address */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Address:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    { user.profile?.teacher.address }
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Institution:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.institution_name || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Designation:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.designation || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Department */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Department:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.department || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Teaching Experience */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Teaching Experience (Years):
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.teaching_experience || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Gender */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Gender:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.gender || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* City */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    City:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.city || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Country */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Country:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.country || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Postal Code */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Postal Code:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.postal_code || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                        </Box>
-                    </Box>
-
-
-                    <Box mt={4}>
-                        <Typography variant="h6" color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' } }}>
-                            Experiences
+            <Container maxWidth="md" sx={{ py: 4 }}>
+                <Paper sx={{ p: 4, borderRadius: 3, boxShadow: 4, background: 'linear-gradient(to right, #f8fafc, #e2e8f0)' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                        <Typography variant="h4" fontWeight="bold" color="primary">
+                            Profile
                         </Typography>
-                        {user?.profile?.experience && user.profile.experience.length > 0 ? (
-                            user.profile.experience.map((exp, index) => (
-                                <Paper key={index} sx={{ p: 2, mb: 2, borderRadius: 2, boxShadow: 2 }}>
-                                    <Typography variant="h6" color="textPrimary">
-                                        {exp.teacher} at {exp.institution_name}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        {exp.start_date} - {exp.end_date ? exp.end_date : 'Present'}
-                                    </Typography>
-                                    <Typography variant="body2" color="textPrimary" sx={{ mt: 1 }}>
-                                        {exp.description}
-                                    </Typography>
-                                </Paper>
-                            ))
-                        ) : (
-                            <Typography variant="body2" color="textSecondary">
-                                No experiences listed.
-                            </Typography>
-                        )}
+                        <Tooltip title="Edit Profile">
+                            <IconButton color="primary" onClick={() => navigate('/manage-profile')}>
+                                <EditIcon />
+                            </IconButton>
+                        </Tooltip>
                     </Box>
 
+                    {loading ? (
+                        <Box display="flex" justifyContent="center" py={3}>
+                            <CircularProgress color="primary" />
+                        </Box>
+                    ) : (
+                        <>
+                            {/* Personal Information */}
+                            <Accordion sx={{ borderRadius: 2, backgroundColor: '#fff' }}>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon color="primary" />}>
+                                    <Typography variant="h6" fontWeight="medium">Personal Information</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Box display="flex" flexDirection="column" gap={2}>
+                                        <Box display="flex" alignItems="center" gap={3}>
+                                            <Avatar 
+                                                alt={user?.get_full_name || user?.username} 
+                                                src={profileImage} 
+                                                sx={{ width: 120, height: 120, border: '3px solid #019cb8' }}
+                                            >
+                                                {!profileImage && <AccountCircleIcon fontSize="large" />}
+                                            </Avatar>
+                                            <Box>
+                                                <Typography variant="h5" fontWeight="bold">{user?.get_full_name || user?.username}</Typography>
+                                                <Typography variant="body1" color="textSecondary">{user?.email}</Typography>
+                                                <Typography variant="body2">Institution: {user?.profile?.teacher?.institution_name}</Typography>
+                                                <Typography variant="body2">Designation: {user?.profile?.teacher?.designation}</Typography>
+                                                <Typography variant="body2">Department: {user?.profile?.teacher?.department}</Typography>
+                                                <Typography variant="body2">Experience: {user?.profile?.teacher?.teaching_experience} years</Typography>
+                                                <Typography variant="body2">Phone: {user?.profile?.teacher?.phone_hide ? 'Hidden' : user?.profile?.phone_number}</Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </AccordionDetails>
+                            </Accordion>
+
+                            {/* Experience Section */}
+                            <Accordion sx={{ borderRadius: 2, backgroundColor: '#fff', mt: 2 }}>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon color="primary" />}>
+                                    <Typography variant="h6" fontWeight="medium">Experience</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <List>
+                                        {user?.profile?.experience?.length > 0 ? (
+                                            user.profile.experience.map((exp) => (
+                                                <ListItem key={exp.id} sx={{ borderBottom: '1px solid #ddd' }}>
+                                                    <ListItemText 
+                                                        primary={<Typography variant="body1" fontWeight="bold">{exp.institution_name}</Typography>} 
+                                                        secondary={`${exp.designation} - ${exp.department}`} 
+                                                    />
+                                                    <ListItemSecondaryAction>
+                                                        <Tooltip title="Delete Experience">
+                                                            <IconButton
+                                                                edge="end"
+                                                                color="error"
+                                                                onClick={() => {
+                                                                    setSelectedExperience(exp);
+                                                                    setDeleteDialogOpen(true);
+                                                                }}
+                                                            >
+                                                                <DeleteIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </ListItemSecondaryAction>
+                                                </ListItem>
+                                            ))
+                                        ) : (
+                                            <Typography variant="body2" color="textSecondary" textAlign="center">
+                                                No experience added yet.
+                                            </Typography>
+                                        )}
+                                    </List>
+                                    <Box display="flex" justifyContent="center" mt={2}>
+                                        <Tooltip title="Add Experience">
+                                            <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => setExperienceDialogOpen(true)}>
+                                                Add Experience
+                                            </Button>
+                                        </Tooltip>
+                                    </Box>
+                                </AccordionDetails>
+                            </Accordion>
+                        </>
+                    )}
                 </Paper>
             </Container>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure you want to delete this experience?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleDeleteExperience} color="error">Delete</Button>
+                </DialogActions>
+            </Dialog>
         </ThemeProvider>
     );
 };

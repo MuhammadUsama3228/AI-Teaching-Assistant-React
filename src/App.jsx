@@ -9,7 +9,7 @@ import Register from './pages/registration';
 import Logout from './pages/Logout';
 // import ProtectedRoute from './components/ProtectedRoute';
 import TeacherPanel from './pages/teacher/teacherpanal';
-import TeacherProfileForm from './components/teacher/profile/profile_create';
+
 import VerifyEmail from './pages/emailverifiactionsent';
 import Choicerole from './pages/rolechoice';
 import ForgotPassword from './pages/Forgetpassword';
@@ -23,12 +23,17 @@ import CourseViewPage from './pages/teacher/course/course_view_page';
 import CourseDetailPage from './pages/teacher/course/course_detail_page';
 import CourseCreatePage from './pages/teacher/course/course_create_page';
 import CourseUpdatePage from './pages/teacher/course/course_update_page';
+import CreateTeacherProfile from './components/teacher/profile/teacher_profile.jsx';
+import TeacherExperienceForm from './components/teacher/profile/teacher_experience.jsx';
 
 import ManageProfile from './pages/profile/manage-profile/ManageProfile.jsx';
+import UpdateProfile from './pages/profile/manage-profile/update_profile.jsx';
 import api from "./api.js";
 import {useSelector, useDispatch} from "react-redux";
 import {setCsrfToken} from "./features/api/csrf_token.js";
-import Profile from "./pages/profile/profile/profile.jsx";
+import TeacherProfileView from './pages/profile/profile/profile.jsx';
+
+
 
 
 
@@ -86,8 +91,11 @@ function App() {
 
                  {/*                   profile api                    */}
                 <Route path='/manage-profile' element={<ManageProfile/>}/>
+                <Route path="/profile" element={<TeacherProfileView />} />
 
-                <Route path='/profile' element={<Profile/>}/>
+               
+                <Route path='/teacher_profile' element={<CreateTeacherProfile/>}/>
+                <Route path='/experience' element={<TeacherExperienceForm/>}/>
 
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/register' element={<RegisterAndLogout/>}/>
@@ -97,7 +105,7 @@ function App() {
                 <Route path='/forgetpassword' element={<ForgotPassword/>}/>
                 <Route path='/confirmresetpasword' element={<ResetPassword/>}/>
                 <Route path='/teacherpanel' element={<TeacherPanel/>}/>
-                <Route path='/t' element={<TeacherProfileForm/>}/>
+              
                 <Route path='/create-course' element={<CourseCreatePage/>}/>
                 <Route path='/view-courses' element={<CourseViewPage/>}/>
                 <Route path="/coursedetail/:id" element={<CourseDetailPage/>}/>
