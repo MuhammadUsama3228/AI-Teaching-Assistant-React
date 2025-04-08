@@ -26,20 +26,39 @@ function Login() {
 
     const getProfile = async () => {
         try {
-            const res = await api.get('/api/manage_profile/', {});
-
-            if (res.status === 200) {
-                dispatch(setUser(res.data));
+            const profile_role= await api.get('/api/manage_profile/');
+            console.log(profile_role.data.role);  // Correct access to role
+    
+            if (profile_role.status === 200) {
+                dispatch(setUser(profile_role.data));  // Use response, not res
             } else {
-                console.error('Unexpected response status:', res.status);
+                console.error('Unexpected response status:', profile_role.status);
             }
-
+    
         } catch (error) {
             console.error('Error fetching profile:', error);
         } finally {
             console.log('Profile fetch completed.');
         }
     };
+
+    const handleProfileNavigation = async () => {
+        try {
+            const response = await api.get('/api/manage_profile/');
+            const role = response.data.role;
+    
+            if (role === 'teacher') {
+                navigate('/teacherpanel');
+            } else if (role === 'student') {
+                navigate('/studentpanel');  // You probably meant this instead of navigating both to /teacherpanel
+            } else {
+                console.error('Unknown role:', role);
+            }
+        } catch (error) {
+            console.error('Error during profile navigation:', error);
+        }
+    };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault(); 
@@ -60,9 +79,8 @@ function Login() {
                 localStorage.setItem(ACCESS_TOKEN, response.data.access);
                 localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
 
-                getProfile();
+            handleProfileNavigation ()
 
-                navigate('/teacherpanel');
             } else {
                 console.error('Access or Refresh token is missing:', response.data);
                 setError(response.data.message || 'Invalid credentials. Please try again.');
