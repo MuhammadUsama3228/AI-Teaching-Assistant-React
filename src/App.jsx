@@ -33,6 +33,7 @@ import {useSelector, useDispatch} from "react-redux";
 import {setCsrfToken} from "./features/api/csrf_token.js";
 import TeacherProfileView from './pages/profile/profile/profile.jsx';
 
+import CourseEnrollmentPage from './components/teacher/Enrollment/enroll_student.jsx';
 
 
 
@@ -96,8 +97,9 @@ function App() {
                
                 <Route path='/teacher_profile' element={<CreateTeacherProfile/>}/>
                 <Route path='/experience' element={<TeacherExperienceForm/>}/>
-
-                <Route path='/login' element={<Login/>}/>
+                CourseEnrollmentPage
+                <Route path='/courseEnrollmentPage' element={<CourseEnrollmentPage/>}/>
+                <Route path='/experience' element={<TeacherExperienceForm/>}/>
                 <Route path='/register' element={<RegisterAndLogout/>}/>
                 <Route path='/verifyemail' element={<VerifyEmail/>}/>
                 <Route path='/logout' element={<Logout/>}/>

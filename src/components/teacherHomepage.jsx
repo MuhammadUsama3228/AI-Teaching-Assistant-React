@@ -12,7 +12,7 @@ const cards = [
   { title: "Profile", subtitle: "View Your Profile", icon: <BookmarkIcon fontSize="large" />, color: "#1565c0", route: "#" },
   { title: "Courses", subtitle: "Manage Your Courses", icon: <ListAltIcon fontSize="large" />, color: "#512da8", route: "/view-courses" },
   { title: "Assignments", subtitle: "View and Set Assignments", icon: <CalendarTodayIcon fontSize="large" />, color: "#0288d1", route: "/view-assignments" },
-  { title: "Students", subtitle: "Manage Student Profiles", icon: <PeopleIcon fontSize="large" />, color: "#ff5722", route: "#" },
+  { title: "Students", subtitle: "Manage Student Profiles", icon: <PeopleIcon fontSize="large" />, color: "#ff5722", route: "/courseEnrollmentPage" },
   { title: "Resources", subtitle: "Access Learning Materials", icon: <LinkIcon fontSize="large" />, color: "#fbc02d", route: "#" },
 ];
 
