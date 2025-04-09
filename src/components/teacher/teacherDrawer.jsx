@@ -159,7 +159,7 @@ export default function TeacherPanelDrawer() {
             <MenuItem component={Link} to="/profile" onClick={handleClose}>
               Profile
             </MenuItem>
-            <MenuItem component={Link} to="/logout" onClick={handleClose}>
+            <MenuItem component={Link} tologout="/" onClick={handleClose}>
               Logout
             </MenuItem>
           </Menu>
