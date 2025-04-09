@@ -50,7 +50,8 @@ function Login() {
             if (role === 'teacher') {
                 navigate('/teacherpanel');
             } else if (role === 'student') {
-                navigate('/studentpanel');  
+                
+                navigate('/studentpanel');  // You probably meant this instead of navigating both to /teacherpanel
             } else {
                 console.error('Unknown role:', role);
             }

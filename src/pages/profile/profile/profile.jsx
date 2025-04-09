@@ -1,368 +1,210 @@
-import {useState, useEffect} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
+import { useState, useEffect } from 'react'; 
+import { useSelector, useDispatch } from 'react-redux'; 
+import {     
+    Container,     
+    Box,     
+    Typography,     
+    Paper,     
+    Avatar,     
+    ThemeProvider,     
+    IconButton,     
+    CircularProgress,     
+    Button,     
+    Dialog,     
+    DialogTitle,     
+    DialogContent,     
+    DialogActions,     
+    Tooltip,     
+    List,     
+    ListItem,     
+    ListItemText,     
+    ListItemSecondaryAction,     
+    Grid,     
+    Skeleton 
+} from '@mui/material'; 
+import EditIcon from '@mui/icons-material/Edit'; 
+import DeleteIcon from '@mui/icons-material/Delete'; 
+import AddIcon from '@mui/icons-material/Add'; 
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'; 
+import CreateIcon from '@mui/icons-material/Create'; // Import the CreateIcon
+import { useNavigate } from 'react-router-dom'; 
+import theme from '../../../components/Theme'; 
+import api from '../../../api'; 
+import { setUser } from '../manage-profile/manage-profile';  
 
-import {
-    Container,
-    Box,
-    Typography,
-    Paper,
-    Divider,
-    Avatar,
-    ThemeProvider, Badge, Chip, Tooltip
-} from '@mui/material';
+const Profile = () => {     
+    const dispatch = useDispatch();     
+    const navigate = useNavigate();     
+    const userData = useSelector((state) => state.user);     
+    const user = userData?.user;      
 
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import theme from '../../../components/Theme';
-import api from '../../../api';
-import {convertUTCToLocalTime} from '../../../utils/timeUtils.js';
-import {setUser} from '../manage-profile/manage-profile.js';
-import {fontSize} from "@mui/system";
+    const [loading, setLoading] = useState(false);     
+    const [profileImage, setProfileImage] = useState(null);     
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);     
+    const [selectedExperience, setSelectedExperience] = useState(null);      
 
-const Profile = () => {
-    const dispatch = useDispatch();
-    const userData = useSelector((state) => state.user);
-    const user = userData?.user;
+    const fetchProfileData = async () => {         
+        setLoading(true);         
+        try {             
+            const response = await api.get('/api/manage_profile/');             
+            if (response.status === 200) {                 
+                dispatch(setUser(response.data));                 
+                setProfileImage(response.data.profile_picture || null);             
+            }         
+        } catch (error) {             
+            console.error('Error fetching profile data:', error);         
+        } finally {             
+            setLoading(false);         
+        }     
+    };      
 
-    const [loading, setLoading] = useState(false);
-    const [profileImage, setProfileImage] = useState(null);
-    const [lastLoginTime, setLastLoginTime] = useState(null);
+    useEffect(() => {         
+        fetchProfileData();     
+    }, []);      
 
-    const fetchProfileData = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get('/api/manage_profile/');
-            if (response.status === 200) {
-                dispatch(setUser(response.data));
-            }
-        } catch (error) {
-            console.error('Error fetching profile data', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const handleDeleteExperience = async () => {         
+        if (!selectedExperience) return;         
+        try {             
+            await api.delete(`/api/teacher-experience/${selectedExperience.id}/`);             
+            fetchProfileData();         
+        } catch (error) {             
+            console.error('Error deleting experience:', error);         
+        } finally {             
+            setDeleteDialogOpen(false);             
+            setSelectedExperience(null);         
+        }     
+    };      
 
-    const fetchProfileImage = async () => {
-        try {
-            if (!user?.profile_picture) return;
+    return (         
+        <ThemeProvider theme={theme}>             
+            {loading ? (                 
+                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">                     
+                    <CircularProgress />                 
+                </Box>             
+            ) : (                 
+                <>                     
+                    {/* Header Section */}                     
+                    <Box                         
+                        sx={{                             
+                            background: 'linear-gradient(to right, #0f172a, #1e293b)',                             
+                            color: 'white',                             
+                            p: 4,                             
+                            position: 'relative',                             
+                            borderBottomLeftRadius: 40,                             
+                            borderBottomRightRadius: 40,                         
+                        }}                     
+                    >                         
+                        <Typography variant="h4" fontWeight="bold">                             
+                            Hello {user?.get_full_name || user?.username}                         
+                        </Typography>                         
+                        <Typography variant="body1" mt={1}>                             
+                            This is your profile page. You can see the progress you’ve made with your work and manage your projects or assignments.                         
+                        </Typography>                         
+                        <Button                             
+                            variant="contained"                             
+                            sx={{ mt: 2, backgroundColor: '#38bdf8' }}                             
+                            onClick={() => navigate('/manage-profile')}                         
+                        >                             
+                            Edit Profile                         
+                        </Button>                          
 
-            const imageUrl = user.profile_picture;
+                        <Avatar                             
+                            alt={user?.get_full_name || user?.username}                             
+                            src={profileImage}                             
+                            sx={{                                 
+                                width: 120,                                 
+                                height: 120,                                 
+                                border: '4px solid white',                                 
+                                position: 'absolute',                                 
+                                bottom: -60,                                 
+                                right: 40,                             
+                            }}                         
+                        >                             
+                            {!profileImage && <AccountCircleIcon fontSize="large" />}                         
+                        </Avatar>                     
+                    </Box>                      
 
-            const response = await api.get(imageUrl, {
-                responseType: 'blob'
-            });
+                    {/* Show "Create Profile" if not created */}                     
+                    {!user?.profile && (                         
+                        <Container maxWidth="sm" sx={{ mt: 10 }}>                             
+                            <Paper                                 
+                                sx={{                                     
+                                    p: 4,                                     
+                                    borderRadius: 4,                                     
+                                    textAlign: 'center',                                     
+                                    border: '2px dashed #94a3b8',                                     
+                                    backgroundColor: '#f1f5f9',                                     
+                                    boxShadow: 2                                 
+                                }}                             
+                            >                                 
+                                <AccountCircleIcon sx={{ fontSize: 64, color: '#64748b' }} />                                 
+                                <Typography variant="h6" mt={2} fontWeight="bold">                                     
+                                    Profile Not Created                                 
+                                </Typography>                                 
+                                <Typography variant="body2" mt={1} color="text.secondary">                                     
+                                    You haven't created your profile yet. Click the button below to get started.                                 
+                                </Typography>                                 
+                                <Button                                     
+                                    variant="contained"                                     
+                                    startIcon={<CreateIcon />} // Add the Create icon here                                     
+                                    sx={{ mt: 3 }}                                     
+                                    onClick={() => navigate('/teacher_profile')}                                 
+                                >                                     
+                                    Create Profile                                 
+                                </Button>                             
+                            </Paper>                         
+                        </Container>                     
+                    )}                      
 
-            if (response.status === 200) {
-                const imageBlob = response.data;
-                const imageObjectURL = URL.createObjectURL(imageBlob);
-                setProfileImage(imageObjectURL);
-            }
-        } catch (error) {
-            console.error('Error fetching profile image:', error);
-        }
-    };
+                    {/* If profile exists, show details */}                     
+                    {user?.profile && (                         
+                        <Container maxWidth="md">                             
+                            <Grid container spacing={4} mt={10}>                                 
+                                {/* My Account */}                                 
+                                <Grid item xs={12} md={6}>                                     
+                                    <Paper sx={{ p: 3, borderRadius: 3 }}>                                         
+                                        <Typography variant="h6" fontWeight="bold" gutterBottom>                                             
+                                            My Account                                         
+                                        </Typography>                                         
+                                        <Box display="flex" flexDirection="column" gap={1}>                                             {loading ? (                                                 <>                                                     <Skeleton variant="text" width="60%" />                                                     <Skeleton variant="text" width="80%" />                                                     <Skeleton variant="text" width="70%" />                                                 </>                                             ) : (                                                 <>                                                     <Typography><strong>Email:</strong> {user?.email}</Typography>                                                     <Typography><strong>Phone:</strong> {user?.profile?.teacher?.phone_hide ? 'Hidden' : user?.profile?.phone_number}</Typography>                                                 </>                                             )}                                         </Box>                                     
+                                    </Paper>                                 
+                                </Grid>                                  
 
-    const last_loginTime = async () => {
-        if (user.last_login) {
-            const time = convertUTCToLocalTime(user.last_login);
-            setLastLoginTime(time);
-        }
-    };
+                                {/* Professional Info */}                                 
+                                <Grid item xs={12} md={6}>                                     
+                                    <Paper sx={{ p: 3, borderRadius: 3 }}>                                         
+                                        <Typography variant="h6" fontWeight="bold" gutterBottom>                                             
+                                            Professional Details                                         
+                                        </Typography>                                         
+                                        <Box display="flex" flexDirection="column" gap={1}>                                             {loading ? (                                                 <>                                                     <Skeleton variant="text" width="60%" />                                                     <Skeleton variant="text" width="80%" />                                                     <Skeleton variant="text" width="70%" />                                                     <Skeleton variant="text" width="50%" />                                                 </>                                             ) : (                                                 <>                                                     <Typography><strong>Institution:</strong> {user?.profile?.teacher?.institution_name}</Typography>                                                     <Typography><strong>Designation:</strong> {user?.profile?.teacher?.designation}</Typography>                                                     <Typography><strong>Department:</strong> {user?.profile?.teacher?.department}</Typography>                                                     <Typography><strong>Experience:</strong> {user?.profile?.teacher?.teaching_experience} years</Typography>                                                 </>                                             )}                                         </Box>                                     
+                                    </Paper>                                 
+                                </Grid>                                  
 
-    useEffect(() => {
-        if (user) {
-            fetchProfileImage();
-            last_loginTime();
-        }
-    }, [user]);
+                                {/* Experience Section */}                                 
+                                <Grid item xs={12}>                                     
+                                    <Paper sx={{ p: 3, borderRadius: 3 }}>                                         
+                                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>                                             <Typography variant="h6" fontWeight="bold">Experience</Typography>                                             <Tooltip title="Add Experience">                                                 <Button startIcon={<AddIcon />} variant="contained" onClick={() => navigate('/experience')}>                                                     Add                                                 </Button>                                             </Tooltip>                                         </Box>                                         
+                                        <List>                                             {user?.profile?.experience?.length > 0 ? (                                                 user.profile.experience.map((exp) => (                                                     <ListItem key={exp.id} divider>                                                         <ListItemText                                                             primary={<Typography fontWeight="bold">{exp.institution_name}</Typography>}                                                             secondary={`${exp.designation} - ${exp.department}`}                                                         />                                                         <ListItemSecondaryAction>                                                             <Tooltip title="Delete Experience">                                                                 <IconButton                                                                     edge="end"                                                                     color="error"                                                                     onClick={() => {                                                                         setSelectedExperience(exp);                                                                         setDeleteDialogOpen(true);                                                                     }}                                                                 >                                                                     <DeleteIcon />                                                                 </IconButton>                                                             </Tooltip>                                                         </ListItemSecondaryAction>                                                     </ListItem>                                                 ))                                             ) : (                                                 <Typography color="text.secondary">No experience added yet.</Typography>                                             )}                                         </List>                                     
+                                    </Paper>                                 
+                                </Grid>                             </Grid>                         
+                        </Container>                     
+                    )}                      
 
-    useEffect(() => {
-        if (!user) {
-            fetchProfileData();
-        }
-    }, []);
-    console.log(user.profile.experience);
-    if (!user) {
-        return (
-            <ThemeProvider theme={theme}>
-                <Container>
-                    <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-                        <Typography variant="h6">
-                            {loading ? 'Loading profile data...' : 'No user profile found. Please log in.'}
-                        </Typography>
-                    </Box>
-                </Container>
-            </ThemeProvider>
-        );
-    }
+                    {/* Delete Confirmation Dialog */}                     
+                    <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>                         
+                        <DialogTitle>Confirm Deletion</DialogTitle>                         
+                        <DialogContent>                             
+                            <Typography>Are you sure you want to delete this experience?</Typography>                         
+                        </DialogContent>                         
+                        <DialogActions>                             
+                            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>                             
+                            <Button onClick={handleDeleteExperience} color="error">Delete</Button>                         
+                        </DialogActions>                     
+                    </Dialog>                 
+                </>             
+            )}         
+        </ThemeProvider>     
+    ); 
+};  
 
-    return (
-        <ThemeProvider theme={theme}>
-            <Container maxWidth="lg" sx={{py: {xs: 2, md: 4}}}>
-                <Paper sx={{p: {xs: 2, sm: 3}, borderRadius: 2, boxShadow: 3}}>
-                    <Box
-                        display="flex"
-                        flexDirection={{xs: 'column', sm: 'row'}}
-                        justifyContent={{xs: 'center', sm: 'left', md: 'left'}}
-                        alignItems="center"
-                        mb={3}
-                        gap={{xs: 2, sm: 3}}
-                    >
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                width: {xs: '100%', sm: 'auto'}
-                            }}
-                        >
-                            <Avatar
-                                alt={user.get_full_name}
-                                src={profileImage}
-                                sx={{
-                                    width: {xs: 100, sm: 150, md: 200},
-                                    height: {xs: 100, sm: 150, md: 200},
-                                    bgcolor: 'grey.600'
-                                }}
-                            >
-                                {!profileImage && (
-                                    <AccountCircleIcon
-                                        sx={{
-                                            fontSize: {xs: 60, sm: 80, md: 100},
-                                            color: '#757575'
-                                        }}
-                                    />
-                                )}
-                            </Avatar>
-                        </Box>
-                        <Box
-                            display="flex"
-                            flexDirection="column"
-                            alignItems={{
-                                xs: 'center',
-                                sm: 'center',
-                                md: 'flex-start',
-                                lg: 'flex-start'
-                            }}
-                        >
-                            <Typography
-                                variant="h4"
-                                color="primary"
-                                sx={{
-                                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-                                    textAlign: { xs: 'center', sm: 'left' },
-                                    wordBreak: 'break-word'
-                                }}
-                            >
-                                {loading ? 'Profile' : user.get_full_name || user.username}
-
-                                {(user.role === 'admin' || user.role === 'staff') && (
-                                    <Tooltip title={`Role is ${user.role}`}>
-                                        <Chip
-                                            label={user.role.toUpperCase()}
-                                            color="error"
-                                            size="small"
-                                            variant="outlined"
-                                        />
-                                    </Tooltip>
-                                )}
-                            </Typography>
-
-                            <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                sx={{
-                                    fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' },
-                                }}
-                            >
-                                {user.email}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                sx={{
-                                    fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' },
-                                }}
-                            >
-
-                                {
-                                    user.role === 'teacher' && user.profile && user.profile.teacher && user.profile.teacher.phone_number && user.profile.teacher.phone_hide
-                                        ? user.profile.teacher.phone_number
-                                        : user.username
-                                }
-
-                            </Typography>
-                        </Box>
-
-                    </Box>
-
-
-                    <Divider sx={{mb: 3}}/>
-
-                    <Typography variant="caption" color="text">
-                        {/*Last Login: {lastLoginTime}*/}
-
-                        {user.role === "teacher" && user.profile && user.profile.teacher.about && (
-                            <Typography
-                                variant="body2"
-                                color="textPrimary"
-                                sx={{
-                                    fontSize: { xs: '1rem', sm: '1.2rem' },
-                                    fontWeight: '500',
-                                    lineHeight: 1.5,
-                                    marginTop: 1,
-                                    textAlign: { xs: 'center', sm: 'left' },
-                                    color: 'text.secondary',
-                                }}
-                            >
-                                {user.profile.teacher.about}
-                            </Typography>
-                        )}
-                    </Typography>
-
-                    <Box sx={{ mt: 3 }}>
-                        <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>Personal Information</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-
-                            {/* Full Name */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Full Name:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.get_full_name || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Date of Birth */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Date of Birth:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.date_of_birth || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Address */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Address:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    { user.profile?.teacher.address }
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Institution:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.institution_name || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Designation:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.designation || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Department */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Department:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.department || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Teaching Experience */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Teaching Experience (Years):
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.teaching_experience || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Gender */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Gender:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.gender || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* City */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    City:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.city || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Country */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Country:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.country || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                            {/* Postal Code */}
-                            <Box>
-                                <Typography variant="body2" color="textPrimary" fontWeight="bold">
-                                    Postal Code:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {user.profile?.teacher?.postal_code || 'Not provided'}
-                                </Typography>
-                            </Box>
-
-                        </Box>
-                    </Box>
-
-
-                    <Box mt={4}>
-                        <Typography variant="h6" color="primary" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' } }}>
-                            Experiences
-                        </Typography>
-                        {user?.profile?.experience && user.profile.experience.length > 0 ? (
-                            user.profile.experience.map((exp, index) => (
-                                <Paper key={index} sx={{ p: 2, mb: 2, borderRadius: 2, boxShadow: 2 }}>
-                                    <Typography variant="h6" color="textPrimary">
-                                        {exp.teacher} at {exp.institution_name}
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        {exp.start_date} - {exp.end_date ? exp.end_date : 'Present'}
-                                    </Typography>
-                                    <Typography variant="body2" color="textPrimary" sx={{ mt: 1 }}>
-                                        {exp.description}
-                                    </Typography>
-                                </Paper>
-                            ))
-                        ) : (
-                            <Typography variant="body2" color="textSecondary">
-                                No experiences listed.
-                            </Typography>
-                        )}
-                    </Box>
-
-                </Paper>
-            </Container>
-        </ThemeProvider>
-    );
-};
-
-export default Profile;
+export default Profile; 

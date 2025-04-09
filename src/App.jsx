@@ -8,7 +8,7 @@ import PageNotFound from './pages/Page404';
 import Register from './pages/registration';
 import Logout from './pages/Logout';
 import TeacherPanel from './pages/teacher/teacherpanal';
-import TeacherProfileForm from './components/teacher/profile/profile_create';
+
 import VerifyEmail from './pages/emailverifiactionsent';
 import Choicerole from './pages/rolechoice';
 import ForgotPassword from './pages/Forgetpassword';
@@ -45,6 +45,20 @@ import EnrollmentPage from './components/teacher/courses/enrollment/enrollment_c
 import ButtonBar from './components/student/studentnav';
 import api from "./api.js";
 import { setCsrfToken } from "./features/api/csrf_token.js";
+import CreateTeacherProfile from './components/teacher/profile/teacher_profile.jsx';
+import TeacherExperienceForm from './components/teacher/profile/teacher_experience.jsx';
+
+import ManageProfile from './pages/profile/manage-profile/ManageProfile.jsx';
+import UpdateProfile from './pages/profile/manage-profile/update_profile.jsx';
+import api from "./api.js";
+import {useSelector, useDispatch} from "react-redux";
+import {setCsrfToken} from "./features/api/csrf_token.js";
+import TeacherProfileView from './pages/profile/profile/profile.jsx';
+
+import CourseEnrollmentPage from './components/teacher/Enrollment/enroll_student.jsx';
+
+
+
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -115,6 +129,35 @@ function App() {
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/studentpanal' element={<ButtonBar />} />
                 <Route path='*' element={<PageNotFound />} />
+                <Route path='/' element={<Home/>}/>
+
+                 {/*                   profile api                    */}
+                <Route path='/manage-profile' element={<ManageProfile/>}/>
+                <Route path="/profile" element={<TeacherProfileView />} />
+
+               
+                <Route path='/teacher_profile' element={<CreateTeacherProfile/>}/>
+                <Route path='/experience' element={<TeacherExperienceForm/>}/>
+                CourseEnrollmentPage
+                <Route path='/courseEnrollmentPage' element={<CourseEnrollmentPage/>}/>
+                <Route path='/experience' element={<TeacherExperienceForm/>}/>
+                <Route path='/register' element={<RegisterAndLogout/>}/>
+                <Route path='/verifyemail' element={<VerifyEmail/>}/>
+                <Route path='/logout' element={<Logout/>}/>
+                <Route path='/choice' element={<Choicerole/>}/>
+                <Route path='/forgetpassword' element={<ForgotPassword/>}/>
+                <Route path='/confirmresetpasword' element={<ResetPassword/>}/>
+                <Route path='/teacherpanel' element={<TeacherPanel/>}/>
+              
+                <Route path='/create-course' element={<CourseCreatePage/>}/>
+                <Route path='/view-courses' element={<CourseViewPage/>}/>
+                <Route path="/coursedetail/:id" element={<CourseDetailPage/>}/>
+                <Route path="/update-course/:id" element={<CourseUpdatePage/>}/>
+                <Route path='/create_assignment' element={<Assignmentuploadpage/>}/>
+                <Route path='/view-assignments' element={<Assignmentreadpage/>}/>
+                <Route path='/submission-status' element={<AssignmentSubmissionStatusPage/>}/>
+                <Route path='/assignmentupdate' element={<AssignmentUpdatePage/>}/>
+                <Route path='*' element={<PageNotFound/>}/>
             </Routes>
         </BrowserRouter>
     );
