@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import Login from './pages/Login';
 import Home from './pages/Home';
+import StudentPanelDashboard from './pages/student/studentdasboard.jsx';
 import PageNotFound from './pages/Page404';
 import Register from './pages/registration';
 import Logout from './pages/Logout';
@@ -57,6 +58,8 @@ import CourseEnrollmentPage from './components/teacher/Enrollment/enroll_student
 
 import StudentCourseweekpage from './pages/student/student_course_week_page.jsx';
 import StudentCourseWeekDetailView from './pages/student/student_course-week_detail_page.jsx';
+import EnrolledCourses from './components/student/student_course.jsx';
+import StudentDashboard from './components/student/student_dashboard.jsx'
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -113,7 +116,7 @@ function App() {
                 <Route path='/course_week_create' element={<CourseWeekCreatePage />} />
                 <Route path='/course_week_view' element={<CourseWeekViewPage />} />
                 <Route path='/courseweekdetail/:id' element={<CourseWeekDetailPage />} />
-                <Route path='/studentcourseweekdetail/:id' element={<StudentCourseWeekDetailView />} />
+               
                 <Route path="/course/:courseId/course_week/:courseWeekId/create_announcement_view" element={<WeekAnnouncementForm />} />
                 <Route path="/courses/course/:courseId/weeks/:courseWeekId/announcements" element={<WeekAnnViewPage />} />
                 <Route path="/update-week-announcement/:id" element={<WeekAnnUpdatePage />} />
@@ -137,7 +140,7 @@ function App() {
                
                 <Route path='/teacher_profile' element={<CreateTeacherProfile/>}/>
                 <Route path='/experience' element={<TeacherExperienceForm/>}/>
-                CourseEnrollmentPage
+                {/* CourseEnrollmentPage */}
                 <Route path='/courseEnrollmentPage' element={<CourseEnrollmentPage/>}/>
                 <Route path='/experience' element={<TeacherExperienceForm/>}/>
                 <Route path='/register' element={<RegisterAndLogout/>}/>
@@ -156,7 +159,10 @@ function App() {
                 <Route path='/view-assignments' element={<Assignmentreadpage/>}/>
                 <Route path='/submission-status' element={<AssignmentSubmissionStatusPage/>}/>
                 <Route path='/student_course_week/:courseId' element={<StudentCourseweekpage />} />
+                <Route path='/studentcourseweekdetail/:id' element={<StudentCourseWeekDetailView />} />
+                <Route path='/enrolled-courses' element={<EnrolledCourses />} />
                 <Route path='*' element={<PageNotFound/>}/>
+                <Route path='/StudentDashboard' element={<StudentPanelDashboard/>}/>
             </Routes>
         </BrowserRouter>
     );
