@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux";
+
 
 import Login from './pages/Login';
 import Home from './pages/Home';
@@ -38,8 +38,6 @@ import TimeSlotForm from './components/teacher/courses/timeslot/timeslot_create'
 import AssignmentAllread from './pages/teacher/assignment/assignment_read_all_page';
 import StudentPanel from './pages/student/student_panal';
 
-import ManageProfile from './pages/profile/manage-profile/ManageProfile.jsx';
-import Profile from "./pages/profile/profile/profile.jsx";
 import Profile_Page from './pages/teacher/profile/profile_view';
 import EnrollmentPage from './components/teacher/courses/enrollment/enrollment_create'
 import ButtonBar from './components/student/studentnav';
@@ -50,15 +48,15 @@ import TeacherExperienceForm from './components/teacher/profile/teacher_experien
 
 import ManageProfile from './pages/profile/manage-profile/ManageProfile.jsx';
 import UpdateProfile from './pages/profile/manage-profile/update_profile.jsx';
-import api from "./api.js";
+
 import {useSelector, useDispatch} from "react-redux";
-import {setCsrfToken} from "./features/api/csrf_token.js";
+
 import TeacherProfileView from './pages/profile/profile/profile.jsx';
 
 import CourseEnrollmentPage from './components/teacher/Enrollment/enroll_student.jsx';
 
-
-
+import StudentCourseweekpage from './pages/student/student_course_week_page.jsx';
+import StudentCourseWeekDetailView from './pages/student/student_course-week_detail_page.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -104,7 +102,7 @@ function App() {
                 <Route path='/forgot-password' element={<ForgotPassword />} />
                 <Route path='/confirmresetpasword' element={<ResetPassword />} />
                 <Route path='/teacherpanel' element={<TeacherPanel />} />
-                <Route path='/create_profile/:id' element={<TeacherProfileForm />} />
+                <Route path='/create_profile/:id' element={<CreateTeacherProfile />} />
                 <Route path="/profile/:slug" element={<Profile_Page />} />
                 <Route path='/studentpanel' element={<StudentPanel />} />
                 <Route path='/EnrollmentPage' element={<EnrollmentPage />} />
@@ -115,6 +113,7 @@ function App() {
                 <Route path='/course_week_create' element={<CourseWeekCreatePage />} />
                 <Route path='/course_week_view' element={<CourseWeekViewPage />} />
                 <Route path='/courseweekdetail/:id' element={<CourseWeekDetailPage />} />
+                <Route path='/studentcourseweekdetail/:id' element={<StudentCourseWeekDetailView />} />
                 <Route path="/course/:courseId/course_week/:courseWeekId/create_announcement_view" element={<WeekAnnouncementForm />} />
                 <Route path="/courses/course/:courseId/weeks/:courseWeekId/announcements" element={<WeekAnnViewPage />} />
                 <Route path="/update-week-announcement/:id" element={<WeekAnnUpdatePage />} />
@@ -122,17 +121,17 @@ function App() {
                 <Route path='/read_assignments/:id' element={<Assignmentreadpage />} />
                 <Route path="/courses/assignments/:assignmentId/details" element={<Assignmentdetailpage />} />
                 <Route path="/courses/assignment/:assignmentId/submissions" element={<AssignmentSubmissionStatusPage />} />
-                <Route path='/update-assignment/:id' element={<UpdateAssignmentForm />} />
+                <Route path='/update-assignment/:id' element={< UpdateAssignmentForm />} />
                 <Route path='/view-assignments/' element={<AssignmentAllread />} />
                 <Route path='/course-time-slots/:id' element={<TimeSlotForm />} />
                 <Route path='/manage-profile' element={<ManageProfile />} />
-                <Route path='/profile' element={<Profile />} />
+              
                 <Route path='/studentpanal' element={<ButtonBar />} />
                 <Route path='*' element={<PageNotFound />} />
                 <Route path='/' element={<Home/>}/>
 
                  {/*                   profile api                    */}
-                <Route path='/manage-profile' element={<ManageProfile/>}/>
+                
                 <Route path="/profile" element={<TeacherProfileView />} />
 
                
@@ -156,7 +155,7 @@ function App() {
                 <Route path='/create_assignment' element={<Assignmentuploadpage/>}/>
                 <Route path='/view-assignments' element={<Assignmentreadpage/>}/>
                 <Route path='/submission-status' element={<AssignmentSubmissionStatusPage/>}/>
-                <Route path='/assignmentupdate' element={<AssignmentUpdatePage/>}/>
+                <Route path='/student_course_week/:courseId' element={<StudentCourseweekpage />} />
                 <Route path='*' element={<PageNotFound/>}/>
             </Routes>
         </BrowserRouter>

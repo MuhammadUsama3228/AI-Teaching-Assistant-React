@@ -1,12 +1,13 @@
 import Navbar from "../../components/student/studentnav";
 import EnrolledCourses from "../../components/student/student_course"
-function StudentPanel(){
+import StudentCourseWeekView from "../../components/student/student_courseweek";
+function StudentCourseweekpage(){
     return(
         <div>
              <Navbar />
-             <EnrolledCourses />
+             <StudentCourseWeekView />
         </div>
         
     );
 }
-export default StudentPanel;
+export default StudentCourseweekpage;

@@ -74,7 +74,7 @@ function CreateAssignmentForm() {
         setSuccess('');
 
         try {
-            await api.post('/api/courses/assignment/', formData);
+            await api.post('api/courses/assignment', formData);
             setSuccess('Assignment created successfully!');
             setFormData({ ...AssignmentModel, course: id || '' });
         } catch (err) {

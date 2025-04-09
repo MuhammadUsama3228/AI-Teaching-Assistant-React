@@ -1,11 +1,20 @@
-import React from "react";
-import { Grid, Card, CardContent, Typography, Box } from "@mui/material";
-import { Link } from "react-router-dom";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import PeopleIcon from "@mui/icons-material/People";
-import LinkIcon from "@mui/icons-material/Link";
+import React from 'react';
+import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SchoolIcon from '@mui/icons-material/School';
+import PeopleIcon from '@mui/icons-material/People';
+import LinkIcon from '@mui/icons-material/Link';
+
+const cards = [
+  { title: "Profile", subtitle: "View Your Profile", icon: <BookmarkIcon fontSize="large" />, color: "#1565c0", route: "#" },
+  { title: "Courses", subtitle: "Manage Your Courses", icon: <ListAltIcon fontSize="large" />, color: "#512da8", route: "/view-courses" },
+  { title: "Assignments", subtitle: "View and Set Assignments", icon: <CalendarTodayIcon fontSize="large" />, color: "#0288d1", route: "/view-assignments" },
+  { title: "Students", subtitle: "Manage Student Profiles", icon: <PeopleIcon fontSize="large" />, color: "#ff5722", route: "/courseEnrollmentPage" },
+  { title: "Resources", subtitle: "Access Learning Materials", icon: <LinkIcon fontSize="large" />, color: "#fbc02d", route: "#" },
+];
 
 export default function Teacherview() {
   const cards = [
