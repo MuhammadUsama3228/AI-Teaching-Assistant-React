@@ -1,13 +1,13 @@
 import Navbar from "../../components/student/studentnav";
 import EnrolledCourses from "../../components/student/student_course"
 import AssignmentViewPage from "../../components/student/student_assignmet";
-function StudentPanel(){
+function StudentPanelAssignmet(){
     return(
         <div>
              <Navbar />
-             <EnrolledCourses />
+             <AssignmentViewPage />
         </div>
         
     );
 }
-export default StudentPanel;
+export default StudentPanelAssignmet;

@@ -60,6 +60,10 @@ import StudentCourseweekpage from './pages/student/student_course_week_page.jsx'
 import StudentCourseWeekDetailView from './pages/student/student_course-week_detail_page.jsx';
 import EnrolledCourses from './components/student/student_course.jsx';
 import StudentDashboard from './components/student/student_dashboard.jsx'
+import StudentPanelAssignmet from './pages/student/student_assignmet.jsx';
+import StudentPanelAssignmetDetail from './pages/student/student_assignmet_detail_page.jsx';
+import CreateStudentProfile from './components/teacher/profile/student_profile.jsx';
+import StudentProfilePage from './pages/profile/profile/Student.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -163,9 +167,13 @@ function App() {
                 <Route path='/enrolled-courses' element={<EnrolledCourses />} />
                 <Route path='*' element={<PageNotFound/>}/>
                 <Route path='/StudentDashboard' element={<StudentPanelDashboard/>}/>
+                <Route path='/StudentAssignment' element={<StudentPanelAssignmet/>}/>
+                <Route path="/assignment/detail/:assignmentId" element={<StudentPanelAssignmetDetail />} />
+                <Route path="/studentprofilecreate" element={<CreateStudentProfile />} />
+                <Route path="/studentprofile" element={<StudentProfilePage />} />
             </Routes>
         </BrowserRouter>
     );
 }
-
+AssignmentDetailPage
 export default App;

@@ -16,6 +16,7 @@ import {
   School,
   Menu,
   ExitToApp,
+  Assignment, // Import Assignment icon
 } from "@mui/icons-material";
 import { Link } from "react-router-dom"; // Import Link and useHistory for navigation
 
@@ -23,7 +24,6 @@ const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
- 
 
   const toggleDrawer = (open) => {
     setDrawerOpen(open);
@@ -32,7 +32,6 @@ const Navbar = () => {
   const handleLogout = () => {
     // Implement your logout logic here (e.g., clearing tokens, etc.)
     console.log("Logout clicked");
- 
   };
 
   return (
@@ -49,7 +48,7 @@ const Navbar = () => {
             </IconButton>
           ) : (
             <Box>
-              <Link to="/profile" style={{ textDecoration: "none" }}>
+              <Link to="/studentprofile" style={{ textDecoration: "none" }}>
                 <Button startIcon={<AccountCircle />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
                   Profile
                 </Button>
@@ -62,6 +61,11 @@ const Navbar = () => {
               <Link to="/studentpanel" style={{ textDecoration: "none" }}>
                 <Button startIcon={<School />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
                   Courses
+                </Button>
+              </Link>
+              <Link to="/StudentAssignment" style={{ textDecoration: "none" }}> {/* Add Assignments Link */}
+                <Button startIcon={<Assignment />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
+                  Assignments
                 </Button>
               </Link>
               <Link to="/logout" onClick={handleLogout} style={{ textDecoration: "none" }}>
@@ -79,7 +83,7 @@ const Navbar = () => {
 
       <Drawer anchor="right" open={drawerOpen} onClose={() => toggleDrawer(false)}>
         <Box sx={{ width: 250, padding: 2 }}>
-          <Link to="/profile" style={{ textDecoration: "none" }}>
+          <Link to="/studentprofile" style={{ textDecoration: "none" }}>
             <Button startIcon={<AccountCircle />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
               Profile
             </Button>
@@ -89,9 +93,14 @@ const Navbar = () => {
               Dashboard
             </Button>
           </Link>
-          <Link to="/StudentDashboard" style={{ textDecoration: "none" }}>
+          <Link to="/studentpanel" style={{ textDecoration: "none" }}>
             <Button startIcon={<School />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
               Courses
+            </Button>
+          </Link>
+          <Link to="/StudentAssignment" style={{ textDecoration: "none" }}> {/* Add Assignments Link in Drawer */}
+            <Button startIcon={<Assignment />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
+              Assignments
             </Button>
           </Link>
           <Link to="/" onClick={handleLogout} style={{ textDecoration: "none" }}>
