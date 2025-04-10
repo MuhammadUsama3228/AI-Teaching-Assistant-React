@@ -61,7 +61,23 @@ const Profile = () => {
     useEffect(() => {         
         fetchProfileData();     
     }, []);      
-
+ const handleProfileNavigation = async () => {
+        try {
+            const response = await api.get('/api/manage_profile/');
+            const role = response.data.role;
+    
+            if (role === 'teacher') {
+                navigate('/teacherpanel');
+            } else if (role === 'student') {
+                
+                navigate('/studentpanel');  // You probably meant this instead of navigating both to /teacherpanel
+            } else {
+                console.error('Unknown role:', role);
+            }
+        } catch (error) {
+            console.error('Error during profile navigation:', error);
+        }
+    };
     const handleDeleteExperience = async () => {         
         if (!selectedExperience) return;         
         try {             
