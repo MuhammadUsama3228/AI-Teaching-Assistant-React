@@ -64,6 +64,8 @@ import StudentPanelAssignmet from './pages/student/student_assignmet.jsx';
 import StudentPanelAssignmetDetail from './pages/student/student_assignmet_detail_page.jsx';
 import CreateStudentProfile from './components/teacher/profile/student_profile.jsx';
 import StudentProfilePage from './pages/profile/profile/Student.jsx';
+import StudentPanelAnnouncementPgae from './pages/student/student_announcement_page.jsx';
+import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -171,9 +173,11 @@ function App() {
                 <Route path="/assignment/detail/:assignmentId" element={<StudentPanelAssignmetDetail />} />
                 <Route path="/studentprofilecreate" element={<CreateStudentProfile />} />
                 <Route path="/studentprofile" element={<StudentProfilePage />} />
+                <Route path="/course-weeks/:id/announcements" element={<StudentPanelAnnouncementPgae />} />
+                <Route path="/announcements/:announcementId" element={<StudentPannalAnnouncementDetailPage />} />
             </Routes>
         </BrowserRouter>
     );
 }
-AssignmentDetailPage
+
 export default App;

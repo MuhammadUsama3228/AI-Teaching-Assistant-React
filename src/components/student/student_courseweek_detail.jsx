@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     Typography,
     Container,
@@ -10,10 +10,12 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
- 
     Skeleton,
+    IconButton,
+    Tooltip,
+    Badge,
 } from '@mui/material';
-import { ExpandMore, MoreVert } from '@mui/icons-material';
+import { ExpandMore, Visibility } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import api from '../../api';
 
@@ -37,22 +39,33 @@ const CourseAvatar = styled(Avatar)(({ theme }) => ({
 const StudentCourseWeekDetail = () => {
     const { id } = useParams(); // Course week ID
     const [courseWeek, setCourseWeek] = useState(null);
+    const [announcementCount, setAnnouncementCount] = useState(0);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCourseWeek = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get(`api/courses/course_weeks/${id}/`);
-                setCourseWeek(response.data);
+                const [weekRes, announcementRes] = await Promise.all([
+                    api.get(`api/courses/course_weeks/${id}/`),
+                    api.get(`api/courses/week_announcement/?course_week=${id}`),
+                ]);
+
+                setCourseWeek(weekRes.data);
+                setAnnouncementCount(announcementRes.data.length || 0);
             } catch (error) {
-                console.error('Error fetching course week:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchCourseWeek();
+        fetchData();
     }, [id]);
+
+    const handleViewAnnouncements = () => {
+        navigate(`/course-weeks/${id}/announcements`);
+    };
 
     if (loading) {
         return (
@@ -85,7 +98,7 @@ const StudentCourseWeekDetail = () => {
                 <Grid item xs={12} sm={4} md={3} textAlign={{ xs: 'center', sm: 'left' }}>
                     <CourseAvatar>{courseWeek.week_title.charAt(0).toUpperCase()}</CourseAvatar>
                 </Grid>
-                <Grid item xs={12} sm={8} md={9}>
+                <Grid item xs={12} sm={7} md={8}>
                     <Typography variant="h4" sx={{ fontWeight: '700', marginBottom: 1 }}>
                         {courseWeek.week_title}
                     </Typography>
@@ -93,9 +106,18 @@ const StudentCourseWeekDetail = () => {
                         <strong>Week Number:</strong> {courseWeek.week_number || 'N/A'}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} textAlign="right">
-                    {/* Assuming handleMenuOpen is not needed, remove it if it's not implemented */}
-                    
+                <Grid item xs={12} sm={1} textAlign="right">
+                    <Tooltip title="View Announcements">
+                        <IconButton onClick={handleViewAnnouncements}>
+                            <Badge
+                                badgeContent={announcementCount}
+                                color="primary"
+                                invisible={announcementCount === 0}
+                            >
+                                <Visibility />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
                 </Grid>
             </Grid>
 
@@ -113,8 +135,13 @@ const StudentCourseWeekDetail = () => {
                         <Grid container spacing={2} sx={{ marginTop: 2 }}>
                             <Grid item xs={12}>
                                 <Typography variant="body2">
-                                    <strong>Uploaded File:</strong> {courseWeek.uploaded_file ? (
-                                        <a href={courseWeek.uploaded_file} target="_blank" rel="noopener noreferrer">
+                                    <strong>Uploaded File:</strong>{' '}
+                                    {courseWeek.uploaded_file ? (
+                                        <a
+                                            href={courseWeek.uploaded_file}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
                                             {courseWeek.uploaded_file}
                                         </a>
                                     ) : (
