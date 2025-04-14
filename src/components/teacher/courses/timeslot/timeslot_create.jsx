@@ -64,7 +64,7 @@ function TimeSlotForm() {
 
         try {
             const response = await api.post("/api/courses/slots/", formData, {
-                headers: { "Content-Type": "application/json" },
+               
             });
 
             if (response.status === 201) {
