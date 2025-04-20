@@ -62,10 +62,13 @@ import EnrolledCourses from './components/student/student_course.jsx';
 import StudentDashboard from './components/student/student_dashboard.jsx'
 import StudentPanelAssignmet from './pages/student/student_assignmet.jsx';
 import StudentPanelAssignmetDetail from './pages/student/student_assignmet_detail_page.jsx';
+import UpdateStudentProfile from './components/teacher/profile/student_profile_update.jsx';
 import CreateStudentProfile from './components/teacher/profile/student_profile.jsx';
 import StudentProfilePage from './pages/profile/profile/Student.jsx';
 import StudentPanelAnnouncementPgae from './pages/student/student_announcement_page.jsx';
 import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
+import AssignmentSubmissionForm from './components/student/student_assignmet_sub_page.jsx'
+import TimeSlotView from './components/teacher/courses/timeslot/view_time_slot.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -175,6 +178,9 @@ function App() {
                 <Route path="/studentprofile" element={<StudentProfilePage />} />
                 <Route path="/course-weeks/:id/announcements" element={<StudentPanelAnnouncementPgae />} />
                 <Route path="/announcements/:announcementId" element={<StudentPannalAnnouncementDetailPage />} />
+                <Route path="/assignment/submit/:id" element={<AssignmentSubmissionForm />} />
+                <Route path="/viewtimeslot" element={<TimeSlotView />} />
+
             </Routes>
         </BrowserRouter>
     );

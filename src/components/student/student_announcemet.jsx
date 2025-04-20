@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
     Container,
     Typography,
@@ -40,30 +40,41 @@ const DateText = styled(Typography)(({ theme }) => ({
     marginTop: theme.spacing(1),
 }));
 
-const StudentAnnouncementsPage = () => {
-    const { courseId, courseWeekId } = useParams(); // Get course and course week IDs
+const StudentAnnouncementsPage = ({ courseId, courseWeekId }) => {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log('Course ID:', courseId);
+        console.log('Course Week ID:', courseWeekId);
+    
         const fetchAnnouncements = async () => {
-    try {
-        const res = await api.get(`/api/courses/week_announcement/`, {
-            params: { course: courseId, course_week: courseWeekId },
-        });
-        setAnnouncements(res.data || []); // Safely handle empty data
-    } catch (err) {
-        console.error('Failed to fetch announcements:', err);
-    } finally {
-        setLoading(false);
-    }
-};
-
-        fetchAnnouncements();
-    }, [courseId, courseWeekId]); // Re-run when `courseId` or `courseWeekId` changes
+            try {
+                const res = await api.get(`/api/courses/week_announcement/`, {
+                    params: { course: courseId, course_week: courseWeekId },
+                });
+                setAnnouncements(res.data || []);
+            } catch (err) {
+                console.error('Failed to fetch announcements:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        if (courseId && courseWeekId) {
+            fetchAnnouncements();
+        }
+    }, [courseId, courseWeekId]);
+    
 
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const options = {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 

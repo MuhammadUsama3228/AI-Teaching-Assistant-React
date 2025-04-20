@@ -37,7 +37,7 @@ const CourseAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 const StudentCourseWeekDetail = () => {
-    const { id } = useParams(); // Course week ID
+    const { id } = useParams(); 
     const [courseWeek, setCourseWeek] = useState(null);
     const [announcementCount, setAnnouncementCount] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -47,6 +47,7 @@ const StudentCourseWeekDetail = () => {
         const fetchData = async () => {
             try {
                 const [weekRes, announcementRes] = await Promise.all([
+                    
                     api.get(`api/courses/course_weeks/${id}/`),
                     api.get(`api/courses/week_announcement/?course_week=${id}`),
                 ]);

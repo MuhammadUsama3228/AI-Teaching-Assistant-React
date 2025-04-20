@@ -1,81 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
+import { Button, Grid, Paper, Typography, CircularProgress } from '@mui/material';
 
 const AssignmentSubmissionForm = ({ assignmentId }) => {
   const [assignmentData, setAssignmentData] = useState(null);
   const [file, setFile] = useState(null);
-  const [marks, setMarks] = useState('');
-  const [feedback, setFeedback] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // Fetch assignment data based on assignmentId
     const fetchAssignmentData = async () => {
       try {
         const response = await api.get(`/api/courses/student_insight/`);
         const assignment = response.data.assignment_submission.find(sub => sub.assignment === assignmentId);
         setAssignmentData(assignment);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching assignment data:", error);
+      } catch (err) {
+        console.error("Error fetching assignment data:", err);
+      } finally {
         setLoading(false);
       }
     };
-    
+
     fetchAssignmentData();
   }, [assignmentId]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+    setSubmitting(true);
+
     const formData = new FormData();
+    formData.append('assignment', assignmentId);
     formData.append('file', file);
-    formData.append('marks', marks);
-    formData.append('feedback', feedback);
 
     try {
-      await api.post(`/api/assignments/submit/`, formData, {
+      await api.post(`/api/courses/submission/`, formData, {
         
       });
       alert('Assignment submitted successfully');
-    } catch (error) {
-      console.error("Error submitting assignment:", error);
-      alert('Error submitting the assignment');
+    } catch (err) {
+      console.error("Submission error:", err);
+      alert('Submission failed. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  if (loading) {
-    return <Typography>Loading...</Typography>;
-  }
+  if (loading) return <CircularProgress />;
 
   return (
     <Paper sx={{ padding: 3 }}>
       <Typography variant="h5" gutterBottom>Assignment Submission</Typography>
-      <Typography variant="h6">{assignmentData.assignment_title}</Typography>
+
+      {assignmentData && (
+        <Typography variant="subtitle1" gutterBottom>
+          Assignment: {assignmentData.assignment_title}
+        </Typography>
+      )}
+
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Marks Obtained"
-              variant="outlined"
-              type="number"
-              value={marks}
-              onChange={(e) => setMarks(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Feedback"
-              variant="outlined"
-              multiline
-              rows={4}
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-            />
-          </Grid>
           <Grid item xs={12}>
             <Button
               variant="contained"
@@ -89,15 +72,18 @@ const AssignmentSubmissionForm = ({ assignmentId }) => {
                 onChange={(e) => setFile(e.target.files[0])}
               />
             </Button>
+            {file && <Typography mt={1}>Selected File: {file.name}</Typography>}
           </Grid>
+
           <Grid item xs={12}>
             <Button
               variant="contained"
               color="primary"
               type="submit"
               fullWidth
+              disabled={submitting || !file}
             >
-              Submit Assignment
+              {submitting ? 'Submitting...' : 'Submit Assignment'}
             </Button>
           </Grid>
         </Grid>
