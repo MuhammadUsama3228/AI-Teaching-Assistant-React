@@ -1,124 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
 import {
-    Container,
-    Typography,
-    Card,
-    CardContent,
-    Box,
-    Divider,
-    Skeleton,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import api from '../../api';
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import { Announcement } from "@mui/icons-material"; // Use Material-UI's Announcement icon
+import { Link } from "react-router-dom"; // Import Link for navigation
+import api from "../../api";
 
-const StyledContainer = styled(Container)(({ theme }) => ({
-    marginTop: theme.spacing(10),
-    marginBottom: theme.spacing(6),
-}));
+const StudentAnnouncementPage = () => {
+  const [courseWeeks, setCourseWeeks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const StyledCard = styled(Card)(({ theme }) => ({
-    marginBottom: theme.spacing(3),
-    boxShadow: '0px 4px 20px rgba(0,0,0,0.05)',
-    borderRadius: theme.spacing(2),
-    padding: theme.spacing(2),
-    transition: 'transform 0.3s ease',
-    '&:hover': {
-        transform: 'scale(1.01)',
-    },
-}));
+  useEffect(() => {
+    api
+      .get("/api/courses/course_weeks/")
+      .then((res) => {
+        setCourseWeeks(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch announcements:", err);
+        setLoading(false);
+      });
+  }, []);
 
-const TitleText = styled(Typography)(({ theme }) => ({
-    fontWeight: 700,
-    fontSize: '1.25rem',
-    color: theme.palette.primary.main,
-}));
-
-const DateText = styled(Typography)(({ theme }) => ({
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary,
-    marginTop: theme.spacing(1),
-}));
-
-const StudentAnnouncementsPage = ({ courseId, courseWeekId }) => {
-    const [announcements, setAnnouncements] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        console.log('Course ID:', courseId);
-        console.log('Course Week ID:', courseWeekId);
-    
-        const fetchAnnouncements = async () => {
-            try {
-                const res = await api.get(`/api/courses/week_announcement/`, {
-                    params: { course: courseId, course_week: courseWeekId },
-                });
-                setAnnouncements(res.data || []);
-            } catch (err) {
-                console.error('Failed to fetch announcements:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-    
-        if (courseId && courseWeekId) {
-            fetchAnnouncements();
-        }
-    }, [courseId, courseWeekId]);
-    
-
-    const formatDate = (dateString) => {
-        const options = {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        };
-        return new Date(dateString).toLocaleDateString(undefined, options);
-    };
-
+  if (loading) {
     return (
-        <StyledContainer maxWidth="md">
-            <Typography variant="h4" fontWeight={700} gutterBottom>
-                Course Week Announcements
-            </Typography>
-            <Divider sx={{ mb: 4 }} />
-
-            {loading ? (
-                <Box>
-                    <Skeleton variant="rectangular" height={100} sx={{ mb: 2 }} />
-                    <Skeleton variant="rectangular" height={100} />
-                </Box>
-            ) : announcements.length > 0 ? (
-                announcements.map((announcement) => (
-                    <Box
-                        component={Link}
-                        to={`/announcements/${announcement.id}`}
-                        key={announcement.id}
-                        sx={{ textDecoration: 'none' }}
-                    >
-                        <StyledCard>
-                            <CardContent>
-                                <TitleText>{announcement.title}</TitleText>
-                                <DateText>{formatDate(announcement.created_at)}</DateText>
-                                <Typography
-                                    variant="body1"
-                                    sx={{ marginTop: 2, color: 'text.primary' }}
-                                >
-                                    {announcement.description}
-                                </Typography>
-                            </CardContent>
-                        </StyledCard>
-                    </Box>
-                ))
-            ) : (
-                <Typography variant="body1" color="textSecondary" textAlign="center">
-                    No announcements for this course in this course week.
-                </Typography>
-            )}
-        </StyledContainer>
+      <Box display="flex" justifyContent="center" mt={10}>
+        <CircularProgress />
+      </Box>
     );
+  }
+
+  return (
+    <Box p={3}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        📢 Course Announcements
+      </Typography>
+
+      {courseWeeks.map((week) =>
+        week.week_announcements.length > 0 ? (
+          <Card
+            key={week.id}
+            sx={{
+              mb: 2,
+              boxShadow: 3,
+              borderRadius: 2,
+              width: "95%", // Set the width to make it smaller
+              maxWidth: "600px", // Limit the maximum width
+              marginLeft: "0", // Align cards to the left
+              padding: 2, // Add some padding inside the card
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" color="primary" fontWeight="bold">
+                {week.course_title} - {week.week_title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" mb={1}>
+                Week {week.week_number}
+              </Typography>
+
+              <Divider sx={{ my: 2 }} />
+
+              {week.week_announcements.map((announcement) => (
+                <Link
+                  to={`/announcements/${announcement.id}`} // Link to the announcement detail page
+                  key={announcement.id}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Box sx={{ mb: 3, cursor: "pointer" }}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Announcement size={20} />
+                      <Typography variant="subtitle1" fontWeight={600}>
+                        {announcement.title}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ ml: 3, mt: 1 }}>
+                      {announcement.content}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.disabled"
+                      sx={{ ml: 3, mt: 0.5 }}
+                    >
+                      Posted on {new Date(announcement.announcement_date).toLocaleDateString()}
+                    </Typography>
+                    <Divider sx={{ mt: 2 }} />
+                  </Box>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        ) : null
+      )}
+    </Box>
+  );
 };
 
-export default StudentAnnouncementsPage;
+export default StudentAnnouncementPage;

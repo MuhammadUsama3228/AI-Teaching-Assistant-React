@@ -46,14 +46,9 @@ const StudentCourseWeekDetail = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [weekRes, announcementRes] = await Promise.all([
-                    
-                    api.get(`api/courses/course_weeks/${id}/`),
-                    api.get(`api/courses/week_announcement/?course_week=${id}`),
-                ]);
-
+                const weekRes = await api.get(`api/courses/course_weeks/${id}/`);
                 setCourseWeek(weekRes.data);
-                setAnnouncementCount(announcementRes.data.length || 0);
+                setAnnouncementCount(weekRes.data.week_announcements?.length || 0);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -65,7 +60,11 @@ const StudentCourseWeekDetail = () => {
     }, [id]);
 
     const handleViewAnnouncements = () => {
-        navigate(`/course-weeks/${id}/announcements`);
+        if (announcementCount === 0) {
+            alert('No announcements available for this week.');
+        } else {
+            navigate(`/course-weeks/${id}/announcements`);
+        }
     };
 
     if (loading) {

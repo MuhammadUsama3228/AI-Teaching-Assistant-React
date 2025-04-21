@@ -1,126 +1,243 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
+  Box,
   Container,
   Typography,
-  Button,
-  Snackbar,
-  Alert,
-  Box,
   Avatar,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Divider,
+  Button,
+  Chip,
+  Stack,
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Stepper,
+  Step,
+  StepLabel,
 } from '@mui/material';
-import { ExpandMore } from '@mui/icons-material'; // Icon for accordion
-import api from '../../api'; // Assuming you have api configured here
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import api from '../../api';
 
 const StudentAssignmentDetailPage = () => {
-  const { assignmentId } = useParams(); // Get assignment ID from URL parameters
+  const { assignmentId } = useParams();
+  const navigate = useNavigate();
+
   const [assignment, setAssignment] = useState(null);
+  const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const navigate = useNavigate();
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+  const [submissionTitle, setSubmissionTitle] = useState('');
+  const [submissionText, setSubmissionText] = useState('');
+  const [file, setFile] = useState(null);
+
+  const steps = ['Enter Submission', 'Review & Submit'];
 
   useEffect(() => {
-    const fetchAssignmentDetails = async () => {
-      setLoading(true);
-      setError(null);
+    const fetchAssignment = async () => {
       try {
-        const response = await api.get(`/api/courses/student_insight/`);
-        const assignments = response.data.assignment; // Assuming this returns an array of assignments
-        const foundAssignment = assignments.find((assn) => assn.id === parseInt(assignmentId));
-        
-        if (foundAssignment) {
-          setAssignment(foundAssignment);
-        } else {
-          throw new Error('Assignment not found');
-        }
-      } catch (error) {
-        setError('Failed to fetch assignment details');
+        const response = await api.get('/api/courses/student_insight/');
+        const assignments = response.data.assignment;
+        const submissions = response.data.assignment_submission;
+        const foundAssignment = assignments.find(a => a.id === parseInt(assignmentId));
+
+        if (!foundAssignment) throw new Error('Assignment not found');
+        setAssignment(foundAssignment);
+
+        const foundSubmission = submissions.find(s => s.assignment === parseInt(assignmentId));
+        setSubmission(foundSubmission || null);
+      } catch (err) {
+        setError('Failed to load assignment');
         setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
     };
 
-    if (assignmentId) {
-      fetchAssignmentDetails();
-    }
+    if (assignmentId) fetchAssignment();
   }, [assignmentId]);
 
-  const handleSnackbarClose = () => {
-    setOpenSnackbar(false);
+  const handleSnackbarClose = () => setOpenSnackbar(false);
+
+  const handleSubmitClick = () => setOpenDialog(true);
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+    setActiveStep(0);
+    setSubmissionTitle('');
+    setSubmissionText('');
+    setFile(null);
   };
 
-  const handleSubmit = () => {
-    // Redirect to submission page
-    navigate(`/assignment/submit/${assignmentId}`);
+  const handleFileChange = (event) => setFile(event.target.files[0]);
+
+  const handleNext = async () => {
+    if (activeStep === steps.length - 1) {
+      try {
+        const formData = new FormData();
+        if (submissionTitle) formData.append('assignment_title', submissionTitle);
+        if (submissionText) formData.append('text', submissionText);
+        if (file) formData.append('file', file);
+
+        await api.put(`/api/courses/submission/${submission?.id}/`, formData, {
+          
+        });
+
+        setOpenSnackbar(true);
+        setError(null);
+        handleDialogClose();
+      } catch (err) {
+        setError('Failed to submit assignment.');
+        setOpenSnackbar(true);
+      }
+    } else {
+      setActiveStep(prev => prev + 1);
+    }
   };
+
+  const handleBack = () => setActiveStep(prev => prev - 1);
 
   return (
-    <Container
-      component="main"
-      maxWidth="lg"
-      sx={{
-        margin: '50px auto', // Center the container with auto left/right margins and add top margin
-        padding: '3rem 1rem',
-        display: 'flex', // Use flex to center content
-        flexDirection: 'column', // Stack elements vertically
-        alignItems: 'center', // Center content horizontally
-        borderRadius: '12px',
-        backgroundColor: '#f9f9f9',
-        boxShadow: 3,
-      }}
-    >
-      {loading ? (
-        <Typography variant="h6" textAlign="center">Loading...</Typography>
-      ) : error ? (
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert severity="error">{error}</Alert>
-        </Snackbar>
-      ) : assignment ? (
-        <Box textAlign="left" width="100%"> {/* Make Box full width for left alignment */}
-          <Avatar sx={{ bgcolor: '#1976d2', margin: '0 auto', width: 100, height: 100 }}>
-            <Typography variant="h5" color="#fff">{assignment.title.charAt(0)}</Typography>
-          </Avatar>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: '700', color: '#2c3e50', marginTop: 2, textAlign: 'left' }}>
-            {assignment.title}
-          </Typography>
-          
-          <Divider sx={{ marginY: 2 }} />
-          
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMore />} sx={{ bgcolor: '#e3f2fd' }}>
-              <Typography variant="h6">Assignment Details</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Box textAlign="left">
-                <Typography variant="body1"><strong>Description:</strong> {assignment.description}</Typography>
-                <Typography variant="body1"><strong>Marks:</strong> {assignment.marks}</Typography>
-                <Typography variant="body1"><strong>Due Date:</strong> {new Date(assignment.due_date).toLocaleString()}</Typography>
-                <Typography variant="body1"><strong>Allowed File Types:</strong> {assignment.allowed_file_types || 'None'}</Typography>
-                <Typography variant="body1"><strong>Max File Size:</strong> {assignment.max_file_size / 1024 / 1024} MB</Typography>
-                <Typography variant="body1"><strong>Attempts Allowed:</strong> {assignment.attempts}</Typography>
+    <Box sx={{ backgroundColor: '#f5f6fa', minHeight: '100vh', paddingY: 6 }}>
+      <Container maxWidth="md">
+        <Box sx={{ backgroundColor: '#fff', padding: 4, borderRadius: 3, boxShadow: 3 }}>
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+              <Alert severity="error">{error}</Alert>
+            </Snackbar>
+          ) : assignment ? (
+            <>
+              <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap">
+                <Box display="flex" alignItems="center">
+                  <Avatar sx={{ bgcolor: '#0d47a1', width: 60, height: 60, marginRight: 2 }}>
+                    <AssignmentIcon fontSize="large" />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#2c3e50' }}>
+                      {assignment.title}
+                    </Typography>
+                    <Stack direction="row" spacing={1} sx={{ marginTop: 1 }}>
+                      <Chip label="✔ Done: View" color="success" variant="outlined" />
+                      <Chip label="📌 To do: Receive a grade" color="info" variant="outlined" />
+                    </Stack>
+                  </Box>
+                </Box>
               </Box>
-            </AccordionDetails>
-          </Accordion>
 
-          <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ marginTop: '2rem' }}>
-            Submit Assignment
-          </Button>
+              <Divider sx={{ marginY: 3 }} />
+
+              <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: '#e3f2fd' }}>
+                  <Typography variant="h6">Assignment Details</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Box sx={{ lineHeight: 2 }}>
+                    <Typography><strong>Description:</strong> {assignment.description}</Typography>
+                    <Typography><strong>Marks:</strong> {assignment.marks}</Typography>
+                    <Typography><strong>Due Date:</strong> {new Date(assignment.due_date).toLocaleString()}</Typography>
+                    <Typography><strong>Allowed File Types:</strong> {assignment.allowed_file_types || 'N/A'}</Typography>
+                    <Typography><strong>Max File Size:</strong> {(assignment.max_file_size / 1024 / 1024).toFixed(2)} MB</Typography>
+                    <Typography><strong>Attempts Allowed:</strong> {assignment.attempts}</Typography>
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
+              <Box textAlign="center" mt={4}>
+                <Button variant="contained" size="large" onClick={handleSubmitClick}>
+                  Upload Submission
+                </Button>
+              </Box>
+
+              <Dialog open={openDialog} onClose={handleDialogClose} fullWidth maxWidth="md">
+                <DialogTitle>Upload Assignment Submission</DialogTitle>
+                <DialogContent dividers>
+                  <Stepper activeStep={activeStep} alternativeLabel>
+                    {steps.map(label => (
+                      <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+
+                  {activeStep === 0 && (
+                    <Box mt={3}>
+                      <TextField
+                        fullWidth
+                        label="Submission Title"
+                        variant="outlined"
+                        value={submissionTitle}
+                        onChange={(e) => setSubmissionTitle(e.target.value)}
+                        margin="normal"
+                      />
+                      <TextField
+                        fullWidth
+                        label="Submission Text"
+                        variant="outlined"
+                        multiline
+                        rows={4}
+                        value={submissionText}
+                        onChange={(e) => setSubmissionText(e.target.value)}
+                        margin="normal"
+                      />
+                      <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                        Or Upload File:
+                      </Typography>
+                      <TextField
+                        type="file"
+                        fullWidth
+                        onChange={handleFileChange}
+                        margin="normal"
+                        inputProps={{ accept: assignment.allowed_file_types || '*' }}
+                      />
+                    </Box>
+                  )}
+
+                  {activeStep === 1 && (
+                    <Box mt={3}>
+                      <Typography variant="h6">Review Submission</Typography>
+                      <Typography><strong>Title:</strong> {submissionTitle || 'N/A'}</Typography>
+                      <Typography><strong>Text:</strong> {submissionText || 'N/A'}</Typography>
+                      {file && (
+                        <Typography sx={{ mt: 1 }}>
+                          <strong>File:</strong> {file.name}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+                </DialogContent>
+
+                <DialogActions>
+                  <Button onClick={handleDialogClose}>Cancel</Button>
+                  {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
+                  <Button variant="contained" onClick={handleNext}>
+                    {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </>
+          ) : (
+            <Typography align="center">No assignment found.</Typography>
+          )}
         </Box>
-      ) : (
-        <Typography variant="h6" color="textSecondary" textAlign="center">No assignment details available.</Typography>
-      )}
-    </Container>
+      </Container>
+    </Box>
   );
 };
 
