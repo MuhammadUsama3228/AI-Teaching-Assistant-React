@@ -69,6 +69,7 @@ import StudentPanelAnnouncementPgae from './pages/student/student_announcement_p
 import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
 import AssignmentSubmissionForm from './components/student/student_assignmet_sub_page.jsx'
 import TimeSlotView from './components/teacher/courses/timeslot/view_time_slot.jsx';
+import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -180,7 +181,7 @@ function App() {
                 <Route path="/announcements/:announcementId" element={<StudentPannalAnnouncementDetailPage />} />
                 <Route path="/assignment/submit/:id" element={<AssignmentSubmissionForm />} />
                 <Route path="/viewtimeslot" element={<TimeSlotView />} />
-
+                <Route path="/time-slot/:id" element={<StudentPanelTimeSlotPage />} />
             </Routes>
         </BrowserRouter>
     );

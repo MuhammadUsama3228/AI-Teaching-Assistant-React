@@ -72,7 +72,12 @@ const StudentAssignmentDetailPage = () => {
 
   const handleSnackbarClose = () => setOpenSnackbar(false);
 
-  const handleSubmitClick = () => setOpenDialog(true);
+  const handleSubmitClick = () => {
+    setSubmissionTitle(submission?.assignment_title || '');
+    setSubmissionText(submission?.text || '');
+    setFile(null);
+    setOpenDialog(true);
+  };
 
   const handleDialogClose = () => {
     setOpenDialog(false);
@@ -88,17 +93,32 @@ const StudentAssignmentDetailPage = () => {
     if (activeStep === steps.length - 1) {
       try {
         const formData = new FormData();
-        if (submissionTitle) formData.append('assignment_title', submissionTitle);
-        if (submissionText) formData.append('text', submissionText);
+        formData.append('assignment_title', submissionTitle || '');
+        formData.append('text', submissionText || '');
         if (file) formData.append('file', file);
 
-        await api.put(`/api/courses/submission/${submission?.id}/`, formData, {
-          
+        const endpoint = submission
+          ? `/api/courses/submission/${submission.id}/`
+          : '/api/courses/submission/';
+        const method = submission ? 'put' : 'post';
+
+        await api[method](endpoint, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
 
         setOpenSnackbar(true);
         setError(null);
         handleDialogClose();
+        setLoading(true);
+
+        const response = await api.get('/api/courses/student_insight/');
+        const updatedSubmission = response.data.assignment_submission.find(
+          s => s.assignment === parseInt(assignmentId)
+        );
+        setSubmission(updatedSubmission || null);
+        setLoading(false);
       } catch (err) {
         setError('Failed to submit assignment.');
         setOpenSnackbar(true);
@@ -159,14 +179,30 @@ const StudentAssignmentDetailPage = () => {
                 </AccordionDetails>
               </Accordion>
 
+              {submission && (
+                <Box mt={3} p={2} bgcolor="#e8f5e9" borderRadius={2}>
+                  <Typography variant="h6">Previous Submission</Typography>
+                  <Typography><strong>Title:</strong> {submission.assignment_title}</Typography>
+                  <Typography><strong>Submitted On:</strong> {new Date(submission.submission_date).toLocaleString()}</Typography>
+                  <Typography><strong>Attempts Used:</strong> {submission.obtained_attempts}</Typography>
+                  <Typography><strong>Marks Obtained:</strong> {submission.obtained_marks ?? 'Pending'}</Typography>
+                  <Typography><strong>Feedback:</strong> {submission.feedback ?? 'Not yet provided'}</Typography>
+                  {submission.file && (
+                    <Typography>
+                      <strong>File:</strong> <a href={submission.file} target="_blank" rel="noreferrer">Download</a>
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
               <Box textAlign="center" mt={4}>
                 <Button variant="contained" size="large" onClick={handleSubmitClick}>
-                  Upload Submission
+                  {submission ? 'Update Submission' : 'Upload Submission'}
                 </Button>
               </Box>
 
               <Dialog open={openDialog} onClose={handleDialogClose} fullWidth maxWidth="md">
-                <DialogTitle>Upload Assignment Submission</DialogTitle>
+                <DialogTitle>{submission ? 'Update Assignment Submission' : 'Upload Assignment Submission'}</DialogTitle>
                 <DialogContent dividers>
                   <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map(label => (
@@ -227,7 +263,7 @@ const StudentAssignmentDetailPage = () => {
                   <Button onClick={handleDialogClose}>Cancel</Button>
                   {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
                   <Button variant="contained" onClick={handleNext}>
-                    {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+                    {activeStep === steps.length - 1 ? (submission ? 'Update' : 'Submit') : 'Next'}
                   </Button>
                 </DialogActions>
               </Dialog>
