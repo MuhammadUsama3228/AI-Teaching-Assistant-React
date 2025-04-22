@@ -22,7 +22,13 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ExpandMore, MoreVert, Menu as MenuIcon } from '@mui/icons-material';
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CreateIcon from '@mui/icons-material/Create';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import DeleteIcon from '@mui/icons-material/Delete';
+import UpdateIcon from '@mui/icons-material/Update';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
 
 import api from '../../../../api';
 import CourseUpdate from './course_update';
@@ -83,16 +89,8 @@ const CourseDetail = () => {
         fetchCourse();
     }, [id]);
 
-    const handleUpdateOpen = () => {
-        setOpenUpdateDialog(true);
-    };
-
-    const handleUpdateClose = () => {
-        setOpenUpdateDialog(false);
-    };
-      const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
+    const handleUpdateOpen = () => setOpenUpdateDialog(true);
+    const handleUpdateClose = () => setOpenUpdateDialog(false);
     const handleDelete = async () => {
         if (window.confirm('Are you sure you want to delete this course?')) {
             try {
@@ -105,14 +103,8 @@ const CourseDetail = () => {
         setOpenDeleteDialog(false);
     };
 
-    const handleMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
-
+    const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+    const handleMenuClose = () => setAnchorEl(null);
     const handleDeleteClick = () => {
         handleMenuClose();
         setOpenDeleteDialog(true);
@@ -127,18 +119,12 @@ const CourseDetail = () => {
         navigate(`/courseweekdetail/${weekId}`);
     };
 
-    const handleIconMenuOpen = (event) => {
-        setIconMenuAnchorEl(event.currentTarget);
-    };
-
-    const handleIconMenuClose = () => {
-        setIconMenuAnchorEl(null);
-    };
+    const handleIconMenuOpen = (event) => setIconMenuAnchorEl(event.currentTarget);
+    const handleIconMenuClose = () => setIconMenuAnchorEl(null);
 
     const handleCreateAssignment = () => {
         handleIconMenuClose();
         navigate(`/create_assignment/${id}`);
-
     };
 
     const handleViewAssignments = () => {
@@ -178,7 +164,6 @@ const CourseDetail = () => {
 
     return (
         <StyledContainer maxWidth="md">
-           
             <Grid container spacing={3} alignItems="center">
                 <Grid item xs={12} sm={4} md={3} textAlign={{ xs: 'center', sm: 'left' }}>
                     <CourseAvatar>{course.course_title.charAt(0).toUpperCase()}</CourseAvatar>
@@ -197,13 +182,11 @@ const CourseDetail = () => {
                     </IconButton>
                 </Grid>
 
-               
-
                 <Grid item xs={12} textAlign="left">
-                <IconButton onClick={handleIconMenuOpen}>
-                    <MenuIcon />
-                </IconButton>
-            </Grid>
+                    <IconButton onClick={handleIconMenuOpen}>
+                        <MenuIcon />
+                    </IconButton>
+                </Grid>
             </Grid>
 
             <Divider sx={{ marginY: 3 }} />
@@ -220,11 +203,13 @@ const CourseDetail = () => {
                         <Grid container spacing={2} sx={{ marginTop: 2 }}>
                             <Grid item xs={12} sm={6}>
                                 <Typography variant="body2">
+                                    <SchoolIcon sx={{ mr: 1 }} />
                                     <strong>Section:</strong> {course.section || 'N/A'}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <Typography variant="body2">
+                                    <AccessTimeIcon sx={{ mr: 1 }} />
                                     <strong>Duration:</strong> {course.weeks} weeks
                                 </Typography>
                             </Grid>
@@ -292,9 +277,18 @@ const CourseDetail = () => {
                     horizontal: 'left',
                 }}
             >
-                <MenuItem onClick={handleCreateAssignment}>Create Assignment</MenuItem>
-                <MenuItem onClick={handleViewAssignments}>View Assignments</MenuItem>
-                <MenuItem onClick={handleTimeSlots}>View Time Slots</MenuItem>
+                <MenuItem onClick={handleCreateAssignment}>
+                    <CreateIcon sx={{ mr: 1 }} />
+                    Create Assignment
+                </MenuItem>
+                <MenuItem onClick={handleViewAssignments}>
+                    <AssignmentIcon sx={{ mr: 1 }} />
+                    View Assignments
+                </MenuItem>
+                <MenuItem onClick={handleTimeSlots}>
+                    <AccessTimeIcon sx={{ mr: 1 }} />
+                    View Time Slots
+                </MenuItem>
             </Menu>
 
             <Menu
@@ -310,8 +304,14 @@ const CourseDetail = () => {
                     horizontal: 'right',
                 }}
             >
-                <MenuItem onClick={handleUpdateClick}>Update Course</MenuItem>
-                <MenuItem onClick={handleDeleteClick}>Delete Course</MenuItem>
+                <MenuItem onClick={handleUpdateClick}>
+                    <UpdateIcon sx={{ mr: 1 }} />
+                    Update Course
+                </MenuItem>
+                <MenuItem onClick={handleDeleteClick}>
+                    <DeleteIcon sx={{ mr: 1 }} />
+                    Delete Course
+                </MenuItem>
             </Menu>
 
             <Dialog open={openUpdateDialog} onClose={handleUpdateClose}>

@@ -12,10 +12,20 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material";
-import { Link } from "react-router-dom"; // Import Link for routing
+import {
+  Menu as MenuIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  ContactMail as ContactMailIcon,
+  AccountCircle as AccountCircleIcon,
+  Login as LoginIcon,
+  PersonAdd as PersonAddIcon,
+  School as SchoolIcon,
+} from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -39,7 +49,8 @@ const Navbar = () => {
   return (
     <AppBar position="sticky" sx={{ backgroundColor: "#052649" }}>
       <Toolbar>
-        {/* Logo/Title */}
+        {/* Logo & Title */}
+        <SchoolIcon sx={{ mr: 1 }} />
         <Typography
           variant="h6"
           sx={{
@@ -52,26 +63,22 @@ const Navbar = () => {
           AI Teaching Assistant
         </Typography>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation */}
         <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
-          <Button color="inherit" component={Link} to="/">
+          <Button color="inherit" startIcon={<HomeIcon />} component={Link} to="/">
             Home
           </Button>
-          <Button color="inherit" component={Link} to="/about">
+          <Button color="inherit" startIcon={<InfoIcon />} component={Link} to="/about">
             About
           </Button>
-          <Button color="inherit" component={Link} to="/contact">
+          <Button color="inherit" startIcon={<ContactMailIcon />} component={Link} to="/contact">
             Contact Us
           </Button>
-
-          {/* Dropdown for Account (Desktop) */}
           <Button
             color="inherit"
+            startIcon={<AccountCircleIcon />}
             onClick={handleDropdownClick}
-            sx={{
-              position: "relative",
-              "&:hover": { textDecoration: "underline" },
-            }}
+            sx={{ "&:hover": { textDecoration: "underline" } }}
           >
             Account
           </Button>
@@ -80,16 +87,16 @@ const Navbar = () => {
             open={isDropdownOpen}
             onClose={handleDropdownClose}
           >
-            <MenuItem onClick={handleDropdownClose}>
-              <Link to="/login">Login</Link>
+            <MenuItem onClick={handleDropdownClose} component={Link} to="/login">
+              <LoginIcon sx={{ mr: 1 }} /> Login
             </MenuItem>
-            <MenuItem onClick={handleDropdownClose}>
-              <Link to="/choice">Signup</Link>
+            <MenuItem onClick={handleDropdownClose} component={Link} to="/choice">
+              <PersonAddIcon sx={{ mr: 1 }} /> Signup
             </MenuItem>
           </Menu>
         </Box>
 
-        {/* Mobile Icon Button for Drawer */}
+        {/* Mobile Hamburger Icon */}
         <IconButton
           edge="end"
           color="inherit"
@@ -100,12 +107,8 @@ const Navbar = () => {
         </IconButton>
       </Toolbar>
 
-      {/* Drawer for Mobile Navigation */}
-      <Drawer
-        anchor="left"
-        open={isDrawerOpen}
-        onClose={() => toggleDrawer(false)}
-      >
+      {/* Drawer for Mobile */}
+      <Drawer anchor="left" open={isDrawerOpen} onClose={() => toggleDrawer(false)}>
         <Box
           sx={{ width: 250 }}
           role="presentation"
@@ -115,26 +118,31 @@ const Navbar = () => {
           <List>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/">
+                <ListItemIcon><HomeIcon /></ListItemIcon>
                 <ListItemText primary="Home" />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/about">
+                <ListItemIcon><InfoIcon /></ListItemIcon>
                 <ListItemText primary="About" />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/contact">
+                <ListItemIcon><ContactMailIcon /></ListItemIcon>
                 <ListItemText primary="Contact Us" />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/login">
+                <ListItemIcon><LoginIcon /></ListItemIcon>
                 <ListItemText primary="Login" />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to="/signup">
+              <ListItemButton component={Link} to="/choice">
+                <ListItemIcon><PersonAddIcon /></ListItemIcon>
                 <ListItemText primary="Signup" />
               </ListItemButton>
             </ListItem>

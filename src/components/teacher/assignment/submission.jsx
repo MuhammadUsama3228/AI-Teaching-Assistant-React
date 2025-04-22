@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableSortLabel,
-    Paper,
-    Typography,
-    CircularProgress,
     Container,
-    Skeleton,
     Box,
+    Typography,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Skeleton,
+    Grid,
+    Card,
+    CardContent,
+    Divider,
+    Button,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import { useParams } from "react-router-dom";
 import api from "../../../api";
 
@@ -21,141 +23,192 @@ const AssignmentStatusSubmissions = () => {
     const { assignmentId } = useParams();
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-    const [sortDirection, setSortDirection] = useState("asc");
-    const [sortBy, setSortBy] = useState("id");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterFeedback, setFilterFeedback] = useState("all");
+    const [filterSubmissionStatus, setFilterSubmissionStatus] = useState("all");
 
     useEffect(() => {
         const fetchSubmissions = async () => {
-            try {
-                const response = await api.get(`/api/courses/submission/`, {
-                    params: { assignment: assignmentId },
-                });
-                setSubmissions(Array.isArray(response.data) ? response.data : []);
-            } catch (error) {
-                console.error("Error fetching submissions:", error);
-                setError(true);
-            } finally {
-                setLoading(false);
-            }
+            const response = await api.get(`/api/courses/submission/`, {
+                params: { assignment: assignmentId },
+            });
+            setSubmissions(Array.isArray(response.data) ? response.data : []);
+            setLoading(false);
         };
 
         fetchSubmissions();
     }, [assignmentId]);
 
-    const handleSort = (property) => {
-        const isAsc = sortBy === property && sortDirection === "asc";
-        setSortDirection(isAsc ? "desc" : "asc");
-        setSortBy(property);
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
     };
 
-    const sortedSubmissions = Array.isArray(submissions)
-        ? submissions.sort((a, b) => {
-            if (!a[sortBy] || !b[sortBy]) return 0;
-            if (sortDirection === "asc") {
-                return a[sortBy] < b[sortBy] ? -1 : 1;
-            } else {
-                return a[sortBy] > b[sortBy] ? -1 : 1;
-            }
-        })
-        : [];
+    const handleFeedbackFilter = (event) => {
+        setFilterFeedback(event.target.value);
+    };
+
+    const handleSubmissionStatusFilter = (event) => {
+        setFilterSubmissionStatus(event.target.value);
+    };
+
+    // Filter submissions based on the search query, feedback, and submission status
+    const filteredSubmissions = submissions.filter((submission) => {
+        const matchesSearchQuery =
+            submission.student_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            submission.feedback?.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesFeedbackFilter =
+            filterFeedback === "all" ||
+            (filterFeedback === "with-feedback" && submission.feedback) ||
+            (filterFeedback === "without-feedback" && !submission.feedback);
+
+        const matchesSubmissionStatusFilter =
+            filterSubmissionStatus === "all" ||
+            (filterSubmissionStatus === "with-submission" && submission.file) ||
+            (filterSubmissionStatus === "without-submission" && !submission.file);
+
+        return matchesSearchQuery && matchesFeedbackFilter && matchesSubmissionStatusFilter;
+    });
+
+    // Columns for DataGrid table
+    const columns = [
+        { field: "id", headerName: "ID", width: 90 },
+        {
+            field: "student_username",
+            headerName: "Student Username",
+            width: 180,
+            editable: false,
+        },
+        {
+            field: "submission_date",
+            headerName: "Submission Date",
+            width: 180,
+            renderCell: (params) => new Date(params.row.submission_date).toLocaleString(),
+        },
+        {
+            field: "feedback",
+            headerName: "Feedback",
+            width: 180,
+            renderCell: (params) => params.row.feedback || "No feedback",
+        },
+        {
+            field: "file",
+            headerName: "Submission File",
+            width: 180,
+            renderCell: (params) =>
+                params.row.file ? (
+                    <Button variant="outlined" color="primary" href={params.row.file} target="_blank">
+                        Download
+                    </Button>
+                ) : (
+                    "No file"
+                ),
+        },
+    ];
 
     return (
         <Container sx={{ py: 4 }}>
-           <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            sx={{
-                fontWeight: "bold",
-                color: "#1a237e", 
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                background: "linear-gradient(90deg, #1a237e, #4a148c)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                py: 2, 
-                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            }}
-        >
-            Submissions Status
-        </Typography>
-
-           
+            <Typography
+                variant="h4"
+                align="center"
+                gutterBottom
+                sx={{
+                    fontWeight: "bold",
+                    color: "#1a237e",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    background: "linear-gradient(90deg, #1a237e, #4a148c)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    py: 2,
+                    
+                }}
+            >
+                Submissions Status
+            </Typography>
 
             {loading ? (
                 <Box display="flex" flexDirection="column" alignItems="center">
                     <Skeleton variant="text" width="60%" height={40} />
                     <Skeleton variant="rectangular" width="100%" height={400} />
                 </Box>
-            ) : error ? (
-                <Typography variant="body1" color="error" align="center">
-                    Error fetching submissions. Please try again later.
-                </Typography>
             ) : (
-                <TableContainer component={Paper} sx={{ mt: 3, border: "1px solid #e0e0e0", borderRadius: 2 }}>
-                    <Table>
-                        <TableHead>
-                            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortBy === "id"}
-                                        direction={sortBy === "id" ? sortDirection : "asc"}
-                                        onClick={() => handleSort("id")}
-                                    >
-                                        ID
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortBy === "studentName"}
-                                        direction={sortBy === "studentName" ? sortDirection : "asc"}
-                                        onClick={() => handleSort("studentName")}
-                                    >
-                                        Student Name
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortBy === "submission_date"}
-                                        direction={sortBy === "submission_date" ? sortDirection : "asc"}
-                                        onClick={() => handleSort("submission_date")}
-                                    >
-                                        Submission Date
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>File</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {sortedSubmissions.map((submission) => (
-                                <TableRow
-                                    key={submission.id}
-                                    sx={{
-                                        "&:nth-of-type(odd)": { backgroundColor: "#fafafa" },
-                                        "&:hover": { backgroundColor: "#f0f8ff" },
-                                    }}
-                                >
-                                    <TableCell>{submission.id}</TableCell>
-                                    <TableCell>{submission.student.username}</TableCell>
-                                    <TableCell>{new Date(submission.submission_date).toLocaleString()}</TableCell>
-                                    <TableCell>
-                                        <a href={submission.file} target="_blank" rel="noopener noreferrer">
-                                            Download
-                                        </a>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {sortedSubmissions.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={4} align="center">
-                                        No submissions found.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <>
+                    {/* Filters and Search */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+                        <TextField
+                            label="Search"
+                            variant="outlined"
+                            size="small"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            fullWidth
+                            sx={{ maxWidth: 300 }}
+                        />
+                        <FormControl size="small" sx={{ minWidth: 150 }}>
+                            <InputLabel>Feedback</InputLabel>
+                            <Select
+                                value={filterFeedback}
+                                onChange={handleFeedbackFilter}
+                                label="Feedback"
+                            >
+                                <MenuItem value="all">All</MenuItem>
+                                <MenuItem value="with-feedback">With Feedback</MenuItem>
+                                <MenuItem value="without-feedback">Without Feedback</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl size="small" sx={{ minWidth: 150 }}>
+                            <InputLabel>Submission Status</InputLabel>
+                            <Select
+                                value={filterSubmissionStatus}
+                                onChange={handleSubmissionStatusFilter}
+                                label="Submission Status"
+                            >
+                                <MenuItem value="all">All</MenuItem>
+                                <MenuItem value="with-submission">With Submission</MenuItem>
+                                <MenuItem value="without-submission">Without Submission</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                    {/* Submissions Count */}
+                    <Grid item xs={12} sm={6} md={12}>
+                        <Box
+                            sx={{
+                                padding: 2,
+                                borderRadius: 2,
+                                boxShadow: 3,
+                                backgroundColor: "#f5f5f5",
+                                textAlign: "center",
+                            }}
+                        >
+                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                Submissions Count
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {filteredSubmissions.length} submissions
+                            </Typography>
+                        </Box>
+                    </Grid>
+
+                    {/* DataGrid for Submissions */}
+                    <Box sx={{ height: 500, width: "100%", marginTop: 2 }}>
+                        <DataGrid
+                            rows={filteredSubmissions}
+                            columns={columns}
+                            pageSize={10}
+                            rowsPerPageOptions={[5, 10, 20]}
+                            disableSelectionOnClick
+                            autoHeight
+                            sx={{
+                                border: "none",
+                                boxShadow: 3,
+                                borderRadius: 2,
+                                backgroundColor: "#fff",
+                            }}
+                        />
+                    </Box>
+                </>
             )}
         </Container>
     );
