@@ -19,6 +19,9 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useParams } from "react-router-dom";
 import api from "../../../api";
 
+import AssignmentIcon from '@mui/icons-material/Assignment';
+
+
 const AssignmentStatusSubmissions = () => {
     const { assignmentId } = useParams();
     const [submissions, setSubmissions] = useState([]);
@@ -108,26 +111,29 @@ const AssignmentStatusSubmissions = () => {
 
     return (
         <Container sx={{ py: 4 }}>
-            <Typography
-                variant="h4"
-                align="center"
-                gutterBottom
-                sx={{
-                    fontWeight: "bold",
-                    color: "#1a237e",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    background: "linear-gradient(90deg, #1a237e, #4a148c)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    py: 2,
-                    
-                }}
-            >
-                Submissions Status
-            </Typography>
+           <Typography
+    variant="h4"
+    align="center"
+    gutterBottom
+    sx={{
+        fontWeight: "bold",
+        color: "#1a237e",
+        textTransform: "uppercase",
+        letterSpacing: "0.1em",
+        background: "linear-gradient(90deg, #1a237e, #4a148c)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        py: 2,
+        display: "flex",
+        alignItems: "center", // Align the icon and text vertically
+        justifyContent: "center", // Center align the content
+    }}
+>
+    <AssignmentIcon sx={{ mr: 1 }} /> {/* This will add the icon */}
+    Submissions Status
+</Typography
 
-            {loading ? (
+          >  {loading ? (
                 <Box display="flex" flexDirection="column" alignItems="center">
                     <Skeleton variant="text" width="60%" height={40} />
                     <Skeleton variant="rectangular" width="100%" height={400} />
