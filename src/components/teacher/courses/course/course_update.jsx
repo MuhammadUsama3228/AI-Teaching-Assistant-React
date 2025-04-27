@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
     Typography,
     Container,
@@ -12,7 +11,8 @@ import {
     Skeleton,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import api from '../../../../api';
+import { useNavigate } from 'react-router-dom';
+import api from '../../../../api'; // Adjust your path here
 
 const StyledContainer = styled(Container)(({ theme }) => ({
     maxWidth: 'md',
@@ -35,54 +35,75 @@ const ActionButton = styled(Button)(({ theme }) => ({
     margin: theme.spacing(1),
 }));
 
-const CourseUpdate = () => {
-    const { id } = useParams();
+const ManageProfile = ({ userData }) => {
     const navigate = useNavigate();
-    const [course, setCourse] = useState({
-        course_title: '',
-        description: '',
-        section: '',
-        weeks: '',
-        course_code: '',
+    const [formData, setFormData] = useState({
+        institution_name: '',
+        slug: '',
+        institution_type: '',
+        level: '',
+        degree: '',
+        year_of_study: '',
+        date_of_birth: '',
+        gender: '',
+        phone_number: '',
+        phone_hide: false,
+        address: '',
+        address_hide: false,
+        city: '',
+        country: '',
+        postal_code: '',
+        bio: '',
     });
+
     const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const fetchCourse = async () => {
-            try {
-                const response = await api.get(`/api/courses/course/${id}/`);
-                setCourse(response.data);
-            } catch (err) {
-                console.error('Error fetching course details:', err);
-                setError('Failed to load course details.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCourse();
-    }, [id]);
+        if (userData && userData.profile) {
+            setFormData({
+                institution_name: userData.profile.institution_name || '',
+                slug: userData.profile.slug || '',
+                institution_type: userData.profile.institution_type || '',
+                level: userData.profile.level || '',
+                degree: userData.profile.degree || '',
+                year_of_study: userData.profile.year_of_study || '',
+                date_of_birth: userData.profile.date_of_birth || '',
+                gender: userData.profile.gender || '',
+                phone_number: userData.profile.phone_number || '',
+                phone_hide: userData.profile.phone_hide || false,
+                address: userData.profile.address || '',
+                address_hide: userData.profile.address_hide || false,
+                city: userData.profile.city || '',
+                country: userData.profile.country || '',
+                postal_code: userData.profile.postal_code || '',
+                bio: userData.profile.bio || '',
+            });
+        }
+        setLoading(false);
+    }, [userData]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setCourse((prevCourse) => ({ ...prevCourse, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
     };
 
-    const handleUpdate = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setSuccess('');
         setError('');
 
         try {
-            await api.put(`/api/courses/course/${id}/`, course);
-            setSuccess('Course updated successfully!');
-            navigate(`/view-courses`);
+            await api.patch('/api/manage_profile/', formData); // adjust API path
+            setSuccess('Profile updated successfully!');
         } catch (err) {
-            console.error('Error updating course:', err);
-            setError('Failed to update course. Please try again.');
+            console.error('Error updating profile:', err);
+            setError('Failed to update profile.');
         } finally {
             setLoading(false);
         }
@@ -94,7 +115,7 @@ const CourseUpdate = () => {
                 <StyledCard>
                     <Skeleton variant="text" width="60%" height={40} sx={{ marginBottom: 2 }} />
                     <Grid container spacing={2}>
-                        {Array.from({ length: 4 }).map((_, index) => (
+                        {Array.from({ length: 10 }).map((_, index) => (
                             <Grid item xs={12} key={index}>
                                 <Skeleton variant="rectangular" height={56} />
                             </Grid>
@@ -108,47 +129,56 @@ const CourseUpdate = () => {
     return (
         <StyledContainer>
             <StyledCard>
-               
+                <Typography variant="h5" mb={3}>Manage Profile</Typography>
 
-                <form onSubmit={handleUpdate}>
+                <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label="Course Title"
-                                name="course_title"
-                                value={course.course_title}
-                                onChange={handleChange}
-                                required
-                            />
+                            <TextField fullWidth label="Institution Name" name="institution_name" value={formData.institution_name} onChange={handleChange} />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label="Description"
-                                name="description"
-                                value={course.description}
-                                onChange={handleChange}
-                                required
-                                multiline
-                                rows={4}
-                            />
+                            <TextField fullWidth label="Slug" name="slug" value={formData.slug} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth label="Institution Type" name="institution_type" value={formData.institution_type} onChange={handleChange} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                label="Section"
-                                name="section"
-                                value={course.section}
-                                onChange={handleChange}
-                                required
-                            />
+                            <TextField fullWidth label="Level" name="level" value={formData.level} onChange={handleChange} />
                         </Grid>
-                      
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Degree" name="degree" value={formData.degree} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth type="number" label="Year of Study" name="year_of_study" value={formData.year_of_study} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth type="date" label="Date of Birth" name="date_of_birth" InputLabelProps={{ shrink: true }} value={formData.date_of_birth} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Gender" name="gender" value={formData.gender} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Phone Number" name="phone_number" value={formData.phone_number} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth label="Address" name="address" value={formData.address} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="City" name="city" value={formData.city} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Country" name="country" value={formData.country} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth label="Postal Code" name="postal_code" value={formData.postal_code} onChange={handleChange} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth multiline rows={4} label="Bio" name="bio" value={formData.bio} onChange={handleChange} />
+                        </Grid>
                     </Grid>
 
                     <Box display="flex" justifyContent="flex-end" mt={3}>
-                        <ActionButton variant="outlined" color="secondary" onClick={() => navigate(`/coursedetail/${id}`)}>
+                        <ActionButton variant="outlined" color="secondary" onClick={() => navigate(-1)}>
                             Cancel
                         </ActionButton>
                         <ActionButton variant="contained" color="primary" type="submit">
@@ -173,4 +203,4 @@ const CourseUpdate = () => {
     );
 };
 
-export default CourseUpdate;
+export default ManageProfile;

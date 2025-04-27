@@ -287,7 +287,7 @@ function Register() {
 
             console.log(response);
             if (response.status === 201) {
-                navigate('VerifyEmail/');
+                navigate('verifyemail/');
             }
         } catch (error) {
             console.error('Registration error:', error);

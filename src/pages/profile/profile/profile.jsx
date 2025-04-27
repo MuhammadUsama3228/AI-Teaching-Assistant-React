@@ -119,7 +119,7 @@ const Profile = () => {
                         <Button                             
                             variant="contained"                             
                             sx={{ mt: 2, backgroundColor: '#38bdf8' }}                             
-                            onClick={() => navigate('/manage-profile')}                         
+                            onClick={() => navigate('/teacher_manage_profile')}                         
                         >                             
                             Edit Profile                         
                         </Button>                          

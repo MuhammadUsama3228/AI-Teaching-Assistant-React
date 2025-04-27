@@ -287,7 +287,7 @@ const CourseDetail = () => {
                 </MenuItem>
                 <MenuItem onClick={handleTimeSlots}>
                     <AccessTimeIcon sx={{ mr: 1 }} />
-                    View Time Slots
+                    Create Time Slots
                 </MenuItem>
             </Menu>
 

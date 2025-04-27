@@ -331,19 +331,23 @@ const ManageProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form data
     if (!validateForm()) return;
+  
     setLoading(true);
-
+  
     try {
+      // Prepare form data for submission
       const submitData = new FormData();
-
+  
       // Append top-level fields
       submitData.append('username', formData.username);
       submitData.append('email', formData.email);
       submitData.append('first_name', formData.first_name);
       submitData.append('last_name', formData.last_name);
-
-      // Handle teacher profile
+  
+      // Handle teacher profile data
       const teacherProfile = {
         ...formData.profile.teacher,
         teaching_experience: Number(formData.profile.teacher.teaching_experience),
@@ -351,32 +355,38 @@ const ManageProfile = () => {
         address_hide: Boolean(formData.profile.teacher.address_hide)
       };
       submitData.append('profile.teacher', JSON.stringify(teacherProfile));
-
+  
       // Handle experiences
       const experiences = formData.profile.experience.map(exp => ({
         ...exp,
-        id: exp.id || undefined
+        id: exp.id || undefined  // Only include id if it's already present
       }));
       submitData.append('profile.experience', JSON.stringify(experiences));
-
-      // Append profile picture if changed
+  
+      // Append the profile picture if it was changed
       if (profileImage) {
         submitData.append('profile_picture', profileImage);
       }
-
+  
+      // Make the PATCH request to update the profile
       const response = await api.patch('/api/manage_profile/', submitData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
-
+  
       if (response.status === 200) {
-        dispatch(updateUser(response.data));
-        setIsEditing(false);
+        // Successfully updated profile
+        dispatch(updateUser(response.data));  // Update user data in state
+        setIsEditing(false);  // Switch to non-edit mode
         showMessage('success', 'Profile updated successfully');
+      } else {
+        throw new Error('Failed to update profile');
       }
     } catch (error) {
       console.error('Update error:', error.response?.data || error.message);
+  
+      // Determine the error message to display
       let errorMessage = 'Failed to update profile';
       if (error.response) {
         if (error.response.data) {
@@ -391,11 +401,14 @@ const ManageProfile = () => {
       } else {
         errorMessage = error.message;
       }
+  
+      // Display error message
       showMessage('error', errorMessage);
     } finally {
-      setLoading(false);
+      setLoading(false);  // Stop loading state
     }
   };
+  
 
   if (!user) {
     return (

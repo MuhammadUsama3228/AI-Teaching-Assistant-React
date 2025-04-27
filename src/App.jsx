@@ -65,11 +65,13 @@ import StudentPanelAssignmetDetail from './pages/student/student_assignmet_detai
 import UpdateStudentProfile from './components/teacher/profile/student_profile_update.jsx';
 import CreateStudentProfile from './components/teacher/profile/student_profile.jsx';
 import StudentProfilePage from './pages/profile/profile/Student.jsx';
+import TeacherProfileUpdate from './pages/teacher/manage_teacher_profile.jsx';
 import StudentPanelAnnouncementPgae from './pages/student/student_announcement_page.jsx';
 import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
 import AssignmentSubmissionForm from './components/student/student_assignmet_sub_page.jsx'
 import TimeSlotView from './components/teacher/courses/timeslot/view_time_slot.jsx';
 import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
+import StudentProfileUpdate from './pages/student/manage_student_profile.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -137,7 +139,7 @@ function App() {
                 <Route path='/update-assignment/:id' element={< UpdateAssignmentForm />} />
                 <Route path='/view-assignments/' element={<AssignmentAllread />} />
                 <Route path='/course-time-slots/:id' element={<TimeSlotForm />} />
-                <Route path='/manage-profile' element={<ManageProfile />} />
+                <Route path='/student_manage_profile' element={<StudentProfileUpdate />} />
               
                 <Route path='/studentpanal' element={<ButtonBar />} />
                 <Route path='*' element={<PageNotFound />} />
@@ -182,6 +184,7 @@ function App() {
                 <Route path="/assignment/submit/:id" element={<AssignmentSubmissionForm />} />
                 <Route path="/viewtimeslot" element={<TimeSlotView />} />
                 <Route path="/time-slot/:id" element={<StudentPanelTimeSlotPage />} />
+                <Route path="/teacher_manage_profile" element={<TeacherProfileUpdate />} />
             </Routes>
         </BrowserRouter>
     );
