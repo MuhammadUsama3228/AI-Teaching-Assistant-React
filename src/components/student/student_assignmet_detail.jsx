@@ -100,13 +100,9 @@ const StudentAssignmentDetailPage = () => {
         const endpoint = submission
           ? `/api/courses/submission/${submission.id}/`
           : '/api/courses/submission/';
-        const method = submission ? 'put' : 'post';
+        const method = submission ? 'patch' : 'post';
 
-        await api[method](endpoint, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await api[method](endpoint, formData);
 
         setOpenSnackbar(true);
         setError(null);
@@ -278,3 +274,4 @@ const StudentAssignmentDetailPage = () => {
 };
 
 export default StudentAssignmentDetailPage;
+   
