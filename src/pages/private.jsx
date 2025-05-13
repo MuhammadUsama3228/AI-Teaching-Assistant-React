@@ -1,9 +1,9 @@
 // components/PrivateRoute.jsx
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const PrivateRoute = ({ children }) => {
-  const isAuthenticated = Boolean(localStorage.getItem('access')); // Assuming JWT token in localStorage
+  const isAuthenticated = Boolean(localStorage.getItem('access')); localStorage
   const location = useLocation();
 
   return isAuthenticated ? (

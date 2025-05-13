@@ -48,22 +48,26 @@ const StudentAssignmentDetailPage = () => {
 
   useEffect(() => {
     const fetchAssignment = async () => {
+      setLoading(true); // Start loading state
       try {
+        // Fetch the assignment and submission data
         const response = await api.get(`/api/courses/student_insight/`);
         const assignments = response.data.assignment;
         const submissions = response.data.assignment_submission;
-        const foundAssignment = assignments.find(a => a.id === parseInt(assignmentId));
 
+        // Find the assignment based on the ID
+        const foundAssignment = assignments.find(a => a.id === parseInt(assignmentId));
         if (!foundAssignment) throw new Error('Assignment not found');
         setAssignment(foundAssignment);
 
+        // Find the submission related to this assignment
         const foundSubmission = submissions.find(s => s.assignment === parseInt(assignmentId));
         setSubmission(foundSubmission || null);
       } catch (err) {
         setError('Failed to load assignment');
         setOpenSnackbar(true);
       } finally {
-        setLoading(false);
+        setLoading(false); // End loading state
       }
     };
 

@@ -26,6 +26,8 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import ProfileIcon from "@mui/icons-material/Person";  // Import Profile Icon
+import LogoutIcon from "@mui/icons-material/ExitToApp";  // Import Logout Icon
 import Teacherview from "../teacherHomepage"; // Ensure this path is correct
 
 const drawerWidth = 240;
@@ -75,7 +77,7 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background:"rgb(10, 72, 109)",
+  background: "rgb(10, 72, 109)",
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
@@ -157,9 +159,15 @@ export default function TeacherPanelDrawer() {
             onClose={handleClose}
           >
             <MenuItem component={Link} to="/profile" onClick={handleClose}>
+              <ListItemIcon>
+                <ProfileIcon />
+              </ListItemIcon>
               Profile
             </MenuItem>
-            <MenuItem component={Link} tologout="/" onClick={handleClose}>
+            <MenuItem component={Link} to="/logout" onClick={handleClose}>
+              <ListItemIcon>
+                <LogoutIcon />
+              </ListItemIcon>
               Logout
             </MenuItem>
           </Menu>
@@ -176,7 +184,11 @@ export default function TeacherPanelDrawer() {
           <ListItem key="dashboard" disablePadding sx={{ display: "block" }}>
             <ListItemButton component={Link} to="/teacherpanel" sx={{ minHeight: 48, px: 2.5 }}>
               <ListItemIcon
-                sx={{ minWidth: 0, justifyContent: "center", ...(open ? { mr: 3 } : { mr: "auto" }) }}
+                sx={{
+                  minWidth: 0,
+                  justifyContent: "center",
+                  ...(open ? { mr: 3 } : { mr: "auto" }),
+                }}
               >
                 <DashboardIcon />
               </ListItemIcon>
@@ -229,7 +241,11 @@ export default function TeacherPanelDrawer() {
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` } }}
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
+        }}
       >
         <Toolbar />
         <Teacherview />

@@ -8,7 +8,7 @@ const RoleChoice = () => {
 
   const handleRoleSelection = (role) => {
     setSelectedRole(role);
-    navigate("/register", { state: { role } })
+    navigate("/register", { state: { role } });
   };
 
   return (
@@ -19,13 +19,31 @@ const RoleChoice = () => {
         alignItems: "center",
         justifyContent: "center",
         height: "60vh",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "#FFFFFFFF",
         gap: 3,
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Added shadow effect here
+        borderRadius: "10px", // Optional: to round the corners of the box
+        padding: "20px", // Optional: adds some padding inside the box
       }}
     >
-      <Typography variant="h4" sx={{ color: "#052649", mb: 2 }}>
-        Choose Your Role
-      </Typography>
+        <img src="src/assets/logo.png" alt="My Photo" width="100" />
+                          
+         <Typography 
+                              variant="h5" 
+                              gutterBottom 
+                              sx={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  fontWeight: 'bold', 
+                                  color: '#0a4870', // teal-blue shade
+                                  gap: 1,
+                                  mb: 2,
+                                  textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                              }}
+                              >
+      
+                              Role Selection
+         </Typography>
       <Box sx={{ display: "flex", gap: 2 }}>
         <Button
           variant="contained"

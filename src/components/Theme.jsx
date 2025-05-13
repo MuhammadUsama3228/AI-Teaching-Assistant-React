@@ -5,9 +5,8 @@ const theme = createTheme({
         primary: {
             main: "rgb(10, 72, 109)",  
             dark: "#1a237e",
-           
         },
-        disabled:{
+        disabled: {
             main: '#297373',
         },
         secondary: {
@@ -16,13 +15,15 @@ const theme = createTheme({
         background: {
             default: '#f4f4f4', // Custom background color
         },
-        text : {
+        text: {
             default: '#000000',
         }
-
     },
     components: {
         MuiTextField: {
+            defaultProps: {
+                size: 'small',  // Set default size to small for all TextField components
+            },
             styleOverrides: {
                 root: {
                     '& .MuiOutlinedInput-root': {

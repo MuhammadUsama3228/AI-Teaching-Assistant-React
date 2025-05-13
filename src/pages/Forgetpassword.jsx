@@ -75,9 +75,25 @@ function ForgetPassword() {
                                 backgroundColor: "white",
                             }}
                         >
-                            <Typography variant="h5" gutterBottom>
-                                Forgot Password?
+                            <img src="src/assets/logo.png" alt="My Photo" width="100" />
+                                                
+                             <Typography 
+                                                    variant="h5" 
+                                                    gutterBottom 
+                                                    sx={{ 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        fontWeight: 'bold', 
+                                                        color: '#0a4870', // teal-blue shade
+                                                        gap: 1,
+                                                        mb: 2,
+                                                        textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                                                    }}
+                                                    >
+                            
+                                                    Account Recovery
                             </Typography>
+                            
 
                             {error && (
                                 <Typography color="error" variant="body2" gutterBottom>
@@ -98,6 +114,7 @@ function ForgetPassword() {
                                     variant="outlined"
                                     fullWidth
                                     margin="normal"
+                                    size='small'
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required

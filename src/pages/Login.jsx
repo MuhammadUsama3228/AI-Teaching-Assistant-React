@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import {
     TextField, Button, Typography, Container, Box,
-    ThemeProvider, CircularProgress, Avatar, InputAdornment, IconButton, Link
+    ThemeProvider, CircularProgress, Avatar,
+    InputAdornment, IconButton, Link
 } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'; // ✅ Login icon
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import theme from '../components/Theme';
 import api from "../api";
 import { useNavigate } from 'react-router-dom';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constraints.js";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constraints";
 import { loginSuccess } from './auth';
 import { useDispatch } from 'react-redux';
-import { setUser } from "./profile/manage-profile/manage-profile.js";
+import { setUser } from "./profile/manage-profile/manage-profile";
+
 
 function Login() {
     const dispatch = useDispatch();
@@ -22,7 +24,7 @@ function Login() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         document.title = "Login | AI Teaching Assistant";
@@ -53,14 +55,12 @@ function Login() {
         setError('');
 
         try {
-            const response = await api.post('auth/login/', {
-                username,
-                password,
-            });
+            const response = await api.post('auth/login/', { username, password });
 
             if (response.data.access && response.data.refresh) {
                 localStorage.setItem(ACCESS_TOKEN, response.data.access);
                 localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+
                 dispatch(loginSuccess(response.data));
                 await handleProfileNavigation();
             } else {
@@ -76,103 +76,100 @@ function Login() {
 
     return (
         <ThemeProvider theme={theme}>
-            <Container
-                component="main"
-                maxWidth="xs"
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh',
-                }}
-            >
+            <Container maxWidth="xs">
                 <Box
+                    component="form"
+                    onSubmit={handleSubmit}
                     sx={{
+                        mt: 8,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        padding: 4,
+                        justifyContent: 'center',
+                        padding: 2,
                         boxShadow: 3,
                         borderRadius: 2,
                     }}
                 >
-                    {/* ✅ Lock Icon Avatar */}
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
+                   <img src="src/assets/logo.png" alt="My Photo" width="100" />
+                    
+                    <Typography 
+                        variant="h5" 
+                        gutterBottom 
+                        sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            fontWeight: 'bold', 
+                            color: '#0a4870', // teal-blue shade
+                            gap: 1,
+                            mb: 2,
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                        }}
+                        >
 
-                    <Typography variant="h5" gutterBottom>
-                        Login
-                    </Typography>
+                        Sign In
+                        </Typography>
 
                     {error && (
-                        <Typography color="error" variant="body2" gutterBottom>
+                        <Typography color="error" sx={{ mt: 1 }}>
                             {error}
                         </Typography>
                     )}
 
-                    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-                        <TextField
-                            label="Username or Email"
-                            type="text"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
+                    <TextField
+                        label="Username"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        size='small'
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                    <TextField
+                        label="Password"
+                        type={showPassword ? 'text' : 'password'}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        size='small'
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
 
-                        <TextField
-                            label="Password"
-                            type={showPassword ? 'text' : 'password'} // Toggle between text and password
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        disabled={loading}
+                        sx={{
+                            mt: 2,
+                            backgroundColor: 'primary.main',
+                            color: 'white',
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                Please Wait
+                                <CircularProgress size={20} sx={{ ml: 2, color: 'white' }} />
+                            </>
+                        ) : (
+                            'Login'
+                        )}
+                    </Button>
 
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            fullWidth
-                            sx={{
-                                mt: 2,
-                                position: 'relative',
-                                backgroundColor: 'primary.main',
-                                color: loading ? 'black' : 'white',
-                                cursor: loading ? 'not-allowed' : 'pointer',
-                            }}
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    Please Wait
-                                    <CircularProgress size={20} sx={{ ml: 2, color: 'white' }} />
-                                </>
-                            ) : (
-                                'Login'
-                            )}
-                        </Button>
-                    </form>
-
-                    {/* Create Account and Password Recovery Links */}
                     <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                        <Link href="/register" variant="body2" color="primary">
+                        <Link href="/choice" variant="body2" color="primary">
                             {"Don't have an account? Sign Up"}
                         </Link>
                         <Link href="/forgot-password" variant="body2" color="primary">

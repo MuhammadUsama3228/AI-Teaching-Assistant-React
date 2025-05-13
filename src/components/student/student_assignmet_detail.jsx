@@ -74,7 +74,7 @@ const StudentAssignmentDetailPage = () => {
 
   const handleSubmitClick = () => {
     setSubmissionTitle(submission?.assignment_title || '');
-    setSubmissionText(submission?.text || '');
+  
     setFile(null);
     setOpenDialog(true);
   };
@@ -97,12 +97,9 @@ const StudentAssignmentDetailPage = () => {
         formData.append('text', submissionText || '');
         if (file) formData.append('file', file);
 
-        const endpoint = submission
-          ? `/api/courses/submission/${submission.id}/`
-          : '/api/courses/submission/';
-        const method = submission ? 'patch' : 'post';
-
-        await api[method](endpoint, formData);
+    
+      
+        await api.patch(`/api/courses/submission/${submission.id}/`, formData);
 
         setOpenSnackbar(true);
         setError(null);

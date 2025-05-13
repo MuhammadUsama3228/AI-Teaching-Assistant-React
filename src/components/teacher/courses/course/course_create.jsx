@@ -56,6 +56,7 @@ const CreateCourseForm = () => {
             variant="outlined"
             fullWidth
             value={course_title}
+            size='small'
             onChange={(e) => setCourseTitle(e.target.value)}
             required
             margin="normal"
@@ -93,6 +94,7 @@ const CreateCourseForm = () => {
           
           <TextField
             label="Section"
+             size='small'
             variant="outlined"
             fullWidth
             value={section}
@@ -113,6 +115,7 @@ const CreateCourseForm = () => {
             variant="outlined"
             fullWidth
             type="number"
+            size='small'
             value={weeks}
             onChange={(e) => setWeeks(e.target.value)}
             required
