@@ -148,18 +148,8 @@ export default function CourseWeekViewPage() {
                 </ListItemIcon>
                 <ListItemText primary="View Courses" />
               </ListItem>
-              <ListItem button component={Link} to="/create-course">
-                <ListItemIcon>
-                  <AddCircleOutlineIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course" />
-              </ListItem>
-              <ListItem button component={Link} to="/course_week_create">
-                <ListItemIcon>
-                  <EventNoteIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course Week" />
-              </ListItem>
+             
+             
               <ListItem button component={Link} to="/course_week_view">
                 <ListItemIcon>
                   <ListAltIcon /> {/* Changed Icon */}
@@ -169,18 +159,7 @@ export default function CourseWeekViewPage() {
             </>
           )}
           {/* Add Week Announcement Links */}
-          <ListItem button component={Link} to="/week-announcement-create">
-            <ListItemIcon>
-              <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Create Announcement" />
-          </ListItem>
-          <ListItem button component={Link} to="/week_announcement_view">
-            <ListItemIcon>
-              <VisibilityIcon />
-            </ListItemIcon>
-            <ListItemText primary="View Announcements" />
-          </ListItem>
+        
         </List>
         <Divider />
       </Drawer>

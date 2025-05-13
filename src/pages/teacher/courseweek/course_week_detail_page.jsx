@@ -149,19 +149,7 @@ export default function CourseWeekDetailPage() {
                 </ListItemIcon>
                 <ListItemText primary="View Courses" />
               </ListItem>
-              <ListItem button component={Link} to="/create-course">
-                <ListItemIcon>
-                  <AddCircleOutlineIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course" />
-              </ListItem>
-
-              <ListItem button component={Link} to="/course_week_create">
-              <ListItemIcon>
-                <EventNoteIcon />
-              </ListItemIcon>
-              <ListItemText primary="Create Course Week" />
-            </ListItem>
+             
             <ListItem button component={Link} to="/course_week_view">
               <ListItemIcon>
                 <ViewListIcon />

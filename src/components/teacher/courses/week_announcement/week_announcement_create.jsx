@@ -98,6 +98,7 @@ const WeekAnnouncementForm = ({ courseId, courseWeekId }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            size='small'
             margin="normal"
           />
 
@@ -106,6 +107,7 @@ const WeekAnnouncementForm = ({ courseId, courseWeekId }) => {
             label="Content"
             variant="outlined"
             fullWidth
+            size='small'
             multiline
             rows={4}
             value={content}
@@ -123,6 +125,7 @@ const WeekAnnouncementForm = ({ courseId, courseWeekId }) => {
             value={announcementDate}
             onChange={(e) => setAnnouncementDate(e.target.value)}
             required
+            size='small'
             margin="normal"
             InputLabelProps={{ shrink: true }}
           />
@@ -138,10 +141,11 @@ const WeekAnnouncementForm = ({ courseId, courseWeekId }) => {
                 fontSize: '16px',
                 textTransform: 'none',
                 borderRadius: '30px',
-                '&:hover': { backgroundColor: '#1976d2', color: '#fff' },
+                boxShadow:'3',
+                '&:hover': { backgroundColor: '#0D355DFF', color: '#fff' },
               }}
             >
-              {loading ? <CircularProgress size={24} sx={{ color: '#1976d2' }} /> : 'Create Announcement'}
+              {loading ? <CircularProgress size={24} sx={{ color: '#104375FF' }} /> : 'Create Announcement'}
             </Button>
           </Box>
         </form>

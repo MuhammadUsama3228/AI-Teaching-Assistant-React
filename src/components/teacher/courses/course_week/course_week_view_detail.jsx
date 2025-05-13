@@ -24,6 +24,7 @@ import {
     Drawer,
     List,
     ListItem,
+    ListItemIcon,
     ListItemText,
 } from '@mui/material';
 import { Add, Visibility, MoreVert } from '@mui/icons-material';
@@ -33,6 +34,9 @@ import { styled } from '@mui/material/styles';
 import api from '../../../../api';
 import CustomMenuIcon from './icon';
 import CourseWeekUpdate from './course_week_update';
+
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
     marginTop: theme.spacing(10),
@@ -218,8 +222,20 @@ const CourseWeekDetail = () => {
                     horizontal: 'right',
                 }}
             >
-                <MenuItem onClick={handleUpdateOpen}>Update Course</MenuItem>
-                <MenuItem onClick={handleDeleteClick}>Delete Course</MenuItem>
+               
+            <MenuItem onClick={handleUpdateOpen}>
+            <ListItemIcon>
+                <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Update Course Week" />
+            </MenuItem>
+
+            <MenuItem onClick={handleDeleteClick}>
+            <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Delete Course Week" />
+            </MenuItem>
             </Menu>
 
             <Dialog open={openUpdateDialog} onClose={handleUpdateClose}>

@@ -24,7 +24,7 @@ const StyledCard = styled(Box)(({ theme }) => ({
     padding: theme.spacing(3),
     border: '1px solid #ccc',
     borderRadius: '8px',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#FFFFFFFF',
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
@@ -117,6 +117,7 @@ const CourseUpdate = () => {
                                 fullWidth
                                 label="Course Title"
                                 name="course_title"
+                                size='small'
                                 value={course.course_title}
                                 onChange={handleChange}
                                 required
@@ -139,6 +140,7 @@ const CourseUpdate = () => {
                                 fullWidth
                                 label="Section"
                                 name="section"
+                                size='small'
                                 value={course.section}
                                 onChange={handleChange}
                                 required

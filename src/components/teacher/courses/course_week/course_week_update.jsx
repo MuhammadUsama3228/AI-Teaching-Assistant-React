@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TextField, Button, Typography, Container, Box, CircularProgress, Grid, Snackbar, Alert, Skeleton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../../../api';
+import theme from '../../../Theme';
 
 const CourseWeekUpdate = () => {
   const { id } = useParams();
@@ -63,6 +64,7 @@ const CourseWeekUpdate = () => {
 
   if (loading) {
     return (
+      
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: '8px' }}>
           <Skeleton variant="text" width={200} height={40} />
@@ -75,9 +77,7 @@ const CourseWeekUpdate = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: '8px', }}>
-        <Typography variant="h5" component="h1" gutterBottom>
-          Update Course Week
-        </Typography>
+     
         
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
@@ -86,6 +86,7 @@ const CourseWeekUpdate = () => {
                 fullWidth
                 label="Week Title"
                 value={courseWeek.week_title}
+                size='small'
                 onChange={(e) => setCourseWeek({ ...courseWeek, week_title: e.target.value })}
                 required
               />
@@ -102,16 +103,33 @@ const CourseWeekUpdate = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button variant="contained" component="label" sx={{ borderRadius: '8px', marginTop: '1rem' }}>
-                Upload File
-                <input type="file" hidden onChange={handleFileChange} />
-              </Button>
-              {uploadedFile && (
-                <Typography variant="body2" sx={{ marginTop: '0.5rem' }}>
-                  {uploadedFile.name}
-                </Typography>
-              )}
-            </Grid>
+  <Button
+    variant="contained"
+    component="label"
+    sx={{
+      borderRadius: '8px',
+      marginTop: '1rem',
+      backgroundColor: '#fff', // Light background
+      color: '#0a486d', // Optional: dark blue text
+      border: '1px solid #0a486d', // Dark blue border
+      boxShadow: '0px 4px 10px rgba(10, 72, 109, 0.4)', // Dark blue shadow
+      '&:hover': {
+        backgroundColor: '#f0f0f0',
+        boxShadow: '0px 6px 15px rgba(10, 72, 109, 0.6)',
+      },
+    }}
+  >
+    Upload File
+    <input type="file" hidden onChange={handleFileChange} />
+  </Button>
+
+  {uploadedFile && (
+    <Typography variant="body2" sx={{ marginTop: '0.5rem' }}>
+      {uploadedFile.name}
+    </Typography>
+  )}
+</Grid>
+
           </Grid>
 
           <Box display="flex" justifyContent="flex-end" mt={3}>

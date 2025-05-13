@@ -157,12 +157,7 @@ export default function CourseViewPage() {
                 <ListItemText primary="Create Course" />
               </ListItem>
 
-              <ListItem button component={Link} to="/course_week_create">
-              <ListItemIcon>
-                <EventNoteIcon />
-              </ListItemIcon>
-              <ListItemText primary="Create Course Week" />
-            </ListItem>
+             
             <ListItem button component={Link} to="/course_week_view">
               <ListItemIcon>
                 <ViewListIcon />
