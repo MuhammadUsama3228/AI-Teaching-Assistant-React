@@ -38,12 +38,11 @@ const Navbar = () => {
     <>
       <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h6" sx={{ color: "#1976d2" }}>
-            AI-TA
-          </Typography>
+          <img src="src/assets/logo.png" alt="My Photo" width="50" />
+          
 
           {isMobile ? (
-            <IconButton onClick={() => toggleDrawer(true)} sx={{ color: "#1976d2" }}>
+            <IconButton onClick={() => toggleDrawer(true)} sx={{ color: "#1D5FA1FF" }}>
               <Menu />
             </IconButton>
           ) : (
