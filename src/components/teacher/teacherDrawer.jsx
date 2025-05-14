@@ -230,7 +230,7 @@ export default function TeacherPanelDrawer() {
             </ListItemIcon>
             <ListItemText primary="Classroom" />
           </ListItem>
-          <ListItem button component={Link} to="/schedule">
+          <ListItem button component={Link} to="/viewtimeslot">
             <ListItemIcon>
               <CalendarTodayIcon />
             </ListItemIcon>

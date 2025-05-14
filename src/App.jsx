@@ -73,7 +73,9 @@ import TimeSlotView from './components/teacher/courses/timeslot/view_time_slot.j
 import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
 import StudentProfileUpdate from './pages/student/manage_student_profile.jsx';
 import AboutUsPage from './pages/About.jsx'
+import EnrollmentForm from './components/teacher/Enrollment/enroll_student.jsx';
 import ContactUsPage from './pages/contactus.jsx';
+import EnrollmentDashboard from './components/teacher/Enrollment/class_room.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -126,7 +128,7 @@ function App() {
                 <Route path="/profile/:slug" element={<Profile_Page />} />
                 <Route path='/studentpanel' element={<StudentPanel />} />
                 <Route path='/EnrollmentPage' element={<EnrollmentPage />} />
-                <Route path='/create-course' element={<CourseCreatePage />} />
+                <Route path='/create-course' element={<EnrollmentForm />} />
                 <Route path='/view-courses' element={<CourseViewPage />} />
                 <Route path="/coursedetail/:id" element={<CourseDetailPage />} />
                 <Route path="/update-course/:id" element={<CourseUpdatePage />} />
@@ -190,6 +192,7 @@ function App() {
                 <Route path="/viewtimeslot" element={<TimeSlotView />} />
                 <Route path="/time-slot/:id" element={<StudentPanelTimeSlotPage />} />
                 <Route path="/teacher_manage_profile" element={<TeacherProfileUpdate />} />
+                <Route path="/classroom" element={<EnrollmentDashboard />} />
             </Routes>
         </BrowserRouter>
     );
