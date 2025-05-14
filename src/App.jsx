@@ -72,6 +72,8 @@ import AssignmentSubmissionForm from './components/student/student_assignmet_sub
 import TimeSlotView from './components/teacher/courses/timeslot/view_time_slot.jsx';
 import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
 import StudentProfileUpdate from './pages/student/manage_student_profile.jsx';
+import AboutUsPage from './pages/About.jsx'
+import ContactUsPage from './pages/contactus.jsx';
 
 function RegisterAndLogout() {
     localStorage.clear();
@@ -107,8 +109,11 @@ function App() {
 
     return (
         <BrowserRouter>
+
             <Routes>
                 <Route path='/' element={<Home />} />
+                 <Route path='/about' element={<AboutUsPage />} />
+                 <Route path='/contact' element={<ContactUsPage />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<RegisterAndLogout />} />
                 <Route path='/verifyemail' element={<VerifyEmail />} />
