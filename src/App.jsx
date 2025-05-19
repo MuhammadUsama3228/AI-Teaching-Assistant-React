@@ -69,7 +69,7 @@ import TeacherProfileUpdate from './pages/teacher/manage_teacher_profile.jsx';
 import StudentPanelAnnouncementPgae from './pages/student/student_announcement_page.jsx';
 import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
 import AssignmentSubmissionForm from './components/student/student_assignmet_sub_page.jsx'
-import TimeSlotView from './components/teacher/courses/timeslot/view_time_slot.jsx';
+import TimeSlotCalendar from './components/teacher/courses/timeslot/view_time_slot.jsx';
 import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
 import StudentProfileUpdate from './pages/student/manage_student_profile.jsx';
 import AboutUsPage from './pages/About.jsx'
@@ -189,7 +189,7 @@ function App() {
                 <Route path="/course-weeks/:id/announcements" element={<StudentPanelAnnouncementPgae />} />
                 <Route path="/announcements/:announcementId" element={<StudentPannalAnnouncementDetailPage />} />
                 <Route path="/assignment/submit/:id" element={<AssignmentSubmissionForm />} />
-                <Route path="/viewtimeslot" element={<TimeSlotView />} />
+                <Route path="/viewtimeslot" element={<TimeSlotCalendar />} />
                 <Route path="/time-slot/:id" element={<StudentPanelTimeSlotPage />} />
                 <Route path="/teacher_manage_profile" element={<TeacherProfileUpdate />} />
                 <Route path="/classroom" element={<EnrollmentDashboard />} />

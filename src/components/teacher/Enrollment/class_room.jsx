@@ -22,11 +22,17 @@ import {
   Container,
   Fade,
   Tooltip,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Chip,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import api from "../../../api";
 import { saveAs } from "file-saver";
 import AddIcon from "@mui/icons-material/Add";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import EnrollmentForm from "./enroll_student";
 
 const EnrollmentDashboard = () => {
@@ -36,6 +42,9 @@ const EnrollmentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [openSidebar, setOpenSidebar] = useState(false);
+  const [inviteDrawerOpen, setInviteDrawerOpen] = useState(false);
+  const [invites, setInvites] = useState([]);
+
   const theme = useTheme();
 
   useEffect(() => {
@@ -49,18 +58,14 @@ const EnrollmentDashboard = () => {
 
       const grouped = res.data.reduce((acc, enrollment) => {
         const { course_name } = enrollment;
-        if (!acc[course_name]) {
-          acc[course_name] = [];
-        }
+        if (!acc[course_name]) acc[course_name] = [];
         acc[course_name].push(enrollment);
         return acc;
       }, {});
       setGroupedByCourse(grouped);
 
       const courseNames = Object.keys(grouped);
-      if (courseNames.length > 0) {
-        setSelectedCourse(courseNames[0]);
-      }
+      if (courseNames.length > 0) setSelectedCourse(courseNames[0]);
     } catch (error) {
       console.error("Error fetching data", error);
     } finally {
@@ -68,13 +73,26 @@ const EnrollmentDashboard = () => {
     }
   };
 
-  const handleTabChange = (event, newValue) => {
-    setSelectedCourse(newValue);
+  const fetchInvites = async () => {
+    try {
+      const res = await api.get("/api/invite_enrollment/");
+      setInvites(res.data);
+    } catch (error) {
+      console.error("Error fetching invite enrollments", error);
+    }
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  const handleInviteDrawerToggle = async () => {
+    if (!inviteDrawerOpen) {
+      await fetchInvites();
+    }
+    setInviteDrawerOpen(!inviteDrawerOpen);
   };
+
+  const handleOpenSidebar = () => setOpenSidebar(true);
+  const handleCloseSidebar = () => setOpenSidebar(false);
+  const handleTabChange = (event, newValue) => setSelectedCourse(newValue);
+  const handleSearchChange = (event) => setSearchTerm(event.target.value);
 
   const handleExport = () => {
     const courseEnrollments = groupedByCourse[selectedCourse] || [];
@@ -93,14 +111,6 @@ const EnrollmentDashboard = () => {
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     saveAs(blob, `${selectedCourse}_enrollments.csv`);
-  };
-
-  const handleOpenSidebar = () => {
-    setOpenSidebar(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setOpenSidebar(false);
   };
 
   const columns = [
@@ -163,14 +173,20 @@ const EnrollmentDashboard = () => {
       {/* Main Content */}
       <Box sx={{ flexGrow: 1, p: 4 }}>
         <AppBar position="sticky" sx={{ mb: 3, bgcolor: "#084475FF" }}>
-          <Toolbar>
-            <Typography variant="h4" sx={{ color: "#fff" }}>📚 Enrollment Dashboard</Typography>
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="h4" sx={{ color: "#fff" }}>
+              📚 Enrollment Dashboard
+            </Typography>
+            <Tooltip title="View Invites">
+              <IconButton onClick={handleInviteDrawerToggle} sx={{ color: "#fff" }}>
+                <MailOutlineIcon />
+              </IconButton>
+            </Tooltip>
           </Toolbar>
         </AppBar>
 
         <Container maxWidth="xl">
           <Grid container spacing={3}>
-            {/* Search */}
             <Grid item xs={12} sm={8}>
               <TextField
                 label="Search by Student"
@@ -190,9 +206,8 @@ const EnrollmentDashboard = () => {
               />
             </Grid>
 
-            {/* Display Number of Students Enrolled */}
             <Grid item xs={12}>
-              <Card elevation={3} sx={{ borderRadius: 3, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: '#104E81FF', }}>
+              <Card elevation={3} sx={{ borderRadius: 3, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: '#104E81FF' }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ color: "#fff" }}>
                     Total Students Enrolled in <strong>{selectedCourse}</strong>:{" "}
@@ -208,14 +223,12 @@ const EnrollmentDashboard = () => {
                       "&:hover": { transform: "scale(1.2)" },
                     }}
                   >
-                   <AddIcon sx={{ fontSize: 40 }} />
-
+                    <AddIcon sx={{ fontSize: 40 }} />
                   </IconButton>
                 </Tooltip>
               </Card>
             </Grid>
 
-            {/* DataGrid */}
             <Grid item xs={12}>
               <Card elevation={3} sx={{ borderRadius: 3 }}>
                 <CardContent>
@@ -237,7 +250,10 @@ const EnrollmentDashboard = () => {
                           sx={{
                             borderRadius: 2,
                             "& .MuiDataGrid-root": { border: "none" },
-                            "& .MuiDataGrid-columnHeader": { backgroundColor: "#104E81FF", color: "#fff" },
+                            "& .MuiDataGrid-columnHeader": {
+                              backgroundColor: "#104E81FF",
+                              color: "#fff",
+                            },
                           }}
                         />
                       </Box>
@@ -258,7 +274,7 @@ const EnrollmentDashboard = () => {
         </Container>
       </Box>
 
-      {/* Sidebar with EnrollForm Dialog */}
+      {/* Enroll Student Dialog */}
       <Dialog open={openSidebar} onClose={handleCloseSidebar} TransitionComponent={Fade}>
         <DialogTitle>Enroll a New Student</DialogTitle>
         <DialogContent>
@@ -270,6 +286,52 @@ const EnrollmentDashboard = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Invite Drawer */}
+      <Drawer
+        anchor="right"
+        open={inviteDrawerOpen}
+        onClose={handleInviteDrawerToggle}
+        sx={{ zIndex: 1300 }}
+      >
+        <Box sx={{ width: 350, p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            📩 Course Invitations
+          </Typography>
+          <List>
+            {invites.length === 0 ? (
+              <Typography>No invitations found.</Typography>
+            ) : (
+              invites.map((invite) => (
+                <ListItem key={invite.id} divider>
+                  <ListItemText
+                    primary={invite.student_email}
+                    secondary={
+                      <>
+                        <Typography variant="body2" color="textSecondary">
+                          Course: {invite.course.course_title}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Course Section: {invite.course.section}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Date: {new Date(invite.created_at).toLocaleString()}
+                        </Typography>
+                      </>
+                    }
+                  />
+                  <Chip
+                    label={invite.accept ? "Accepted" : "Pending"}
+                    color={invite.accept ? "success" : "warning"}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  />
+                </ListItem>
+              ))
+            )}
+          </List>
+        </Box>
+      </Drawer>
     </Box>
   );
 };

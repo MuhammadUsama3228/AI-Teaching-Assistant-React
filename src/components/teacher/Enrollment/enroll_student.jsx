@@ -4,9 +4,9 @@ import { TextField, MenuItem, Button, Typography, Container, Box, CircularProgre
 import theme from "../../Theme";
 import { CheckCircle, Error, Email, School } from '@mui/icons-material';
 
-const EnrollmentForm = () => {
+const EnrollmentForm = ({ selectedCourse }) => {
   const [email, setEmail] = useState("");
-  const [courseId, setCourseId] = useState("");
+  const [courseId, setCourseId] = useState(selectedCourse || "");  // Set selectedCourse as the default value
   const [courses, setCourses] = useState([]);
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
@@ -56,8 +56,6 @@ const EnrollmentForm = () => {
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs" sx={{ padding: '2rem', backgroundColor: '#fff', boxShadow: 3, borderRadius: 2 }}>
-        
-
         
         <form onSubmit={handleSubmit}>
           <TextField
@@ -141,25 +139,25 @@ const EnrollmentForm = () => {
           </Box>
 
           {errors.general && (
-            <Alert severity="error" sx={{ mt: 2 }} icon={<Error />}>
+            <Alert severity="error" sx={{ mt: 2 }} icon={<Error />} >
               {errors.general}
             </Alert>
           )}
 
           {errors.email && (
-            <Alert severity="error" sx={{ mt: 2 }} icon={<Error />}>
+            <Alert severity="error" sx={{ mt: 2 }} icon={<Error />} >
               {errors.email[0]}
             </Alert>
           )}
 
           {errors.course && (
-            <Alert severity="error" sx={{ mt: 2 }} icon={<Error />}>
+            <Alert severity="error" sx={{ mt: 2 }} icon={<Error />} >
               {errors.course[0]}
             </Alert>
           )}
 
           {success && (
-            <Alert severity="success" sx={{ mt: 2 }} icon={<CheckCircle />}>
+            <Alert severity="success" sx={{ mt: 2 }} icon={<CheckCircle />} >
               {success}
             </Alert>
           )}
