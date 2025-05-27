@@ -34,6 +34,7 @@ function Login() {
         try {
             const response = await api.get('/api/manage_profile/');
             const role = response.data.role;
+            console.log(role)
 
             dispatch(setUser(response.data));
 
