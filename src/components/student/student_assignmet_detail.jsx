@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
+
   Box,
   Container,
   Typography,
@@ -12,7 +14,6 @@ import {
   Button,
   Snackbar,
   Alert,
- 
   Dialog,
   DialogActions,
   DialogContent,
@@ -20,7 +21,11 @@ import {
   TextField,
   Paper,
   Skeleton,
-  useMediaQuery
+  useMediaQuery,
+  Tabs,
+  Card,
+  IconButton,
+  Tab,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -28,14 +33,15 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import api from '../../api';
-import { Tabs, Tab } from '@mui/material';
 
 const StudentAssignmentDetailPage = () => {
   const { assignmentId } = useParams();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const [assignment, setAssignment] = useState(null);
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,27 +49,49 @@ const StudentAssignmentDetailPage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [submissionTitle, setSubmissionTitle] = useState('');
+  const [solution, setSolution] = useState(null);
+
   const [file, setFile] = useState(null);
 
   const steps = ['Enter Submission', 'Review & Submit'];
 
   useEffect(() => {
-    const fetchSubmission = async () => {
+    const fetchAssignmentAndSubmission = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/api/courses/submission/?assignment=${assignmentId}`);
-        const foundSubmission = response.data.length > 0 ? response.data[0] : null;
+
+        // Fetch all assignments and courses insight
+        const insightRes = await api.get("/api/courses/student_insight/");
+        const foundAssignment = insightRes.data.assignment.find(a => String(a.id) === String(assignmentId));
+        const foundAssignmentSolution = insightRes.data.assignment_solution.find(a => String(a.id) === String(assignmentId));
+
+
+        if (!foundAssignment) {
+          setError('Assignment not found.');
+          setOpenSnackbar(true);
+          setLoading(false);
+          return;
+        }
+        setAssignment(foundAssignment);
+
+       
+
+        setSolution(foundAssignmentSolution);
+
+        // Fetch submission for this assignment
+        const submissionRes = await api.get(`/api/courses/submission/?assignment=${assignmentId}`);
+        const foundSubmission = submissionRes.data.length > 0 ? submissionRes.data[0] : null;
         setSubmission(foundSubmission);
         setSubmissionTitle(foundSubmission?.assignment_title || '');
       } catch (err) {
-        setError('Failed to load submission');
+        setError('Failed to load assignment or submission data');
         setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
     };
 
-    if (assignmentId) fetchSubmission();
+    if (assignmentId) fetchAssignmentAndSubmission();
   }, [assignmentId]);
 
   const handleSnackbarClose = () => setOpenSnackbar(false);
@@ -108,6 +136,7 @@ const StudentAssignmentDetailPage = () => {
         setOpenSnackbar(true);
         handleDialogClose();
 
+        // Refresh submission after update
         const response = await api.get(`/api/courses/submission/?assignment=${assignmentId}`);
         setSubmission(response.data.length > 0 ? response.data[0] : null);
       } catch (err) {
@@ -151,6 +180,7 @@ const StudentAssignmentDetailPage = () => {
     <Box sx={{ backgroundColor: '#f0f2f5', minHeight: '100vh', py: 5 }}>
       <Container maxWidth="md">
         <Paper elevation={6} sx={{ borderRadius: 3, p: isSmallScreen ? 2 : 4, backgroundColor: '#fff' }}>
+          {/* Header */}
           <Box display="flex" alignItems="center" mb={3} flexDirection={isSmallScreen ? 'column' : 'row'}>
             <Avatar sx={{ bgcolor: '#003366', width: 60, height: 60, mr: isSmallScreen ? 0 : 2, mb: isSmallScreen ? 1 : 0 }}>
               <AssignmentIcon fontSize="large" />
@@ -177,18 +207,103 @@ const StudentAssignmentDetailPage = () => {
             <Alert severity="error">{error}</Alert>
           ) : (
             <>
-              {submission && getStatusAlert()}
+            {submission && getStatusAlert()}
+              {/* Assignment Details */}
 
+    <Accordion defaultExpanded sx={{ mb: 4 }}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        sx={{ backgroundColor: "#e9f1fb" }}
+      >
+        <Typography variant="h6">Assignment Details</Typography>
+      </AccordionSummary>
+
+      <AccordionDetails sx={{ p: 2, backgroundColor: "#f9fafb" }}>
+        <Typography gutterBottom>
+          <strong>Title:</strong> {assignment.title}
+        </Typography>
+        <Typography gutterBottom>
+          <strong>Description:</strong> {assignment.description}
+        </Typography>
+        <Typography gutterBottom>
+          <strong>Due Date:</strong>{" "}
+          {new Date(assignment.due_date).toLocaleString()}
+        </Typography>
+        <Typography gutterBottom>
+          <strong>Marks:</strong> {assignment.marks}
+        </Typography>
+        <Typography gutterBottom>
+          <strong>Attempts Allowed:</strong> {assignment.attempts}
+        </Typography>
+
+       
+      </AccordionDetails>
+    </Accordion >
+
+     {assignment.assignment_files?.length > 0 && (
+    <Accordion defaultExpanded sx={{ mb: 4 }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ backgroundColor: "#e9f1fb" }}
+            >
+              <Typography variant="h6">Assignment Files</Typography>
+            </AccordionSummary>
+
+            <AccordionDetails
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+              }}
+            >
+              {assignment.assignment_files.map((file) => (
+                <Card
+                  key={file.id}
+                  sx={{
+                    width: 200,
+                    p: 2,
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <InsertDriveFileIcon
+                    sx={{ fontSize: 40, color: "#1976d2", mb: 1 }}
+                  />
+                  <Typography variant="body2" noWrap>
+                    {file.file_url.split("/").pop()}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{ mt: 1 }}
+                    href={file.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View
+                  </Button>
+                </Card>
+              ))}
+            </AccordionDetails>
+          </Accordion>
+        )}
+              
+
+             
+            
+
+              {/* Submission Accordion */}
               {submission ? (
                 <Accordion defaultExpanded>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: '#e9f1fb' }}>
-
                     <Typography variant="h6">Submission Details</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-
-                    <Typography gutterBottom><strong>Assignmet Title:</strong> {submission.assignment_title}</Typography>
-
+                    <Typography gutterBottom><strong>Submission Title:</strong> {submission.assignment_title}</Typography>
                     <Typography gutterBottom><strong>Submitted On:</strong> {new Date(submission.submission_date).toLocaleString()}</Typography>
                     <Typography gutterBottom><strong>Attempts Used:</strong> {submission.obtained_attempts}</Typography>
                     <Typography gutterBottom><strong>Marks Obtained:</strong> {submission.obtained_marks ?? 'Pending'}</Typography>
@@ -207,116 +322,186 @@ const StudentAssignmentDetailPage = () => {
                 <Typography align="center">No submission found for this assignment.</Typography>
               )}
 
+              {/* Submit/Update Button */}
+            {submission.obtained_attempts > 0 && (
               <Box mt={4} textAlign="center">
                 <Button variant="contained" onClick={handleSubmitClick} size="large" sx={{ bgcolor: '#003366' }}>
                   {submission ? 'Update Submission' : 'Upload Submission'}
                 </Button>
               </Box>
+              
+            )}
+
             </>
           )}
 
+{solution && submission?.obtained_attempts === 0 && (
+  <Accordion defaultExpanded sx={{ mt: 4 }}>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: '#e9f1fb' }}>
+      <Typography variant="h6">Solution</Typography>
+    </AccordionSummary>
+    <AccordionDetails sx={{ backgroundColor: '#f9fafb' }}>
+      {solution.text && (
+        <Typography gutterBottom>
+          <strong>Text:</strong> {solution.text}
+        </Typography>
+      )}
+      {solution.file && (
+        <Typography>
+          <strong>File:</strong>{' '}
+          <a href={solution.file} target="_blank" rel="noopener noreferrer">
+            View Solution
+          </a>
+        </Typography>
+      )}
+      {!solution.text && !solution.file && (
+        <Typography>No solution provided yet.</Typography>
+      )}
+    </AccordionDetails>
+  </Accordion>
+)}
+
+
+
+
           {/* Submission Dialog */}
-         <Dialog open={openDialog} onClose={handleDialogClose} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ fontWeight: 'bold', color: '#003366' }}>
-          {submission ? 'Update Submission' : 'New Submission'}
-        </DialogTitle>
+         <Dialog open={openDialog} onClose={handleDialogClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ fontWeight: 700, color: '#003366', fontSize: '1.5rem' }}>
+        Submit Assignment
+      </DialogTitle>
 
-  <DialogContent dividers>
-    <Tabs
-      value={activeStep}
-      onChange={(e, newValue) => setActiveStep(newValue)}
-      variant="fullWidth"
-      sx={{
-        mb: 2,
-        backgroundColor: '#f4f6f8',
-        borderRadius: 2,
-        '& .MuiTab-root': {
-          fontWeight: 'bold',
-          fontSize: '0.95rem',
-        },
-        '& .Mui-selected': {
-          color: '#003366',
-        },
-        '& .MuiTabs-indicator': {
-          backgroundColor: '#003366',
-        },
-      }}
-    >
-      <Tab label="Enter Submission" />
-      <Tab label="Review & Submit" />
-    </Tabs>
+      <DialogContent>
+        <Tabs
+          value={activeStep}
+          onChange={(e, newVal) => setActiveStep(newVal)}
+          textColor="primary"
+          indicatorColor="primary"
+          variant="fullWidth"
+          sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+        >
+          {steps.map((label) => (
+            <Tab key={label} label={label} sx={{ fontWeight: 'bold', fontSize: '0.95rem' }} />
+          ))}
+        </Tabs>
 
-    {activeStep === 0 && (
-      <Box mt={1}>
-        <TextField
-          fullWidth
-          label="Submission Title"
-          variant="outlined"
-          value={submissionTitle}
-          onChange={(e) => setSubmissionTitle(e.target.value)}
-          margin="normal"
-        />
+        {activeStep === 0 && (
+          <>
+            <TextField
+              label="Submission Title"
+              fullWidth
+              value={submissionTitle}
+              onChange={(e) => setSubmissionTitle(e.target.value)}
+              sx={{ mb: 3 }}
+              placeholder="Enter your assignment title"
+            />
 
-        <Typography variant="subtitle2" sx={{ mt: 2 }}>
-          Upload File:
-        </Typography>
-        <Button variant="outlined" component="label" sx={{ mt: 1 }}>
-          Choose File
-          <input
-            type="file"
-            hidden
-            accept="*"
-            onChange={handleFileChange}
-          />
+            <Box
+              onClick={() => document.getElementById('file-upload-input').click()}
+              sx={{
+                cursor: 'pointer',
+                border: '2px dashed',
+                borderColor: 'primary.main',
+                borderRadius: 3,
+                p: 4,
+                textAlign: 'center',
+                color: 'text.secondary',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.3s, box-shadow 0.3s',
+                '&:hover': {
+                  backgroundColor: '#e3f2fd',
+                  boxShadow: '0 6px 12px rgba(25, 118, 210, 0.25)',
+                  color: 'primary.main',
+                  borderColor: 'primary.dark',
+                  '& svg': {
+                    transform: 'scale(1.1)',
+                  },
+                },
+                userSelect: 'none',
+                minHeight: 140,
+              }}
+            >
+              <UploadFileIcon color="primary" sx={{ fontSize: 56, transition: 'transform 0.3s' }} />
+              <Typography variant="body1" color="text.secondary" mt={1}>
+                Drag and drop a file here, or click to browse
+              </Typography>
+              <input
+                id="file-upload-input"
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </Box>
+
+            {file && (
+              <Typography
+                variant="body2"
+                sx={{
+                  mt: 2,
+                  p: 1,
+                  borderRadius: 1,
+                  backgroundColor: '#e3f2fd',
+                  color: 'primary.dark',
+                  fontWeight: 600,
+                  wordBreak: 'break-word',
+                  textAlign: 'center',
+                }}
+              >
+                Selected file: {file.name}
+              </Typography>
+            )}
+          </>
+        )}
+
+        {activeStep === 1 && (
+          <Box>
+            <Typography sx={{ mb: 1 }}>
+              <strong>Title:</strong> {submissionTitle || submission?.assignment_title}
+            </Typography>
+            <Typography>
+              <strong>File:</strong>{' '}
+              {file ? file.name : submission?.file ? 'Existing file uploaded' : 'No file uploaded'}
+            </Typography>
+          </Box>
+        )}
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button onClick={handleDialogClose} color="secondary" variant="outlined" size="medium">
+          Cancel
         </Button>
-        {file && (
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            Selected File: <strong>{file.name}</strong>
-          </Typography>
+        {activeStep > 0 && (
+          <Button onClick={handleBack} color="primary" variant="outlined" size="medium">
+            Back
+          </Button>
         )}
-      </Box>
-    )}
+        <Button
+          onClick={handleNext}
+          variant="contained"
+          size="medium"
+          sx={{ bgcolor: '#003366', '&:hover': { bgcolor: '#002244' } }}
+        >
+          {activeStep === steps.length - 1 ? (submission ? 'Update' : 'Submit') : 'Next'}
+        </Button>
+      </DialogActions>
+    </Dialog>
 
-    {activeStep === 1 && (
-      <Box mt={1}>
-        <Typography variant="body1" gutterBottom>
-          <strong>Title:</strong> {submissionTitle || 'N/A'}
-        </Typography>
-        {file ? (
-          <Typography variant="body2" mt={2}>
-            <strong>File:</strong> {file.name}
-          </Typography>
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            No file uploaded.
-          </Typography>
-        )}
-      </Box>
-    )}
-  </DialogContent>
-
-  <DialogActions>
-    <Button onClick={handleDialogClose}>Cancel</Button>
-    {activeStep > 0 && (
-      <Button onClick={() => setActiveStep((prev) => prev - 1)}>Back</Button>
-    )}
-    {activeStep < 1 ? (
-      <Button variant="contained" onClick={() => setActiveStep((prev) => prev + 1)} sx={{ bgcolor: '#003366' }}>
-        Next
-      </Button>
-    ) : (
-      <Button variant="contained" onClick={handleNext} sx={{ bgcolor: '#003366' }}>
-        {submission ? 'Update' : 'Submit'}
-      </Button>
-    )}
-  </DialogActions>
-</Dialog>
-
-
-
-          <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleSnackbarClose}>
-            <Alert severity={error ? 'error' : 'success'} onClose={handleSnackbarClose}>
-              {error || 'Submission updated successfully.'}
+          {/* Snackbar */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={4000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert
+              onClose={handleSnackbarClose}
+              severity={error ? 'error' : 'success'}
+              sx={{ width: '100%' }}
+            >
+              {error || 'Operation successful.'}
             </Alert>
           </Snackbar>
         </Paper>
