@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ImageIcon from '@mui/icons-material/Image';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -27,7 +29,11 @@ import {
 import { styled } from '@mui/material/styles';
 import { ExpandMore, MoreVert, Gavel, CalendarToday, InfoOutlined, Delete } from '@mui/icons-material';
 import api from '../../../api';
+import EditIcon from '@mui/icons-material/Edit';
+
 import UpdateAssignmentForm from './update_assignment';
+import UpdateSolutionForm from './assignment_solution';
+
 import CreatePenaltyForm from './simple_panality';
 import CreateVariationPenaltyForm from './variation_panality';
 
@@ -75,6 +81,10 @@ const AssignmentDetailPage = () => {
   const [openPenaltyDialog, setOpenPenaltyDialog] = useState(false);
   const [penaltyType, setPenaltyType] = useState('');
   const [deletingFileId, setDeletingFileId] = useState(null);
+  const [solutions, setSolutions] = useState([]);
+  const [openSolutionDialog, setOpenSolutionDialog] = useState(false);
+  const [selectedSolution, setSelectedSolution] = useState(null);
+  
   const navigate = useNavigate();
 
   const fetchAssignment = async () => {
@@ -92,6 +102,21 @@ const AssignmentDetailPage = () => {
   useEffect(() => {
     fetchAssignment();
   }, [assignmentId]);
+
+  const fetchSolutions = async () => {
+  try {
+    const response = await api.get(`/api/courses/solution/?assignment=${assignmentId}`);
+    setSolutions(response.data);
+  } catch (error) {
+    console.error('Error fetching solutions:', error);
+  }
+};
+
+useEffect(() => {
+  fetchAssignment();
+  fetchSolutions();
+}, [assignmentId]);
+
 
   // Menu Handlers
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -134,20 +159,20 @@ const AssignmentDetailPage = () => {
   };
 
   // New: Delete single file handler
-  const handleDeleteFile = async (fileId) => {
-    if (!window.confirm('Are you sure you want to delete this file?')) return;
-    setDeletingFileId(fileId);
-    try {
-      // Adjust API path as per your backend endpoint for deleting a file
-      await api.delete(`/api/courses/assignment/${fileId}/`);
-      // Refresh assignment data to update file list
-      await fetchAssignment();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-    } finally {
-      setDeletingFileId(null);
-    }
-  };
+ const handleDeleteFile = async (fileId) => {
+  if (!window.confirm('Are you sure you want to delete this file?')) return;
+
+  setDeletingFileId(fileId);
+  try {
+    await api.delete(`/api/courses/assignment_content/${fileId}/`);
+    await fetchAssignment(); // refresh list after deletion
+  } catch (error) {
+    console.error('Error deleting file:', error);
+  } finally {
+    setDeletingFileId(null);
+  }
+};
+
 
   if (loading) {
     return (
@@ -227,7 +252,7 @@ const AssignmentDetailPage = () => {
 
       <Divider sx={{ my: 3 }} />
 
-      {/* Assignment details accordion */}
+      
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -242,8 +267,10 @@ const AssignmentDetailPage = () => {
             <Grid container spacing={2} mt={1}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body2">
-                  <strong>Allowed File Types:</strong> {assignment.allowed_file_types}
-                </Typography>
+                <strong>Allowed File Types:</strong>{' '}
+                {assignment.allowed_file_types ? assignment.allowed_file_types : 'Allow all file types'}
+              </Typography>
+
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body2">
@@ -265,87 +292,138 @@ const AssignmentDetailPage = () => {
         </AccordionDetails>
       </Accordion>
 
-      {/* New Accordion: Files */}
-   <Accordion>
+   
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMore />}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Assignment Contents ({assignment.assignment_files?.length || 0})
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {assignment.assignment_files?.length > 0 ? (
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {assignment.assignment_files.map((file) => {
+                const fileName = file.file.split('/').pop();
+                const isImage = /\.(jpe?g|png|gif|bmp|webp)$/i.test(fileName || '');
+
+                return (
+                  <Box
+                    key={file.id}
+                    sx={{
+                      width: 200,
+                      p: 2,
+                      borderRadius: 2,
+                      boxShadow: 3,
+                      backgroundColor: '#fff',
+                      position: 'relative',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {/* Delete icon */}
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDeleteFile(file.id)}
+                      disabled={deletingFileId === file.id}
+                      sx={{ position: 'absolute', top: 8, right: 8 }}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+
+                    {/* File Icon */}
+                    <Box sx={{ mt: 1, mb: 2 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: '#1a73e8',
+                          width: 48,
+                          height: 48,
+                          margin: '0 auto',
+                        }}
+                      >
+                        {isImage ? <ImageIcon fontSize="medium" /> : <InsertDriveFileIcon fontSize="medium" />}
+                      </Avatar>
+                    </Box>
+
+                    {/* File name */}
+                    <Typography
+                      variant="body2"
+                      noWrap
+                      sx={{ mb: 1, maxWidth: '100%', fontWeight: 500 }}
+                      title={fileName}
+                    >
+                      {fileName}
+                    </Typography>
+
+                    {/* View button */}
+                    <Button
+                      href={file.file_url || file.file}
+                      target="_blank"
+                      rel="noopener"
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                    >
+                      VIEW
+                    </Button>
+                  </Box>
+                );
+              })}
+            </Box>
+          ) : (
+            <Typography variant="body2" color="textSecondary">
+              No files uploaded for this assignment.
+            </Typography>
+          )}
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
   <AccordionSummary expandIcon={<ExpandMore />}>
     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-      Files ({assignment.assignment_files ? assignment.assignment_files.length : 0})
+      Solutions ({solutions.length})
     </Typography>
   </AccordionSummary>
   <AccordionDetails>
-    {assignment.assignment_files && assignment.assignment_files.length > 0 ? (
+    {solutions.length ? (
       <Stack spacing={2}>
-        {assignment.assignment_files.map((file) => (
+        {solutions.map((sol) => (
           <Box
-            key={file.id}
+            key={sol.id}
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: 2,
+              p: 2,
               borderRadius: 2,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
               backgroundColor: '#f9f9f9',
-              transition: '0.3s',
-              '&:hover': {
-                backgroundColor: '#f1f1f1',
-              },
+              position: 'relative',
+              boxShadow: 1,
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, overflow: 'hidden' }}>
-              <Avatar
-                sx={{
-                  bgcolor: 'primary.main',
-                  width: 36,
-                  height: 36,
-                  fontSize: 18,
-                  flexShrink: 0,
-                }}
-              >
-                📄
-              </Avatar>
-              <Link
-                href={file.file}
-                target="_blank"
-                rel="noopener"
-                underline="hover"
-                variant="body1"
-                sx={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '300px',
-                  display: 'inline-block',
-                }}
-              >
-                {file.file.split('/').pop()}
-              </Link>
-            </Box>
-            <Tooltip title="Delete File">
-              <span>
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => handleDeleteFile(file.id)}
-                  disabled={deletingFileId === file.id}
-                >
-                  <Delete />
-                </IconButton>
-              </span>
-            </Tooltip>
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+              {sol.text || 'No text provided'}
+            </Typography>
+            <IconButton
+              size="small"
+              sx={{ position: 'absolute', top: 8, right: 8 }}
+              onClick={() => {
+                setSelectedSolution(sol);
+                setOpenSolutionDialog(true);
+              }}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
           </Box>
         ))}
       </Stack>
     ) : (
       <Typography variant="body2" color="textSecondary">
-        No files uploaded for this assignment.
+        No solutions available.
       </Typography>
     )}
   </AccordionDetails>
 </Accordion>
 
 
-      {/* Main menu for update, view submissions, delete */}
+
+      
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -370,6 +448,27 @@ const AssignmentDetailPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Update AssignmentSolution Dialog */}
+
+          <Dialog open={openSolutionDialog} onClose={() => setOpenSolutionDialog(false)} fullWidth maxWidth="sm">
+      <DialogTitle>Update Solution</DialogTitle>
+      <DialogContent dividers>
+        {selectedSolution && (
+          <UpdateSolutionForm
+            solution={selectedSolution}
+            onClose={() => {
+              setOpenSolutionDialog(false);
+              fetchSolutions(); // refresh after update
+            }}
+          />
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenSolutionDialog(false)}>Cancel</Button>
+      </DialogActions>
+      </Dialog>
+
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>

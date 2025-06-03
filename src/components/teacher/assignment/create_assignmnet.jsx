@@ -119,6 +119,8 @@ function CreateAssignmentForm() {
         data.append(key, formData[key]);
       }
     }
+
+    // Append files individually to match backend getlist('files')
     selectedFiles.forEach((file) => {
       data.append('files', file);
     });
