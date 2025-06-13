@@ -62,19 +62,7 @@ const StudentProfilePage = () => {
         fetchProfileData();     
     }, []);      
 
-    const handleDeleteExperience = async () => {         
-        if (!selectedExperience) return;         
-        try {             
-            await api.delete(`/api/teacher-experience/${selectedExperience.id}/`);             
-            fetchProfileData();         
-        } catch (error) {             
-            console.error('Error deleting experience:', error);         
-        } finally {             
-            setDeleteDialogOpen(false);             
-            setSelectedExperience(null);         
-        }     
-    };      
-
+ 
     return (         
         <ThemeProvider theme={theme}>             
             {loading ? (                 

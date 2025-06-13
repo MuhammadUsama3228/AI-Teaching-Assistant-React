@@ -128,7 +128,7 @@ function App() {
                 <Route path="/profile/:slug" element={<Profile_Page />} />
                 <Route path='/studentpanel' element={<StudentPanel />} />
                 <Route path='/EnrollmentPage' element={<EnrollmentPage />} />
-                <Route path='/create-course' element={<EnrollmentForm />} />
+                <Route path='/create-course' element={<CourseCreatePage />} />
                 <Route path='/view-courses' element={<CourseViewPage />} />
                 <Route path="/coursedetail/:id" element={<CourseDetailPage />} />
                 <Route path="/update-course/:id" element={<CourseUpdatePage />} />
