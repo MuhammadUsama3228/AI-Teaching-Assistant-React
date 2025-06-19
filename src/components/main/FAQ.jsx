@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { Container, Grid, Typography, Accordion, AccordionSummary, AccordionDetails, Box, Button, IconButton } from '@mui/material';
+import {
+  Container,
+  Grid,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  Button,
+  IconButton,
+} from '@mui/material';
 import { ExpandMore, Close } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 
 const FAQSection = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,68 +52,104 @@ const FAQSection = () => {
   };
 
   return (
-    <Box sx={{ py: 5, backgroundColor: '#f9f9f9' }}>
-      <Button
-        variant="contained"
-        onClick={toggleFAQ}
-        sx={{ mb: 4, backgroundColor: '#052649', color: 'white' }}
-      >
-        {isOpen ? 'Hide FAQ' : 'Show FAQ'}
-      </Button>
+      <Box sx={{ py: 10, backgroundColor: '#ffffff', position: 'relative' }}>
+        <Container maxWidth="md">
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 4 }}>
+            <Button
+                variant="contained"
+                onClick={toggleFAQ}
+                sx={{
+                  background: 'linear-gradient(to right, #8e24aa, #6a1b9a)',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 20px rgba(142, 36, 170, 0.4)',
+                  ':hover': {
+                    background: 'linear-gradient(to right, #6a1b9a, #8e24aa)',
+                  },
+                }}
+            >
+              {isOpen ? 'Hide FAQ' : 'Show FAQ'}
+            </Button>
+          </Box>
 
-      {/* Display close icon button only when the FAQ is open */}
-      {isOpen && (
-        <IconButton
-          onClick={toggleFAQ}
-          sx={{
-            position: 'absolute',
-            top: '10%',
-            right: '5%',
-            backgroundColor: '#ff0000',
-            color: 'white',
-            zIndex: 1100,
-            padding: '10px',
-          }}
-        >
-          <Close />
-        </IconButton>
-      )}
+          {isOpen && (
+              <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+              >
+                <IconButton
+                    onClick={toggleFAQ}
+                    sx={{
+                      position: 'absolute',
+                      top: 40,
+                      right: 40,
+                      backgroundColor: '#d81b60',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: '#c2185b',
+                      },
+                    }}
+                >
+                  <Close />
+                </IconButton>
 
-      {/* FAQ Section: Initially hidden, shown when isOpen is true */}
-      <Box
-        sx={{
-          display: isOpen ? 'block' : 'none', // Hide FAQ content until isOpen is true
-          padding: isOpen ? '16px' : '0', // Add padding only when open
-        }}
-      >
-        <Container sx={{ ml: 0 }}>
-          <Typography variant="h4" align="left" gutterBottom sx={{ fontWeight: 'bold', color: '#052649' }}>
-            Frequently Asked Questions
-          </Typography>
-          <Typography variant="subtitle1" align="left" gutterBottom sx={{ color: '#052649' }}>
-            Get answers to your questions about how the application works.
-          </Typography>
-          <Grid container spacing={4} justifyContent="flex-start">
-            <Grid item xs={12} sm={10} md={8}>
-              {faqItems.map((faq, index) => (
-                <Accordion key={index} sx={{ mb: 2, backgroundColor: '#ffffff' }}>
-                  <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#052649' }}>
-                      {faq.question}
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body2" sx={{ color: '#6b6b6b' }}>
-                      {faq.answer}
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-            </Grid>
-          </Grid>
+                <Typography
+                    variant="h4"
+                    align="left"
+                    gutterBottom
+                    sx={{ fontWeight: 'bold', color: '#2e003e', mb: 2 }}
+                >
+                  Frequently Asked Questions
+                </Typography>
+
+                <Typography
+                    variant="subtitle1"
+                    align="left"
+                    sx={{ color: '#2e003e', mb: 4 }}
+                >
+                  Get answers to your most common questions.
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    {faqItems.map((faq, index) => (
+                        <Accordion
+                            key={index}
+                            sx={{
+                              mb: 2,
+                              backgroundColor: '#ffffff',
+                              borderRadius: '12px',
+                              boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                              '&:before': {
+                                display: 'none',
+                              },
+                              '&:hover': {
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                              },
+                            }}
+                        >
+                          <AccordionSummary expandIcon={<ExpandMore sx={{ color: '#8e24aa' }} />}>
+                            <Typography fontWeight="bold" color="#2e003e">
+                              {faq.question}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            <Typography sx={{ color: '#4e4e4e' }}>
+                              {faq.answer}
+                            </Typography>
+                          </AccordionDetails>
+                        </Accordion>
+                    ))}
+                  </Grid>
+                </Grid>
+              </motion.div>
+          )}
         </Container>
       </Box>
-    </Box>
   );
 };
 

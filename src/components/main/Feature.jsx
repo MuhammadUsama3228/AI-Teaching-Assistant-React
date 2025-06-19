@@ -1,86 +1,109 @@
 import React from 'react';
+import { Box, Typography, Grid, Paper } from '@mui/material';
+import { motion } from 'framer-motion';
 
 const FeaturesSection = () => {
   const featureList = [
-    
     {
       icon: "📝",
-      title: "Automated Assignment Grading",
-      description: "Save time with accurate and efficient AI-powered grading of student assignments.",
+      title: "Automated Grading",
+      description: "AI-powered grading system that saves time and ensures accuracy.",
+      gradient: "linear-gradient(135deg, #ff6ec4, #7873f5)",
     },
     {
       icon: "📊",
       title: "Performance Insights",
-      description: "Detailed analytics to track student progress and identify areas for improvement.",
+      description: "Monitor student progress with smart dashboards and actionable analytics.",
+      gradient: "linear-gradient(135deg, #42e695, #3bb2b8)",
     },
-    
-   
     {
       icon: "🔒",
       title: "Data Privacy",
-      description: "Secure and compliant AI ensuring all student and teacher data stays protected.",
+      description: "Top-tier security to protect all academic records and personal data.",
+      gradient: "linear-gradient(135deg, #fc6076, #ff9a44)",
     },
   ];
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Features of Our AI Teaching Assistant</h2>
-      <div style={styles.grid}>
-        {featureList.map((feature, index) => (
-          <div key={index} style={styles.card}>
-            <div style={styles.icon}>{feature.icon}</div>
-            <h3 style={styles.title}>{feature.title}</h3>
-            <p style={styles.description}>{feature.description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+      <Box
+          sx={{
+            maxWidth: '1200px',
+            mx: 'auto',
+            py: 10,
+            px: 3,
+            textAlign: 'center',
+          }}
+      >
+        <Typography
+            variant="h4"
+            fontWeight="bold"
+            gutterBottom
+            sx={{
+              color: '#2e003e',
+              mb: 6,
+              textShadow: '0 3px 8px rgba(0,0,0,0.15)',
+            }}
+        >
+          Features of Our AI Teaching Assistant
+        </Typography>
 
-const styles = {
-  container: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '20px',
-    textAlign: 'center',
-  },
-  heading: {
-    fontSize: '2rem',
-    marginBottom: '20px',
-    color: '#333',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '20px',
-  },
-  card: {
-    background: '#f9f9f9',
-    padding: '20px',
-    borderRadius: '10px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  },
-  cardHover: {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 6px 10px rgba(0, 0, 0, 0.15)',
-  },
-  icon: {
-    fontSize: '2.5rem',
-    marginBottom: '10px',
-    color: '#007bff',
-  },
-  title: {
-    fontSize: '1.5rem',
-    margin: '10px 0',
-    color: '#333',
-  },
-  description: {
-    fontSize: '1rem',
-    color: '#666',
-  },
+        <Grid container spacing={4} justifyContent="center">
+          {featureList.map((feature, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    viewport={{ once: true }}
+                    whileHover={{
+                      scale: 1.03,
+                      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+                    }}
+                >
+                  <Paper
+                      elevation={4}
+                      sx={{
+                        borderRadius: '20px',
+                        padding: 5,
+                        height: '100%',
+                        backdropFilter: 'blur(10px)',
+                        background: 'rgba(255, 255, 255, 0.85)',
+                        textAlign: 'center',
+                        transition: '0.4s',
+                      }}
+                  >
+                    <Box
+                        sx={{
+                          width: 72,
+                          height: 72,
+                          borderRadius: '50%',
+                          background: feature.gradient,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#fff',
+                          fontSize: '2rem',
+                          mx: 'auto',
+                          mb: 3,
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                          transition: 'all 0.3s ease-in-out',
+                        }}
+                    >
+                      {feature.icon}
+                    </Box>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: '#1e1e1e', mb: 1 }}>
+                      {feature.title}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#555' }}>
+                      {feature.description}
+                    </Typography>
+                  </Paper>
+                </motion.div>
+              </Grid>
+          ))}
+        </Grid>
+      </Box>
+  );
 };
 
 export default FeaturesSection;
