@@ -10,17 +10,13 @@ import {
     MenuItem,
     Skeleton,
     Grid,
-    Card,
-    CardContent,
-    Divider,
     Button,
+    Chip,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useParams } from "react-router-dom";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import api from "../../../api";
-
-import AssignmentIcon from '@mui/icons-material/Assignment';
-
 
 const AssignmentStatusSubmissions = () => {
     const { assignmentId } = useParams();
@@ -29,6 +25,7 @@ const AssignmentStatusSubmissions = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [filterFeedback, setFilterFeedback] = useState("all");
     const [filterSubmissionStatus, setFilterSubmissionStatus] = useState("all");
+    const [filterStatus, setFilterStatus] = useState("all");
 
     useEffect(() => {
         const fetchSubmissions = async () => {
@@ -38,167 +35,192 @@ const AssignmentStatusSubmissions = () => {
             setSubmissions(Array.isArray(response.data) ? response.data : []);
             setLoading(false);
         };
-
         fetchSubmissions();
     }, [assignmentId]);
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
+    const filteredSubmissions = submissions.filter((s) => {
+        const searchMatch =
+            s.student_username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.feedback?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const handleFeedbackFilter = (event) => {
-        setFilterFeedback(event.target.value);
-    };
-
-    const handleSubmissionStatusFilter = (event) => {
-        setFilterSubmissionStatus(event.target.value);
-    };
-
-    // Filter submissions based on the search query, feedback, and submission status
-    const filteredSubmissions = submissions.filter((submission) => {
-        const matchesSearchQuery =
-            submission.student_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            submission.feedback?.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesFeedbackFilter =
+        const feedbackMatch =
             filterFeedback === "all" ||
-            (filterFeedback === "with-feedback" && submission.feedback) ||
-            (filterFeedback === "without-feedback" && !submission.feedback);
+            (filterFeedback === "with-feedback" && s.feedback) ||
+            (filterFeedback === "without-feedback" && !s.feedback);
 
-        const matchesSubmissionStatusFilter =
+        const submissionMatch =
             filterSubmissionStatus === "all" ||
-            (filterSubmissionStatus === "with-submission" && submission.file) ||
-            (filterSubmissionStatus === "without-submission" && !submission.file);
+            (filterSubmissionStatus === "with-submission" && s.file) ||
+            (filterSubmissionStatus === "without-submission" && !s.file);
 
-        return matchesSearchQuery && matchesFeedbackFilter && matchesSubmissionStatusFilter;
+        const statusMatch = filterStatus === "all" || s.status === filterStatus;
+
+        return searchMatch && feedbackMatch && submissionMatch && statusMatch;
     });
 
-    // Columns for DataGrid table
+    const statusColorMap = {
+        pending: "warning",
+        checked: "success",
+        recheck: "info",
+        error: "error",
+        invalid_tokens: "default",
+    };
+
     const columns = [
-        { field: "id", headerName: "ID", width: 90 },
-        {
-            field: "student_username",
-            headerName: "Student Username",
-            width: 180,
-            editable: false,
-        },
+        { field: "id", headerName: "ID", flex: 0.3 },
+        { field: "student_username", headerName: "Student", flex: 1 },
         {
             field: "submission_date",
-            headerName: "Submission Date",
-            width: 180,
-            renderCell: (params) => new Date(params.row.submission_date).toLocaleString(),
+            headerName: "Date",
+            flex: 1,
+            renderCell: (params) =>
+                new Date(params.row.submission_date).toLocaleString(),
         },
         {
             field: "feedback",
             headerName: "Feedback",
-            width: 180,
-            renderCell: (params) => params.row.feedback || "No feedback",
+            flex: 1,
+            renderCell: (params) => params.row.feedback || "—",
         },
         {
             field: "file",
-            headerName: "Submission File",
-            width: 180,
+            headerName: "File",
+            flex: 1,
             renderCell: (params) =>
                 params.row.file ? (
-                    <Button variant="outlined" color="primary" href={params.row.file} target="_blank">
-                        Download
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        href={params.row.file}
+                        target="_blank"
+                        size="small"
+                    >
+                        View
                     </Button>
                 ) : (
                     "No file"
                 ),
         },
+        {
+            field: "status",
+            headerName: "Status",
+            flex: 1,
+            renderCell: (params) => (
+                <Chip
+                    label={params.row.status}
+                    color={statusColorMap[params.row.status] || "default"}
+                    size="small"
+                />
+            ),
+        },
     ];
 
     return (
-        <Container sx={{ py: 4 }}>
-           <Typography
-    variant="h4"
-    align="center"
-    gutterBottom
-    sx={{
-        fontWeight: "bold",
-        color: "#1a237e",
-        textTransform: "uppercase",
-        letterSpacing: "0.1em",
-        background: "linear-gradient(90deg, #1a237e, #4a148c)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        py: 2,
-        display: "flex",
-        alignItems: "center", // Align the icon and text vertically
-        justifyContent: "center", // Center align the content
-    }}
->
-    <AssignmentIcon sx={{ mr: 1 }} /> {/* This will add the icon */}
-    Submissions Status
-</Typography
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography
+                variant="h5"
+                align="center"
+                gutterBottom
+                sx={{
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    background: "linear-gradient(90deg, #1a237e, #4a148c)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mb: 3,
+                }}
+            >
+                <AssignmentIcon sx={{ mr: 1 }} />
+                Assignment Submissions
+            </Typography>
 
-          >  {loading ? (
+            {loading ? (
                 <Box display="flex" flexDirection="column" alignItems="center">
                     <Skeleton variant="text" width="60%" height={40} />
                     <Skeleton variant="rectangular" width="100%" height={400} />
                 </Box>
             ) : (
                 <>
-                    {/* Filters and Search */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-                        <TextField
-                            label="Search"
-                            variant="outlined"
-                            size="small"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            fullWidth
-                            sx={{ maxWidth: 300 }}
-                        />
-                        <FormControl size="small" sx={{ minWidth: 150 }}>
-                            <InputLabel>Feedback</InputLabel>
-                            <Select
-                                value={filterFeedback}
-                                onChange={handleFeedbackFilter}
-                                label="Feedback"
-                            >
-                                <MenuItem value="all">All</MenuItem>
-                                <MenuItem value="with-feedback">With Feedback</MenuItem>
-                                <MenuItem value="without-feedback">Without Feedback</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl size="small" sx={{ minWidth: 150 }}>
-                            <InputLabel>Submission Status</InputLabel>
-                            <Select
-                                value={filterSubmissionStatus}
-                                onChange={handleSubmissionStatusFilter}
-                                label="Submission Status"
-                            >
-                                <MenuItem value="all">All</MenuItem>
-                                <MenuItem value="with-submission">With Submission</MenuItem>
-                                <MenuItem value="without-submission">Without Submission</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Box>
+                    <Grid container spacing={2} mb={3}>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <TextField
+                                label="Search"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                sx={{ minHeight: 40 }}
+                            />
+                        </Grid>
 
-                    {/* Submissions Count */}
-                    <Grid item xs={12} sm={6} md={12}>
-                        <Box
-                            sx={{
-                                padding: 2,
-                                borderRadius: 2,
-                                boxShadow: 3,
-                                backgroundColor: "#f5f5f5",
-                                textAlign: "center",
-                            }}
-                        >
-                            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                Submissions Count
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {filteredSubmissions.length} submissions
-                            </Typography>
-                        </Box>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel>Feedback</InputLabel>
+                                <Select
+                                    value={filterFeedback}
+                                    onChange={(e) => setFilterFeedback(e.target.value)}
+                                    label="Feedback"
+                                    sx={{ minHeight: 40 }}
+                                >
+                                    <MenuItem value="all">All</MenuItem>
+                                    <MenuItem value="with-feedback">With Feedback</MenuItem>
+                                    <MenuItem value="without-feedback">Without Feedback</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel>Submission</InputLabel>
+                                <Select
+                                    value={filterSubmissionStatus}
+                                    onChange={(e) =>
+                                        setFilterSubmissionStatus(e.target.value)
+                                    }
+                                    label="Submission"
+                                    sx={{ minHeight: 40 }}
+                                >
+                                    <MenuItem value="all">All</MenuItem>
+                                    <MenuItem value="with-submission">With Submission</MenuItem>
+                                    <MenuItem value="without-submission">
+                                        Without Submission
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel>Status</InputLabel>
+                                <Select
+                                    value={filterStatus}
+                                    onChange={(e) => setFilterStatus(e.target.value)}
+                                    label="Status"
+                                    sx={{ minHeight: 40 }}
+                                >
+                                    <MenuItem value="all">All</MenuItem>
+                                    <MenuItem value="pending">Pending</MenuItem>
+                                    <MenuItem value="checked">Checked</MenuItem>
+                                    <MenuItem value="recheck">Re Check</MenuItem>
+                                    <MenuItem value="error">Error</MenuItem>
+                                    <MenuItem value="invalid_tokens">Invalid Tokens</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
                     </Grid>
 
-                    {/* DataGrid for Submissions */}
-                    <Box sx={{ height: 500, width: "100%", marginTop: 2 }}>
+                    <Box mb={2}>
+                        <Typography variant="body1" fontWeight="bold">
+                            Total Submissions: {filteredSubmissions.length}
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ width: "100%", overflowX: "auto" }}>
                         <DataGrid
                             rows={filteredSubmissions}
                             columns={columns}
@@ -208,8 +230,9 @@ const AssignmentStatusSubmissions = () => {
                             autoHeight
                             sx={{
                                 border: "none",
-                                boxShadow: 3,
+                                boxShadow: 2,
                                 borderRadius: 2,
+                                minWidth: 600,
                                 backgroundColor: "#fff",
                             }}
                         />

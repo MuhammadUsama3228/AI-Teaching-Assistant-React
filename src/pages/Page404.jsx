@@ -1,72 +1,95 @@
-import React from 'react';
-import { Box, Typography, Button, Container, ThemeProvider } from '@mui/material';
-import { useSpring, animated } from '@react-spring/web'; // Correct import path
-import theme from '../components/Theme'; // Custom theme (ensure it's properly set up)
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+    Typography,
+    Button,
+    Container,
+    ThemeProvider,
+    useTheme,
+    Alert,
+} from '@mui/material';
+import { useSpring, animated } from '@react-spring/web';
+import { Player } from '@lottiefiles/react-lottie-player';
+import theme from '../components/Theme';
 
 function PageNotFound() {
-
     useEffect(() => {
-        document.title = "404 Page Not Found";
+        document.title = "404 | Page Not Found";
     }, []);
 
-    // Fade-in animation for the 404 number
+    const muiTheme = useTheme();
+    const [lottieError, setLottieError] = useState(false);
+
     const fadeIn = useSpring({
         opacity: 1,
         from: { opacity: 0 },
-        config: { duration: 1500 },
+        config: { duration: 1000 },
     });
 
     return (
         <ThemeProvider theme={theme}>
             <Container
-                component="main"
-                maxWidth="xs"
-                style={{
+                maxWidth="md"
+                sx={{
+                    minHeight: '100vh',
                     display: 'flex',
-                    alignItems: 'center',
+                    flexDirection: 'column',
                     justifyContent: 'center',
-                    height: '100vh', // Ensures full page height
+                    alignItems: 'center',
+                    bgcolor: muiTheme.palette.background.default,
+                    textAlign: 'center',
+                    py: 6,
                 }}
             >
-                <Box
+                {/* Lottie Animation with error listener */}
+                <Player
+                    autoplay
+                    loop
+                    src="https://assets1.lottiefiles.com/packages/lf20_HpFqiS.json"
+                    style={{ height: '300px', width: '300px' }}
+                    onEvent={(event) => {
+                        if (event === 'error') {
+                            setLottieError(true);
+                        }
+                    }}
+                />
+
+                {/* Error Message */}
+                {lottieError && (
+                    <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+                        Failed to load animation. Please refresh the page.
+                    </Alert>
+                )}
+
+                <animated.div style={fadeIn}>
+                    <Typography
+                        variant="h3"
+                        color="primary"
+                        fontWeight="bold"
+                        sx={{ mt: 2, textShadow: '1px 1px 3px rgba(0,0,0,0.2)' }}
+                    >
+                        404 - Page Not Found
+                    </Typography>
+
+                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+                        The page you’re looking for doesn’t exist or has been moved.
+                    </Typography>
+                </animated.div>
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={() => window.location.href = '/'}
                     sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '100%', // Ensure it takes full height
-                        textAlign: 'center',
-                        padding: 2,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        px: 4,
+                        py: 1.5,
+                        borderRadius: 2,
                     }}
                 >
-                    {/* Animated 404 text */}
-                    <animated.div style={fadeIn}>
-                        <Typography variant="h1" sx={{ fontSize: '100px', fontWeight: 'bold' }} color="primary">
-                            404
-                        </Typography>
-                    </animated.div>
-
-                    {/* Animated message */}
-                    <animated.div style={{ ...fadeIn }}>
-                        <Typography variant="h5" color="text.primary">
-                            Oops! Page not found.
-                        </Typography>
-                        <Typography variant="p" sx={{ mb: 3 }} color="text.secondary">
-                            The page you are looking for doesn't exist.
-                        </Typography>
-                    </animated.div>
-
-                    {/* Button to redirect to Home */}
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        sx={{ mt: 2 }}
-                        onClick={() => window.location.href = '/'} // Redirect to home
-                    >
-                        Go to Home
-                    </Button>
-                </Box>
+                    Go to Homepage
+                </Button>
             </Container>
         </ThemeProvider>
     );

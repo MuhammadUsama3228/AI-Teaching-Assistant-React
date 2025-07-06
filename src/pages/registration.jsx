@@ -12,18 +12,19 @@ import {
     Skeleton,
     Tabs,
     Tab,
-    ThemeProvider,
-    Link, // Import Link from Material-UI
+    Link,
+    useTheme,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import theme from '../components/Theme';
-import api from "../api";
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../api';
 
 function Register() {
     useEffect(() => {
         document.title = "Sign Up | AI Teaching Assistant";
     }, []);
+
+    const theme = useTheme();
 
     const [tabIndex, setTabIndex] = useState(0);
     const [username, setUsername] = useState('');
@@ -48,14 +49,11 @@ function Register() {
         }
     }, [location.state]);
 
-    const handleTabChange = (event, newValue) => {
-        setTabIndex(newValue);
-    };
+    const handleTabChange = (event, newValue) => setTabIndex(newValue);
 
     const handleSubmit = async () => {
         setLoading(true);
         setLoadingSkeleton(true);
-
         if (password1 !== password2) {
             setError('Passwords do not match');
             setLoading(false);
@@ -75,10 +73,9 @@ function Register() {
             });
 
             if (response.status === 201) {
-                navigate('verifyemail/');
+                navigate('register/verifyemail/');
             }
         } catch (error) {
-            console.error('Registration error:', error);
             setError('An error occurred during registration. Please try again.');
         } finally {
             setLoading(false);
@@ -91,68 +88,26 @@ function Register() {
             case 0:
                 return (
                     <Box>
-                        <TextField
-                            size="small"
-                            label="First Name"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                            required
-                        />
-                        <TextField
-                            size="small"
-                            label="Last Name"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                            required
-                        />
+                        <TextField label="First Name" fullWidth margin="normal" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                        <TextField label="Last Name" fullWidth margin="normal" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                     </Box>
                 );
             case 1:
                 return (
                     <Box>
+                        <TextField label="Username" fullWidth margin="normal" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        <TextField label="Email" type="email" fullWidth margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} />
                         <TextField
-                            size="small"
-                            label="Username"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                        <TextField
-                            size="small"
-                            label="Email"
-                            type="email"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                        <TextField
-                            size="small"
                             label="Password"
                             type={showPassword1 ? 'text' : 'password'}
-                            variant="outlined"
                             fullWidth
                             margin="normal"
                             value={password1}
                             onChange={(e) => setPassword1(e.target.value)}
-                            required
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowPassword1(!showPassword1)}
-                                        >
+                                        <IconButton onClick={() => setShowPassword1(!showPassword1)}>
                                             {showPassword1 ? <VisibilityOff /> : <Visibility />}
                                         </IconButton>
                                     </InputAdornment>
@@ -160,21 +115,16 @@ function Register() {
                             }}
                         />
                         <TextField
-                            size="small"
                             label="Confirm Password"
                             type={showPassword2 ? 'text' : 'password'}
-                            variant="outlined"
                             fullWidth
                             margin="normal"
                             value={password2}
                             onChange={(e) => setPassword2(e.target.value)}
-                            required
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowPassword2(!showPassword2)}
-                                        >
+                                        <IconButton onClick={() => setShowPassword2(!showPassword2)}>
                                             {showPassword2 ? <VisibilityOff /> : <Visibility />}
                                         </IconButton>
                                     </InputAdornment>
@@ -185,18 +135,7 @@ function Register() {
                 );
             case 2:
                 return (
-                    <Box>
-                        <TextField
-                            size="small"
-                            label="Role"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            disabled
-                        />
-                    </Box>
+                    <TextField label="Role" fullWidth margin="normal" value={role} disabled />
                 );
             default:
                 return null;
@@ -204,104 +143,107 @@ function Register() {
     };
 
     return (
-        <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="sm" sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '70vh',
-                px: { xs: 2, sm: 4 },
-                py: { xs: 3, sm: 6 }
-            }}>
-                <Box
-                    sx={{
-                        width: '100%',
-                        maxWidth: 350,
-                        bgcolor: 'background.paper',
-                        p: { xs: 2, sm: 4 },
-                        borderRadius: 2,
-                        boxShadow: 3
-                    }}
-                >
-                    <Box sx={{ textAlign: 'center', mb: 3 }}>
-                        <img src="src/assets/logo.png" alt="My Photo" width="100" />
-                        <Typography variant="h5" fontWeight={600}>
-                            Sign Up
-                        </Typography>
-                    </Box>
-
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 2 }}>
-                            {error}
-                        </Alert>
-                    )}
-
-                    {loadingSkeleton ? (
-                        <Skeleton variant="rectangular" width="100%" height={120} sx={{ mb: 3 }} />
-                    ) : (
-                        <Tabs
-                            value={tabIndex}
-                            onChange={handleTabChange}
-                            variant="fullWidth"
-                            textColor="primary"
-                            indicatorColor="primary"
-                            sx={{ mb: 2 }}
-                        >
-                            <Tab label="Personal Info" />
-                            <Tab label="Credentials" />
-                            <Tab label="Role" />
-                        </Tabs>
-                    )}
-
-                    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-                        {renderTabContent(tabIndex)}
-
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
-                                disabled={tabIndex === 0}
-                            >
-                                Back
-                            </Button>
-                            {tabIndex === 2 ? (
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                    disabled={loading}
-                                    sx={{ minWidth: 100 }}
-                                >
-                                    {loading ? (
-                                        <>
-                                            Wait
-                                            <CircularProgress size={18} sx={{ ml: 1 }} />
-                                        </>
-                                    ) : 'Sign Up'}
-                                </Button>
-                            ) : (
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => setTabIndex((prev) => prev + 1)}
-                                >
-                                    Next
-                                </Button>
-                            )}
-                        </Box>
-                    </form>
-
-                    <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                        Already have an account?{' '}
-                        <Link href="/login" underline="hover" color="primary">
-                            Login
-                        </Link>
+        <Container maxWidth="sm" sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box
+                sx={{
+                    width: '100%',
+                    maxWidth: 420,
+                    bgcolor: theme.palette.background.paper,
+                    p: { xs: 2, sm: 4 },
+                    borderRadius: 3,
+                    boxShadow: 4,
+                    border: `1px solid ${theme.palette.divider}`
+                }}
+            >
+                <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <img src="src/assets/logo.png" alt="Logo" width="80" />
+                    <Typography  variant="h5"
+                                 sx={{
+                                     fontWeight: 'bold',
+                                     color: '#4B2E83',
+                                     mb: 2,
+                                     textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                                 }}>
+                        Sign Up
                     </Typography>
+
+
                 </Box>
-            </Container>
-        </ThemeProvider>
+
+                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+                {loadingSkeleton ? (
+                    <Skeleton variant="rectangular" width="100%" height={120} sx={{ mb: 3 }} />
+                ) : (
+                    <Tabs
+                        value={tabIndex}
+                        onChange={handleTabChange}
+                        variant="fullWidth"
+                        indicatorColor="primary"
+                        textColor="primary"
+                        sx={{ mb: 2 }}
+                    >
+                        <Tab label="Personal Info" />
+                        <Tab label="Credentials" />
+                        <Tab label="Role" />
+                    </Tabs>
+                )}
+
+                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                    {renderTabContent(tabIndex)}
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => setTabIndex((prev) => Math.max(prev - 1, 0))}
+                            disabled={tabIndex === 0}
+                        >
+                            Back
+                        </Button>
+                        {tabIndex === 2 ? (
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                disabled={loading}
+                                sx={{
+                                    background: 'linear-gradient(135deg, #5E35B1 0%, #7E57C2 100%)',
+                                    color: '#fff',
+                                    fontWeight: 600,
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #4527A0 0%, #311B92 100%)',
+                                    },
+                                }}
+                            >
+                                {loading ? <>Wait <CircularProgress size={18} sx={{ ml: 1 }} /></> : 'Sign Up'}
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                onClick={() => setTabIndex((prev) => prev + 1)}
+                                sx={{
+                                    background: 'linear-gradient(135deg, #5E35B1 0%, #7E57C2 100%)',
+                                    color: '#fff',
+                                    fontWeight: 600,
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #4527A0 0%, #311B92 100%)',
+                                    },
+                                }}
+                            >
+                                Next
+                            </Button>
+                        )}
+                    </Box>
+                </form>
+
+                <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+                    Already have an account?{' '}
+                    <Link href="/login" underline="hover" color="primary" fontWeight={600}>
+                        Login
+                    </Link>
+                </Typography>
+            </Box>
+        </Container>
     );
 }
 

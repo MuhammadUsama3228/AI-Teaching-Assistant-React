@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
     TextField, Button, Typography, Container, Box,
-    ThemeProvider, CircularProgress, Avatar,
-    InputAdornment, IconButton, Link
+    ThemeProvider, CircularProgress, InputAdornment,
+    IconButton, Link
 } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import theme from '../components/Theme';
@@ -14,7 +13,6 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constraints";
 import { loginSuccess } from './auth';
 import { useDispatch } from 'react-redux';
 import { setUser } from "./profile/manage-profile/manage-profile";
-
 
 function Login() {
     const dispatch = useDispatch();
@@ -34,8 +32,6 @@ function Login() {
         try {
             const response = await api.get('/api/manage_profile/');
             const role = response.data.role;
-            console.log(role)
-
             dispatch(setUser(response.data));
 
             if (role === 'teacher') {
@@ -87,29 +83,25 @@ function Login() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: 2,
+                        padding: 3,
                         boxShadow: 3,
                         borderRadius: 2,
+                        backgroundColor: 'background.paper',
                     }}
                 >
-                   <img src="src/assets/logo.png" alt="My Photo" width="100" />
-                    
-                    <Typography 
-                        variant="h5" 
-                        gutterBottom 
-                        sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            fontWeight: 'bold', 
-                            color: '#0a4870', // teal-blue shade
-                            gap: 1,
+                    <img src="src/assets/logo.png" alt="App Logo" width="100" style={{ marginBottom: 16 }} />
+
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            fontWeight: 'bold',
+                            color: 'primary.main',
                             mb: 2,
                             textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
                         }}
-                        >
-
+                    >
                         Sign In
-                        </Typography>
+                    </Typography>
 
                     {error && (
                         <Typography color="error" sx={{ mt: 1 }}>
@@ -122,18 +114,17 @@ function Login() {
                         variant="outlined"
                         fullWidth
                         margin="normal"
-                        size='small'
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
                     />
+
                     <TextField
                         label="Password"
                         type={showPassword ? 'text' : 'password'}
                         variant="outlined"
                         fullWidth
                         margin="normal"
-                        size='small'
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -151,13 +142,10 @@ function Login() {
                     <Button
                         type="submit"
                         fullWidth
+                        variant="contained"
+                        color="primary"
                         disabled={loading}
-                        sx={{
-                            mt: 2,
-                            backgroundColor: 'primary.main',
-                            color: 'white',
-                            cursor: loading ? 'not-allowed' : 'pointer',
-                        }}
+                        sx={{ mt: 2 }}
                     >
                         {loading ? (
                             <>
@@ -171,10 +159,10 @@ function Login() {
 
                     <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                         <Link href="/choice" variant="body2" color="primary">
-                            {"Don't have an account? Sign Up"}
+                            Don't have an account? Sign Up
                         </Link>
                         <Link href="/forgot-password" variant="body2" color="primary">
-                            {"Forgot password?"}
+                            Forgot password?
                         </Link>
                     </Box>
                 </Box>

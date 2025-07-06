@@ -274,7 +274,7 @@ const StudentAssignmentDetailPage = () => {
                     sx={{ fontSize: 40, color: "#1976d2", mb: 1 }}
                   />
                   <Typography variant="body2" noWrap>
-                    {file.file_url.split("/").pop()}
+                    
                   </Typography>
                   <Button
                     variant="outlined"

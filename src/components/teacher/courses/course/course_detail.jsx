@@ -346,7 +346,7 @@ const CourseDetail = () => {
       
 <Accordion defaultExpanded sx={{ mt: 2 }}>
   <AccordionSummary expandIcon={<ExpandMore />}>
-    <Typography variant="h6">
+    <Typography variant="h6" sx={{ color: 'dark.purple', fontWeight: 'bold' }}>
       Course Contents ({courseContents.length})
     </Typography>
   </AccordionSummary>
@@ -429,7 +429,10 @@ const CourseDetail = () => {
 
       <Accordion defaultExpanded sx={{ marginTop: 2 }}>
   <AccordionSummary expandIcon={<ExpandMore />}>
-    <Typography variant="h6">Course Weeks ({courseWeeks.length})</Typography>
+    <Typography variant="h6" sx={{ color: 'dark.purple', fontWeight: 'bold' }}>
+      Course Weeks ({courseWeeks.length})
+    </Typography>
+
   </AccordionSummary>
   <AccordionDetails>
     {courseWeeks.length === 0 ? (
@@ -489,20 +492,21 @@ const CourseDetail = () => {
       </Menu>
 
       <Menu
-        anchorEl={iconMenuAnchorEl}
-        open={Boolean(iconMenuAnchorEl)}
-        onClose={handleIconMenuClose}
+          anchorEl={iconMenuAnchorEl}
+          open={Boolean(iconMenuAnchorEl)}
+          onClose={handleIconMenuClose}
       >
         <MenuItem onClick={handleCreateAssignment}>
-          <CreateIcon sx={{ mr: 1 }} /> Create Assignment
+          <CreateIcon sx={{ mr: 1, color: 'blue' }} /> Create Assignment
         </MenuItem>
         <MenuItem onClick={handleViewAssignments}>
-          <AssignmentIcon sx={{ mr: 1 }} /> View Assignments
+          <AssignmentIcon sx={{ mr: 1, color: 'red' }} /> View Assignments
         </MenuItem>
         <MenuItem onClick={handleTimeSlots}>
-          <AccessTimeIcon sx={{ mr: 1 }} /> Time Slots
+          <AccessTimeIcon sx={{ mr: 1, color: 'teal' }} /> View Time Slots
         </MenuItem>
       </Menu>
+
 
       {/* Update Course Dialog */}
       <Dialog open={openUpdateDialog} onClose={handleUpdateClose} maxWidth="md" fullWidth>

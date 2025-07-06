@@ -1,36 +1,40 @@
 import React, { useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import { Link } from "react-router-dom";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import SchoolIcon from "@mui/icons-material/School";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
-import CourseUpdate from "../../../components/teacher/courses/course/course_update";
+import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
+import {
+  Box,
+  CssBaseline,
+  AppBar as MuiAppBar,
+  Toolbar,
+  Typography,
+  Divider,
+  IconButton,
+  Drawer as MuiDrawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Dashboard as DashboardIcon,
+  School as SchoolIcon,
+  AddCircleOutline as AddCircleOutlineIcon,
+  Visibility as VisibilityIcon
+} from "@mui/icons-material";
 
+import { Link } from "react-router-dom";
+import CourseUpdate from "../../../components/teacher/courses/course/course_update";
 
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
+    easing: theme.transitions.easing.easeOut,
+    duration: theme.transitions.duration.standard,
   }),
   overflowX: "hidden",
 });
@@ -38,7 +42,7 @@ const openedMixin = (theme) => ({
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+    duration: theme.transitions.duration.shortest,
   }),
   overflowX: "hidden",
   width: `calc(${theme.spacing(7)} + 1px)`,
@@ -71,108 +75,135 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background:"rgb(10, 72, 109)",
+  background: "linear-gradient(90deg, #4B2E83, #1C1C3A)", // dark gradient
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
-  })
+    ({ theme, open }) => ({
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+      boxSizing: "border-box",
+      ...(open ? openedMixin(theme) : closedMixin(theme)),
+      "& .MuiDrawer-paper": {
+        ...(!open ? closedMixin(theme) : openedMixin(theme)),
+        backgroundColor: theme.palette.background.paper,
+        borderRight: "1px solid #e0e0e0",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
+      },
+    })
 );
 
 export default function CourseUpdatePage() {
-  const theme = useTheme();
+  const muiTheme = useTheme();
   const [open, setOpen] = useState(false);
-  const [courseOpen, setCourseOpen] = useState(false);
+  const [courseOpen, setCourseOpen] = useState(true);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  const handleDrawerOpen = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
+  const toggleCourseDrawer = () => setCourseOpen(!courseOpen);
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const toggleCourseDrawer = () => {
-    setCourseOpen(!courseOpen);
+  const drawerItemStyles = {
+    minHeight: 48,
+    px: 2.5,
+    borderRadius: 2,
+    mx: 1,
+    transition: "background 0.3s ease",
+    "&:hover": {
+      backgroundColor: muiTheme.palette.action.hover,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    },
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBar position="fixed" open={open}>
+          <Toolbar>
+            <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={{
+                  marginRight: 5,
+                  ...(open && { display: "none" }),
+                }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              Course Management Panel
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        <Drawer variant="permanent" open={open}>
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <List>
+            {/* Back to Dashboard */}
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton component={Link} to="/teacherpanel" sx={drawerItemStyles}>
+                <ListItemIcon sx={{ color: "#150b29" }}>
+                  <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Back to Dashboard" sx={{ color: "#280838" }} />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Courses Section */}
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton onClick={toggleCourseDrawer} sx={drawerItemStyles}>
+                <ListItemIcon sx={{ color: "#150b29" }}>
+                  <SchoolIcon />
+                </ListItemIcon>
+                <ListItemText primary="Courses" sx={{ color: "#280838" }} />
+              </ListItemButton>
+            </ListItem>
+
+            {courseOpen && (
+                <>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton component={Link} to="/view-courses" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}>
+                        <VisibilityIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="View Courses" sx={{ color: "#280838" }} />
+                    </ListItemButton>
+                  </ListItem>
+
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton component={Link} to="/create-course" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}>
+                        <AddCircleOutlineIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Create Course" sx={{ color: "#280838" }} />
+                    </ListItemButton>
+                  </ListItem>
+                </>
+            )}
+          </List>
+          <Divider />
+        </Drawer>
+
+        <Box
+            component="main"
             sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
+              flexGrow: 1,
+              p: 3,
+              width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
             }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Course Management Panel
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem button onClick={toggleCourseDrawer}>
-            <ListItemIcon>
-              <SchoolIcon />
-            </ListItemIcon>
-            <ListItemText primary="Courses" />
-          </ListItem>
-          {courseOpen && (
-            <>
-              <ListItem button component={Link} to="/view-courses">
-                <ListItemIcon>
-                  <VisibilityIcon />
-                </ListItemIcon>
-                <ListItemText primary="View Courses" />
-              </ListItem>
-              <ListItem button component={Link} to="/create-course">
-                <ListItemIcon>
-                  <AddCircleOutlineIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course" />
-              </ListItem>
-            
-            </>
-          )}
-        </List>
-        <Divider />
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
-        }}
-      >
-        <Toolbar />
-        <CourseUpdate />
-        
-     
+        >
+          <Toolbar />
+          <CourseUpdate />
+        </Box>
       </Box>
-     
-    </Box>
-    
   );
 }

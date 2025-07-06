@@ -75,7 +75,7 @@ const EnrollmentDashboard = () => {
 
   const fetchInvites = async () => {
     try {
-      const res = await api.get("/api/invite_enrollment/");
+      const res = await api.get("/api/courses/invite_enrollment/");
       setInvites(res.data);
     } catch (error) {
       console.error("Error fetching invite enrollments", error);

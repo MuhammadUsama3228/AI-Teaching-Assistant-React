@@ -31,9 +31,11 @@ import { styled } from '@mui/material/styles';
 import { ExpandMore, MoreVert, Gavel, CalendarToday, InfoOutlined, Delete } from '@mui/icons-material';
 import api from '../../../api';
 import EditIcon from '@mui/icons-material/Edit';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 
 import UpdateAssignmentForm from './update_assignment';
-import UpdateSolutionForm from './assignment_solution';
+import UpdateSolutionForm from './solution.jsx';
 
 import CreatePenaltyForm from './simple_panality';
 import CreateVariationPenaltyForm from './variation_panality';
@@ -82,42 +84,66 @@ const AssignmentDetailPage = () => {
   const [openPenaltyDialog, setOpenPenaltyDialog] = useState(false);
   const [penaltyType, setPenaltyType] = useState('');
   const [deletingFileId, setDeletingFileId] = useState(null);
-  const [solutions, setSolutions] = useState([]);
+
   const [openSolutionDialog, setOpenSolutionDialog] = useState(false);
   const [selectedSolution, setSelectedSolution] = useState(null);
-  
+  const [solutions, setSolutions] = useState([]);
+
+
+
+
+
+
+
   const navigate = useNavigate();
 
   const fetchAssignment = async () => {
-    setLoading(true);
     try {
       const response = await api.get(`/api/courses/assignment/${assignmentId}/`);
       setAssignment(response.data);
     } catch (error) {
       console.error('Error fetching assignment:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
+  const fetchSolutions = async () => {
+    try {
+      const response = await api.get(`/api/courses/solution/?assignment=${assignmentId}`);
+      setSolutions(response.data);
+    } catch (error) {
+      console.error('Error fetching solutions:', error);
+    }
+  };
+
+
   useEffect(() => {
-    fetchAssignment();
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchAssignment(), fetchSolutions()]);
+      } catch (error) {
+        console.error('Error fetching assignment or solutions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [assignmentId]);
 
-  const fetchSolutions = async () => {
-  try {
-    const response = await api.get(`/api/courses/solution/?assignment=${assignmentId}`);
-    setSolutions(response.data);
-  } catch (error) {
-    console.error('Error fetching solutions:', error);
-  }
-};
 
-useEffect(() => {
-  fetchAssignment();
-  fetchSolutions();
-}, [assignmentId]);
 
+
+
+
+  const handleSolutionEdit = (solution) => {
+    setSelectedSolution(solution);
+    setOpenSolutionDialog(true);
+  };
+
+  const handleSolutionUpdate = async () => {
+    await fetchSolutions();
+    setOpenSolutionDialog(false);
+  };
 
   // Menu Handlers
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
@@ -378,53 +404,108 @@ useEffect(() => {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion>
-  <AccordionSummary expandIcon={<ExpandMore />}>
-    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-      Solutions ({solutions.length})
-    </Typography>
-  </AccordionSummary>
-  <AccordionDetails>
-    {solutions.length ? (
-      <Stack spacing={2}>
-        {solutions.map((sol) => (
-          <Box
-            key={sol.id}
-            sx={{
-              p: 2,
-              borderRadius: 2,
-              backgroundColor: '#f9f9f9',
-              position: 'relative',
-              boxShadow: 1,
-            }}
-          >
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-              {sol.text || 'No text provided'}
-            </Typography>
-            <IconButton
-              size="small"
-              sx={{ position: 'absolute', top: 8, right: 8 }}
-              onClick={() => {
-                setSelectedSolution(sol);
-                setOpenSolutionDialog(true);
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        ))}
-      </Stack>
-    ) : (
-      <Typography variant="body2" color="textSecondary">
-        No solutions available.
-      </Typography>
-    )}
-  </AccordionDetails>
-</Accordion>
+
+      {solutions.map((sol) => (
+          <Accordion key={sol.id}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Assignment Solution
+              </Typography>
+            </AccordionSummary>
+
+            <AccordionDetails>
+              <Typography sx={{ whiteSpace: 'pre-line', mb: 2 }}>
+                <strong>Text:</strong> {sol.text || 'No text provided.'}
+              </Typography>
+
+              {sol.files?.length > 0 ? (
+                  <Box>
+                    <Typography sx={{ mb: 1 }}>
+                      <strong>Files:</strong>
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                      {sol.files.map((fileObj) => {
+                        const fileUrl = fileObj.file;
+                        const fileName = fileUrl?.split('/').pop() || 'File';
+                        const isImage = /\.(jpe?g|png|gif|bmp|webp)$/i.test(fileName);
+
+                        return (
+                            <Box
+                                key={fileObj.id}
+                                sx={{
+                                  width: 200,
+                                  p: 2,
+                                  borderRadius: 2,
+                                  boxShadow: 3,
+                                  backgroundColor: '#fff',
+                                  textAlign: 'center',
+                                }}
+                            >
+                              <Box sx={{ mt: 1, mb: 2 }}>
+                                <Avatar
+                                    sx={{
+                                      bgcolor: '#1a73e8',
+                                      width: 48,
+                                      height: 48,
+                                      margin: '0 auto',
+                                    }}
+                                >
+                                  {isImage ? (
+                                      <ImageIcon fontSize="medium" />
+                                  ) : (
+                                      <InsertDriveFileIcon fontSize="medium" />
+                                  )}
+                                </Avatar>
+                              </Box>
+
+                              <Typography
+                                  variant="body2"
+                                  noWrap
+                                  sx={{ mb: 1, maxWidth: '100%', fontWeight: 500 }}
+                                  title={fileName}
+                              >
+                                {fileName}
+                              </Typography>
+
+                              <Button
+                                  href={fileUrl}
+                                  target="_blank"
+                                  rel="noopener"
+                                  variant="outlined"
+                                  size="small"
+                                  fullWidth
+                              >
+                                VIEW
+                              </Button>
+                            </Box>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+              ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    No files uploaded.
+                  </Typography>
+              )}
+
+              <Box mt={2} textAlign="right">
+                <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleSolutionEdit(sol)}
+                >
+                  Edit
+                </Button>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+      ))}
 
 
 
-      
+
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -450,26 +531,6 @@ useEffect(() => {
         </DialogActions>
       </Dialog>
 
-      {/* Update AssignmentSolution Dialog */}
-
-          <Dialog open={openSolutionDialog} onClose={() => setOpenSolutionDialog(false)} fullWidth maxWidth="sm">
-      <DialogTitle>Update Solution</DialogTitle>
-      <DialogContent dividers>
-        {selectedSolution && (
-          <UpdateSolutionForm
-            solution={selectedSolution}
-            onClose={() => {
-              setOpenSolutionDialog(false);
-              fetchSolutions(); // refresh after update
-            }}
-          />
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenSolutionDialog(false)}>Cancel</Button>
-      </DialogActions>
-      </Dialog>
-
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
@@ -491,6 +552,28 @@ useEffect(() => {
           {penaltyType === 'variation' && <CreateVariationPenaltyForm assignmentId={assignmentId} onClose={() => setOpenPenaltyDialog(false)} />}
         </DialogContent>
       </Dialog>
+
+      <Dialog
+          open={openSolutionDialog}
+          onClose={() => setOpenSolutionDialog(false)}
+          fullWidth
+          maxWidth="sm"
+          keepMounted={false} // ✅ This prevents MUI from hiding content with aria-hidden while it's still focused
+      >
+        <DialogTitle>Update Solution</DialogTitle>
+        <DialogContent dividers>
+          <UpdateSolutionForm
+              solution={selectedSolution}
+              onClose={handleSolutionUpdate}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenSolutionDialog(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
 
       {/* Penalty menu */}
       <Menu

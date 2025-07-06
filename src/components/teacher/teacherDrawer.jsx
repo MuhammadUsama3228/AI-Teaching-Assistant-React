@@ -1,42 +1,28 @@
 import React, { useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
+import theme from "../Theme.jsx"; // your custom theme
+import {
+  Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography, Divider,
+  IconButton, Drawer as MuiDrawer, List, ListItem, ListItemButton,
+  ListItemIcon, ListItemText, Menu, MenuItem
+} from "@mui/material";
+import {
+  Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
+  Dashboard as DashboardIcon, LibraryBooks as LibraryBooksIcon,
+  Assignment as AssignmentIcon, Grade as GradeIcon,
+  People as PeopleIcon, CalendarToday as CalendarTodayIcon,
+  AccountCircle, Person as ProfileIcon, ExitToApp as LogoutIcon
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import GradeIcon from "@mui/icons-material/Grade";
-import PeopleIcon from "@mui/icons-material/People";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import ProfileIcon from "@mui/icons-material/Person";  // Import Profile Icon
-import LogoutIcon from "@mui/icons-material/ExitToApp";  // Import Logout Icon
-import Teacherview from "../teacherHomepage"; // Ensure this path is correct
+import Teacherview from "../teacherHomepage";
 
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
+    easing: theme.transitions.easing.easeOut,
+    duration: theme.transitions.duration.standard,
   }),
   overflowX: "hidden",
 });
@@ -44,7 +30,7 @@ const openedMixin = (theme) => ({
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+    duration: theme.transitions.duration.shortest,
   }),
   overflowX: "hidden",
   width: `calc(${theme.spacing(7)} + 1px)`,
@@ -77,179 +63,133 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background: "rgb(10, 72, 109)",
+  background: "linear-gradient(90deg, #4B2E83, #1C1C3A)",
+
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
-  })
+    ({ theme, open }) => ({
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+      boxSizing: "border-box",
+      ...(open ? openedMixin(theme) : closedMixin(theme)),
+      "& .MuiDrawer-paper": {
+        ...(!open ? closedMixin(theme) : openedMixin(theme)),
+        backgroundColor: theme.palette.background.paper,
+        borderRight: "1px solid #e0e0e0",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
+      },
+    })
 );
 
-export default function TeacherPanelDrawer() {
-  const theme = useTheme();
+function TeacherPanelDrawer() {
+  const muiTheme = useTheme(); // required for drawer hover styles
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [courseOpen, setCourseOpen] = useState(false);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  const handleDrawerOpen = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
+  const toggleCourseDrawer = () => setCourseOpen(!courseOpen);
+  const handleMenu = (e) => setAnchorEl(e.currentTarget);
+  const handleClose = () => setAnchorEl(null);
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const toggleCourseDrawer = () => {
-    setCourseOpen(!courseOpen);
-  };
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
+  const drawerItemStyles = {
+    minHeight: 48,
+    px: 2.5,
+    borderRadius: 2,
+    mx: 1,
+    transition: "background 0.3s ease",
+    '&:hover': {
+      backgroundColor: muiTheme.palette.action.hover,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    },
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ marginRight: 5, ...(open && { display: "none" }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Teacher Panel
-          </Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton
-            color="inherit"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem component={Link} to="/profile" onClick={handleClose}>
-              <ListItemIcon>
-                <ProfileIcon />
-              </ListItemIcon>
-              Profile
-            </MenuItem>
-            <MenuItem component={Link} to="/logout" onClick={handleClose}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              Logout
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem key="dashboard" disablePadding sx={{ display: "block" }}>
-            <ListItemButton component={Link} to="/teacherpanel" sx={{ minHeight: 48, px: 2.5 }}>
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  justifyContent: "center",
-                  ...(open ? { mr: 3 } : { mr: "auto" }),
-                }}
-              >
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" sx={{ ...(open ? { opacity: 1 } : { opacity: 0 }) }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem button onClick={toggleCourseDrawer}>
-            <ListItemIcon>
-              <LibraryBooksIcon />
-            </ListItemIcon>
-            <ListItemText primary="My Courses" />
-          </ListItem>
-          {courseOpen && (
-            <>
-              <ListItem button component={Link} to="/view-courses">
-                <ListItemIcon>
-                  <LibraryBooksIcon />
-                </ListItemIcon>
-                <ListItemText primary="Courses" />
+      <ThemeProvider theme={theme}>
+        <Box sx={{ display: "flex" }}>
+          <CssBaseline />
+          <AppBar position="fixed" open={open}>
+            <Toolbar>
+              <IconButton color="inherit" onClick={handleDrawerOpen} edge="start" sx={{ marginRight: 5, ...(open && { display: "none" }) }}>
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">Teacher Panel</Typography>
+              <Box sx={{ flexGrow: 1 }} />
+              <IconButton color="inherit" onClick={handleMenu}><AccountCircle /></IconButton>
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                <MenuItem component={Link} to="/profile" onClick={handleClose}>
+                  <ListItemIcon><ProfileIcon /></ListItemIcon> Profile
+                </MenuItem>
+                <MenuItem component={Link} to="/logout" onClick={handleClose}>
+                  <ListItemIcon><LogoutIcon /></ListItemIcon> Logout
+                </MenuItem>
+              </Menu>
+            </Toolbar>
+          </AppBar>
+
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader>
+              <IconButton onClick={handleDrawerClose}>
+                {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              </IconButton>
+            </DrawerHeader>
+            <Divider />
+            <List>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton component={Link} to="/teacherpanel" sx={drawerItemStyles}>
+                  <ListItemIcon sx={{ color: "#150b29" }}><DashboardIcon /></ListItemIcon>
+                  <ListItemText primary="Dashboard" sx={{ color: "#280838" }} />
+                </ListItemButton>
               </ListItem>
 
-              <ListItem button component={Link} to="/view-assignments">
-                <ListItemIcon>
-                  <AssignmentIcon />
-                </ListItemIcon>
-                <ListItemText primary="Assignments" />
+              <ListItem button onClick={toggleCourseDrawer} sx={drawerItemStyles}>
+                <ListItemIcon sx={{ color: "#150b29" }}><LibraryBooksIcon /></ListItemIcon>
+                <ListItemText primary="My Courses" sx={{ color: "#280838" }} />
               </ListItem>
-              <ListItem button component={Link} to="/grades">
-                <ListItemIcon>
-                  <GradeIcon />
-                </ListItemIcon>
-                <ListItemText primary="Grades" />
+
+              {courseOpen && (
+                  <>
+                    <ListItem button component={Link} to="/view-courses" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}><LibraryBooksIcon /></ListItemIcon>
+                      <ListItemText primary="Courses" sx={{ color: "#280838" }} />
+                    </ListItem>
+                    <ListItem button component={Link} to="/view-assignments" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}><AssignmentIcon /></ListItemIcon>
+                      <ListItemText primary="Assignments" sx={{ color: "#280838" }} />
+                    </ListItem>
+                    <ListItem button component={Link} to="/grades" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}><GradeIcon /></ListItemIcon>
+                      <ListItemText primary="Grades" sx={{ color: "#280838" }} />
+                    </ListItem>
+                  </>
+              )}
+
+              <ListItem button component={Link} to="/classroom" sx={drawerItemStyles}>
+                <ListItemIcon sx={{ color: "#150b29" }}><PeopleIcon /></ListItemIcon>
+                <ListItemText primary="Classroom" sx={{ color: "#280838" }} />
               </ListItem>
-            </>
-          )}
-          <ListItem button component={Link} to="/classroom">
-            <ListItemIcon>
-              <PeopleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Classroom" />
-          </ListItem>
-          <ListItem button component={Link} to="/viewtimeslot">
-            <ListItemIcon>
-              <CalendarTodayIcon />
-            </ListItemIcon>
-            <ListItemText primary="Schedule" />
-          </ListItem>
-        </List>
-        <Divider />
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
-        }}
-      >
-        <Toolbar />
-        <Teacherview />
-      </Box>
-    </Box>
+
+              <ListItem button component={Link} to="/viewtimeslot" sx={drawerItemStyles}>
+                <ListItemIcon sx={{ color: "#150b29" }}><CalendarTodayIcon /></ListItemIcon>
+                <ListItemText primary="Schedule" sx={{ color: "#280838" }} />
+              </ListItem>
+            </List>
+
+            <Divider />
+          </Drawer>
+
+          <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` } }}>
+            <Toolbar />
+            <Teacherview />
+          </Box>
+        </Box>
+      </ThemeProvider>
   );
 }
+
+export default TeacherPanelDrawer;

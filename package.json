@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@date-io/date-fns": "^3.2.0",
+    "@dotlottie/react-player": "^1.6.19",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@lottiefiles/dotlottie-react": "^0.14.2",
+    "@lottiefiles/react-lottie-player": "^3.6.0",
     "@mui/icons-material": "^6.4.11",
     "@mui/lab": "^6.0.0-beta.21",
     "@mui/material": "^6.4.11",

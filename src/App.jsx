@@ -77,6 +77,8 @@ import EnrollmentForm from './components/teacher/Enrollment/enroll_student.jsx';
 import ContactUsPage from './pages/contactus.jsx';
 import EnrollmentDashboard from './components/teacher/Enrollment/class_room.jsx';
 
+
+import Timeslotpage from "./pages/teacher/timeslotpage.jsx";
 function RegisterAndLogout() {
     localStorage.clear();
     return <Register />;
@@ -118,7 +120,7 @@ function App() {
                  <Route path='/contact' element={<ContactUsPage />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<RegisterAndLogout />} />
-                <Route path='/verifyemail' element={<VerifyEmail />} />
+                <Route path='/register/verifyemail/' element={<VerifyEmail />} />
                 <Route path='/logout' element={<Logout />} />
                 <Route path='/choice' element={<Choicerole />} />
                 <Route path='/forgot-password' element={<ForgotPassword />} />
@@ -189,7 +191,7 @@ function App() {
                 <Route path="/course-weeks/:id/announcements" element={<StudentPanelAnnouncementPgae />} />
                 <Route path="/announcements/:announcementId" element={<StudentPannalAnnouncementDetailPage />} />
                 <Route path="/assignment/submit/:id" element={<AssignmentSubmissionForm />} />
-                <Route path="/viewtimeslot" element={<TimeSlotCalendar />} />
+                <Route path="/viewtimeslot" element={<Timeslotpage />} />
                 <Route path="/time-slot/:id" element={<StudentPanelTimeSlotPage />} />
                 <Route path="/teacher_manage_profile" element={<TeacherProfileUpdate />} />
                 <Route path="/classroom" element={<EnrollmentDashboard />} />
