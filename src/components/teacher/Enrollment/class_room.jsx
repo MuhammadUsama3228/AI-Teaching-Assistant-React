@@ -34,6 +34,7 @@ import { saveAs } from "file-saver";
 import AddIcon from "@mui/icons-material/Add";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import EnrollmentForm from "./enroll_student";
+import theme from "../../Theme.jsx";
 
 const EnrollmentDashboard = () => {
   const [enrollments, setEnrollments] = useState([]);
@@ -147,8 +148,8 @@ const EnrollmentDashboard = () => {
           boxShadow: 3,
         }}
       >
-        <Typography variant="h5" sx={{ mb: 2, color: "#104E81FF" }}>Dashboard</Typography>
-        <Divider sx={{ bgcolor: "#104E81FF", mb: 2 }} />
+        <Typography variant="h5" sx={{ mb: 2, color: "#150b29" }}>Dashboard</Typography>
+        <Divider sx={{ bgcolor: "#280838", mb: 2 }} />
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" color="#104E81FF">Registered Courses</Typography>
           <Tabs
@@ -158,7 +159,7 @@ const EnrollmentDashboard = () => {
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-              ".MuiTab-root": { textTransform: "none", fontWeight: 500, color: "#104E81FF" },
+              ".MuiTab-root": { textTransform: "none", fontWeight: 500, color: "#150b29" },
               maxHeight: "80vh",
               overflowY: "auto",
             }}
@@ -172,10 +173,10 @@ const EnrollmentDashboard = () => {
 
       {/* Main Content */}
       <Box sx={{ flexGrow: 1, p: 4 }}>
-        <AppBar position="sticky" sx={{ mb: 3, bgcolor: "#084475FF" }}>
+        <AppBar position="sticky" sx={{ mb: 3, bgcolor: "#280838" }}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
             <Typography variant="h4" sx={{ color: "#fff" }}>
-              📚 Enrollment Dashboard
+              Enrollment Dashboard
             </Typography>
             <Tooltip title="View Invites">
               <IconButton onClick={handleInviteDrawerToggle} sx={{ color: "#fff" }}>
@@ -199,7 +200,7 @@ const EnrollmentDashboard = () => {
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "8px",
                     "&.Mui-focused fieldset": {
-                      borderColor: "#0B3252FF",
+                      borderColor: "#150b29",
                     },
                   },
                 }}
@@ -207,7 +208,7 @@ const EnrollmentDashboard = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Card elevation={3} sx={{ borderRadius: 3, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: '#104E81FF' }}>
+              <Card elevation={3} sx={{ borderRadius: 3, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: '#280838' }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ color: "#fff" }}>
                     Total Students Enrolled in <strong>{selectedCourse}</strong>:{" "}
@@ -251,7 +252,7 @@ const EnrollmentDashboard = () => {
                             borderRadius: 2,
                             "& .MuiDataGrid-root": { border: "none" },
                             "& .MuiDataGrid-columnHeader": {
-                              backgroundColor: "#104E81FF",
+                              backgroundColor: "#280838",
                               color: "#fff",
                             },
                           }}
