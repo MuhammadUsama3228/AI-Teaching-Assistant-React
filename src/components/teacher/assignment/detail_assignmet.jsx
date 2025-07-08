@@ -32,6 +32,8 @@ import { ExpandMore, MoreVert, Gavel, CalendarToday, InfoOutlined, Delete } from
 import api from '../../../api';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Snackbar, Alert } from '@mui/material';
+
 
 
 import UpdateAssignmentForm from './update_assignment';
@@ -84,6 +86,11 @@ const AssignmentDetailPage = () => {
   const [openPenaltyDialog, setOpenPenaltyDialog] = useState(false);
   const [penaltyType, setPenaltyType] = useState('');
   const [deletingFileId, setDeletingFileId] = useState(null);
+  const [rubricAlertOpen, setRubricAlertOpen] = useState(false);
+  const [simplePenalty, setSimplePenalty] = useState(null);
+  const [variationPenalty, setVariationPenalty] = useState(null);
+
+
 
   const [openSolutionDialog, setOpenSolutionDialog] = useState(false);
   const [selectedSolution, setSelectedSolution] = useState(null);
@@ -101,8 +108,24 @@ const AssignmentDetailPage = () => {
     try {
       const response = await api.get(`/api/courses/assignment/${assignmentId}/`);
       setAssignment(response.data);
+      if (response.data.rubric) {
+        setRubricAlertOpen(true);
+      }
     } catch (error) {
       console.error('Error fetching assignment:', error);
+    }
+  };
+
+  const fetchPenalties = async () => {
+    try {
+      const [simpleRes, variationRes] = await Promise.all([
+        api.get(`/api/courses/penalty/?assignment=${assignmentId}`),
+        api.get(`/api/courses/variation_penalty/?assignment=${assignmentId}`)
+      ]);
+      if (simpleRes.data.length > 0) setSimplePenalty(simpleRes.data[0]);
+      if (variationRes.data.length > 0) setVariationPenalty(variationRes.data[0]);
+    } catch (err) {
+      console.error('Error fetching penalties:', err);
     }
   };
 
@@ -168,6 +191,7 @@ const AssignmentDetailPage = () => {
       setOpenDeleteDialog(false);
     }
   };
+
 
   const handleUpdateClick = () => {
     handleMenuClose();
@@ -262,6 +286,7 @@ const AssignmentDetailPage = () => {
           </Typography>
         </Grid>
 
+
         {/* Action buttons */}
         <Grid item xs={12} textAlign="right">
           <Tooltip title="Assignment options">
@@ -279,7 +304,9 @@ const AssignmentDetailPage = () => {
 
       <Divider sx={{ my: 3 }} />
 
-      
+
+
+
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -319,7 +346,100 @@ const AssignmentDetailPage = () => {
         </AccordionDetails>
       </Accordion>
 
-   
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMore />}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>Penalty Information</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Stack spacing={2}>
+            {simplePenalty ? (
+                <Box>
+                  <Typography><strong>Type:</strong> Simple Penalty</Typography>
+                  <Typography><strong>Penalty:</strong> {simplePenalty.penalty}%</Typography>
+                </Box>
+            ) : variationPenalty ? (
+                <Box>
+                  <Typography><strong>Type:</strong> Variation Penalty</Typography>
+                  <Typography><strong>Allowed Late Days:</strong> {variationPenalty.late_submission}</Typography>
+
+                  {/* Fetch variation ranges (optional) */}
+                  {variationPenalty.ranges && variationPenalty.ranges.length > 0 && (
+                      <Box mt={2}>
+                        <Typography variant="subtitle1"><strong>Ranges:</strong></Typography>
+                        {variationPenalty.ranges.map((range, idx) => (
+                            <Typography key={idx}>
+                              - {range.days_late} day(s): {range.penalty * 100}%
+                            </Typography>
+                        ))}
+                      </Box>
+                  )}
+                </Box>
+            ) : (
+                <Typography color="textSecondary">No penalty applied.</Typography>
+            )}
+          </Stack>
+        </AccordionDetails>
+      </Accordion>
+
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMore />}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Rubric Information
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Stack spacing={2}>
+            <Typography variant="body2">
+              <strong>Status:</strong>{" "}
+              <StatusChip
+                  label={assignment.rubric_status?.replace(/_/g, ' ') || 'N/A'}
+                  statuscolor={
+                    assignment.rubric_status === 'processed'
+                        ? '#388e3c'
+                        : assignment.rubric_status === 'pending'
+                            ? '#fbc02d'
+                            : '#d32f2f'
+                  }
+              />
+            </Typography>
+
+            <Typography variant="body2">
+              <strong>Rubric Method:</strong>{" "}
+              <Chip
+                  label={assignment.rubric_method?.replace(/_/g, ' ') || 'N/A'}
+                  variant="outlined"
+                  size="small"
+                  sx={{ ml: 1 }}
+              />
+            </Typography>
+
+            {assignment.rubric ? (
+                <Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Download Rubric (JSON):</strong>
+                  </Typography>
+                  <Button
+                      variant="contained"
+                      size="small"
+                      color="secondary"
+                      href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(assignment.rubric, null, 2))}`}
+                      download={`rubric-${assignmentId}.json`}
+                  >
+                    Download Rubric
+                  </Button>
+                </Box>
+            ) : (
+                <Typography variant="body2" color="textSecondary">
+                  No rubric data available.
+                </Typography>
+            )}
+          </Stack>
+        </AccordionDetails>
+      </Accordion>
+
+
+
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -403,6 +523,8 @@ const AssignmentDetailPage = () => {
           )}
         </AccordionDetails>
       </Accordion>
+
+
 
 
       {solutions.map((sol) => (
@@ -586,6 +708,18 @@ const AssignmentDetailPage = () => {
         <MenuItem onClick={() => handlePenaltyClick('simple')}>Simple Penalty</MenuItem>
         <MenuItem onClick={() => handlePenaltyClick('variation')}>Variation Penalty</MenuItem>
       </Menu>
+
+      <Snackbar
+          open={rubricAlertOpen}
+          autoHideDuration={5000}
+          onClose={() => setRubricAlertOpen(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success" variant="filled" onClose={() => setRubricAlertOpen(false)}>
+          Rubric has been generated and is available for download.
+        </Alert>
+      </Snackbar>
+
     </StyledContainer>
   );
 };

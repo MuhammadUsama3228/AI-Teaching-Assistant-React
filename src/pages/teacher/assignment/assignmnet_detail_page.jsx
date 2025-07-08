@@ -1,30 +1,35 @@
-import ReadAssignments from "../../../components/teacher/assignment/read_asigment";
 import React, { useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
+import theme from "../../../components/Theme.jsx"; // Custom theme
 import { Link } from "react-router-dom";
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import {
+  Box,
+  CssBaseline,
+  AppBar as MuiAppBar,
+  Toolbar,
+  Typography,
+  Divider,
+  IconButton,
+  Drawer as MuiDrawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+
+import {
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Assignment as AssignmentIcon,
+  CheckCircle as CheckCircleIcon,
+  Visibility as VisibilityIcon,
+} from "@mui/icons-material";
+
 import AssignmentDetailPage from "../../../components/teacher/assignment/detail_assignmet";
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -34,7 +39,6 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
- 
 });
 
 const closedMixin = (theme) => ({
@@ -73,108 +77,116 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background:"rgb(10, 72, 109)",
+  background: "linear-gradient(90deg, #4B2E83, #1C1C3A)", // Purple gradient
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  ...(open ? openedMixin(theme) : closedMixin(theme)),
+  "& .MuiDrawer-paper": {
     ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open
-      ? openedMixin(theme)
-      : closedMixin(theme),
-  })
-);
+    backgroundColor: theme.palette.background.paper,
+    borderRight: "1px solid #e0e0e0",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+}));
 
 export default function Assignmentdetailpage() {
-  const theme = useTheme();
+  const muiTheme = useTheme();
   const [open, setOpen] = useState(false);
-  const [assignmentOpen, setAssignmentOpen] = useState(false);  
+  const [assignmentOpen, setAssignmentOpen] = useState(true);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  const handleDrawerOpen = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
+  const toggleAssignmentDrawer = () => setAssignmentOpen(!assignmentOpen);
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const toggleAssignmentDrawer = () => {
-    setAssignmentOpen(!assignmentOpen); 
+  const drawerItemStyles = {
+    minHeight: 48,
+    px: 2.5,
+    borderRadius: 2,
+    mx: 1,
+    transition: "background 0.3s ease",
+    "&:hover": {
+      backgroundColor: muiTheme.palette.action.hover,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    },
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Assignment Panel
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem button onClick={toggleAssignmentDrawer}>
-            <ListItemIcon>
-              <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Assignments" />
-          </ListItem>
-          {assignmentOpen && (
-            <>
-            <ListItem button component={Link} to="/view-assignments">
-            <ListItemIcon>
-                <VisibilityIcon /> 
-            </ListItemIcon>
-            <ListItemText primary="View Assignments" />
-            </ListItem>
-           
-              <ListItem button component={Link} to="/submission-status">
-                <ListItemIcon>
-                  <CheckCircleIcon />
-                </ListItemIcon>
-                <ListItemText primary="Submission Status" />
+      <ThemeProvider theme={theme}>
+        <Box sx={{ display: "flex" }}>
+          <CssBaseline />
+          <AppBar position="fixed" open={open}>
+            <Toolbar>
+              <IconButton
+                  color="inherit"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ marginRight: 5, ...(open && { display: "none" }) }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap>
+                Assignment Panel
+              </Typography>
+            </Toolbar>
+          </AppBar>
+
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader>
+              <IconButton onClick={handleDrawerClose}>
+                {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              </IconButton>
+            </DrawerHeader>
+            <Divider />
+            <List>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton onClick={toggleAssignmentDrawer} sx={drawerItemStyles}>
+                  <ListItemIcon sx={{ color: "#150b29" }}>
+                    <AssignmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Assignments" sx={{ color: "#280838" }} />
+                </ListItemButton>
               </ListItem>
-             
-            </>
-          )}
-        </List>
-        <Divider />
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
-         
-        }}
-      >
-        <Toolbar />
-        <  AssignmentDetailPage />
-      </Box>
-    </Box>
+
+              {assignmentOpen && (
+                  <>
+                    <ListItemButton component={Link} to="/view-assignments" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}>
+                        <VisibilityIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="View Assignments" sx={{ color: "#280838" }} />
+                    </ListItemButton>
+                    <ListItemButton component={Link} to="/submission-status" sx={drawerItemStyles}>
+                      <ListItemIcon sx={{ color: "#150b29" }}>
+                        <CheckCircleIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Submission Status" sx={{ color: "#280838" }} />
+                    </ListItemButton>
+                  </>
+              )}
+            </List>
+          </Drawer>
+
+          <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: 3,
+                width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
+              }}
+          >
+            <Toolbar />
+            <AssignmentDetailPage />
+          </Box>
+        </Box>
+      </ThemeProvider>
   );
 }

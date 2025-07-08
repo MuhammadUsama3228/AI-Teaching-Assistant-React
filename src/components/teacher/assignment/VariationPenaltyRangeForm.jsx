@@ -176,11 +176,20 @@ import {
     Container,
     Box,
     CircularProgress,
+    Card,
+    CardContent,
+    Stack,
+    Alert,
     List,
     ListItem,
-    ListItemText
+    ListItemText,
+    ListItemIcon,
+    Divider,
+    Grid
 } from '@mui/material';
 import api from '../../../api';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PercentIcon from '@mui/icons-material/Percent';
 
 function VariationPenaltyRangeForm({ penaltyId }) {
     const [penaltyRanges, setPenaltyRanges] = useState([]);
@@ -213,31 +222,28 @@ function VariationPenaltyRangeForm({ penaltyId }) {
         setLoading(true);
         setSuccess('');
         setError('');
-    
-        // Ensure penaltyId is defined
+
         if (!penaltyId) {
             setError('Penalty ID is missing.');
             setLoading(false);
             return;
         }
-    
+
         try {
             const response = await api.post('/api/courses/penalty_ranges/', {
                 variation_penalty: penaltyId,
                 days_late: parseInt(formData.days_late, 10),
                 penalty: parseFloat(formData.penalty),
             });
-    
+
             setSuccess('Penalty range added successfully!');
             setPenaltyRanges([...penaltyRanges, response.data]);
             setFormData({ days_late: '', penalty: '' });
-    
         } catch (err) {
             console.error('Error adding penalty range:', err);
-    
-            if (err.response && err.response.status === 403) {
-                setError('You do not have permission to create penalty ranges for this course.');
-            } else if (err.response && err.response.data?.variation_penalty_range) {
+            if (err.response?.status === 403) {
+                setError('You do not have permission to create penalty ranges.');
+            } else if (err.response?.data?.variation_penalty_range) {
                 setError(err.response.data.variation_penalty_range);
             } else {
                 setError('Failed to add penalty range. Please try again.');
@@ -246,68 +252,95 @@ function VariationPenaltyRangeForm({ penaltyId }) {
             setLoading(false);
         }
     };
-    
 
     return (
         <Container maxWidth="sm">
-            <Box sx={{ p: 3, boxShadow: 3, borderRadius: 2, backgroundColor: 'background.paper', mt: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                    Add Penalty Ranges
-                </Typography>
+            <Card elevation={4} sx={{ mt: 4, borderRadius: 3 }}>
+                <CardContent>
+                    <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+                        Add Penalty Ranges
+                    </Typography>
 
-                {success && <Typography color="primary">{success}</Typography>}
-                {error && <Typography color="error">{error}</Typography>}
+                    <Stack spacing={2} mt={2}>
+                        {success && <Alert severity="success">{success}</Alert>}
+                        {error && <Alert severity="error">{error}</Alert>}
 
-                <form onSubmit={handleSubmit}>
-                    <TextField
-                        label="Days Late"
-                        name="days_late"
-                        type="number"
-                        value={formData.days_late}
-                        onChange={handleInputChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                        inputProps={{ min: 1 }}
-                    />
+                        <form onSubmit={handleSubmit}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        label="Days Late"
+                                        name="days_late"
+                                        type="number"
+                                        value={formData.days_late}
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        required
+                                        inputProps={{ min: 1 }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        label="Penalty (%)"
+                                        name="penalty"
+                                        type="number"
+                                        value={formData.penalty}
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        required
+                                        inputProps={{ min: 0, step: 0.01 }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        fullWidth
+                                        disabled={loading}
+                                        sx={{ py: 1.5, borderRadius: 2 }}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                Saving... <CircularProgress size={20} sx={{ ml: 2 }} />
+                                            </>
+                                        ) : (
+                                            'Add Penalty Range'
+                                        )}
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </form>
+                    </Stack>
 
-                    <TextField
-                        label="Penalty Percentage"
-                        name="penalty"
-                        type="number"
-                        value={formData.penalty}
-                        onChange={handleInputChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                        inputProps={{ step: "0.01", min: 0 }}
-                    />
+                    {/* Divider */}
+                    <Divider sx={{ my: 4 }} />
 
-                    <Button 
-                        type="submit" 
-                        variant="contained" 
-                        fullWidth 
-                        sx={{ mt: 2 }} 
-                        disabled={loading}
-                    >
-                        {loading ? <>Saving <CircularProgress size={20} sx={{ ml: 2 }} /></> : 'Add Penalty Range'}
-                    </Button>
-                </form>
+                    <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                        Existing Penalty Ranges
+                    </Typography>
 
-                {/* Display Added Penalty Ranges */}
-                <Typography variant="h6" sx={{ mt: 3 }}>Existing Penalty Ranges</Typography>
-                <List>
                     {penaltyRanges.length > 0 ? (
-                        penaltyRanges.map((range, index) => (
-                            <ListItem key={index}>
-                                <ListItemText primary={`Days Late: ${range.days_late}, Penalty: ${range.penalty * 100}%`} />
-                            </ListItem>
-                        ))
+                        <List>
+                            {penaltyRanges.map((range, index) => (
+                                <ListItem key={index} sx={{ mb: 1, border: '1px solid #e0e0e0', borderRadius: 2, px: 2 }}>
+                                    <ListItemIcon>
+                                        <AccessTimeIcon color="primary" />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={`Days Late: ${range.days_late}`}
+                                        secondary={`Penalty: ${parseFloat(range.penalty * 100).toFixed(2)}%`}
+                                    />
+                                    <PercentIcon color="secondary" />
+                                </ListItem>
+                            ))}
+                        </List>
                     ) : (
-                        <Typography color="textSecondary">No penalty ranges added yet.</Typography>
+                        <Typography variant="body2" color="textSecondary">
+                            No penalty ranges added yet.
+                        </Typography>
                     )}
-                </List>
-            </Box>
+                </CardContent>
+            </Card>
         </Container>
     );
 }

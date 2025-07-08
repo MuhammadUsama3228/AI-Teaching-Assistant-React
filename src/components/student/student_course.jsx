@@ -11,6 +11,7 @@ import {
   TextField,
   MenuItem,
   InputAdornment,
+  Button
 } from '@mui/material';
 import { School, AccessTime, Search } from '@mui/icons-material';
 import api from '../../api';
@@ -42,11 +43,11 @@ const EnrolledCourses = () => {
         const data = response.data;
         const enrolledCourseIds = data.enrollments.map(enroll => enroll.course);
         const enrolledCourses = data.courses
-          .filter(course => enrolledCourseIds.includes(course.id))
-          .map(course => ({
-            ...course,
-            color: courseColors[Math.floor(Math.random() * courseColors.length)],
-          }));
+            .filter(course => enrolledCourseIds.includes(course.id))
+            .map(course => ({
+              ...course,
+              color: courseColors[Math.floor(Math.random() * courseColors.length)],
+            }));
 
         setCourses(enrolledCourses);
         setEnrollments(data.enrollments);
@@ -60,145 +61,142 @@ const EnrolledCourses = () => {
     fetchCourses();
   }, []);
 
-  const handleSearchChange = (value) => {
-    setSearchTerm(value);
-  };
-
-  const handleSortChange = (value) => {
-    setSortOption(value);
-  };
-
   const filteredAndSortedCourses = courses
-    .filter(course =>
-      course.course_title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortOption === 'title') {
-        return a.course_title.localeCompare(b.course_title);
-      } else if (sortOption === 'weeks') {
-        return a.weeks - b.weeks;
-      }
-      return 0;
-    });
+      .filter(course =>
+          course.course_title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (sortOption === 'title') {
+          return a.course_title.localeCompare(b.course_title);
+        } else if (sortOption === 'weeks') {
+          return a.weeks - b.weeks;
+        }
+        return 0;
+      });
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container maxWidth="lg">
-        <Box mt={6} mb={4}>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#052649' }}>
-            🎓 My Enrolled Courses
-          </Typography>
+      <ThemeProvider theme={theme}>
+        <Container maxWidth="lg">
+          <Box mt={6} mb={4}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#052649' }}>
+              My Courses
+            </Typography>
 
-          {/* Search and Sort Controls */}
-          <Box
-            display="flex"
-            flexDirection={{ xs: 'column', sm: 'row' }}
-            justifyContent="space-between"
-            alignItems="center"
-            gap={2}
-            my={3}
-          >
-            <TextField
-              variant="outlined"
-              size="small"
-              placeholder="Search by course title..."
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ width: { xs: '100%', sm: '60%' }, bgcolor: 'white' }}
-            />
-
-            <TextField
-              select
-              size="small"
-              label="Sort by"
-              value={sortOption}
-              onChange={(e) => handleSortChange(e.target.value)}
-              sx={{ width: { xs: '100%', sm: '30%' }, bgcolor: 'white' }}
+            <Box
+                display="flex"
+                flexDirection={{ xs: 'column', sm: 'row' }}
+                justifyContent="space-between"
+                alignItems="center"
+                gap={2}
+                my={3}
             >
-              <MenuItem value="">Default</MenuItem>
-              <MenuItem value="title">Title (A-Z)</MenuItem>
-              <MenuItem value="weeks">Weeks (Low to High)</MenuItem>
-            </TextField>
-          </Box>
+              <TextField
+                  variant="outlined"
+                  size="small"
+                  placeholder="Search Courses"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                          <Search />
+                        </InputAdornment>
+                    ),
+                  }}
+                  sx={{ width: { xs: '100%', sm: '60%' }, bgcolor: 'white' }}
+              />
 
-          {loading ? (
-            <Box display="flex" justifyContent="center" mt={6}>
-              <CircularProgress size={50} />
+              <TextField
+                  select
+                  size="small"
+                  label="Filter by"
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  sx={{ width: { xs: '100%', sm: '30%' }, bgcolor: 'white' }}
+              >
+                <MenuItem value="">Default</MenuItem>
+                <MenuItem value="title">Title (A-Z)</MenuItem>
+                <MenuItem value="weeks">Duration (Low to High)</MenuItem>
+              </TextField>
             </Box>
-          ) : filteredAndSortedCourses.length === 0 ? (
-            <Typography variant="body1">No courses match your search.</Typography>
-          ) : (
-            <Grid container spacing={4}>
-              {filteredAndSortedCourses.map((course) => {
-                const enrollment = enrollments.find(e => e.course === course.id);
 
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={course.id}>
-                    <Card
-                      onClick={() => navigate(`/student_course_week/${course.id}`)}
-                      sx={{
-                        borderRadius: '16px',
-                        background: course.color,
-                        color: 'white',
-                        boxShadow: 5,
-                        cursor: 'pointer',
-                        transition: '0.3s',
-                        '&:hover': {
-                          transform: 'scale(1.03)',
-                          boxShadow: 10,
-                        },
-                      }}
-                    >
-                      <CardContent>
-                        {/* Box layout for the icon */}
-                        <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
-                          <Avatar
-                            sx={{
-                              bgcolor: 'white',
-                              color: '#019cb8',
-                              mb: 2,
-                              width: 60,
-                              height: 60,
-                            }}
+            {loading ? (
+                <Box display="flex" justifyContent="center" mt={6}>
+                  <CircularProgress size={50} />
+                </Box>
+            ) : filteredAndSortedCourses.length === 0 ? (
+                <Typography variant="body1">No courses match your search.</Typography>
+            ) : (
+                <Grid container spacing={4}>
+                  {filteredAndSortedCourses.map((course) => {
+                    const enrollment = enrollments.find(e => e.course === course.id);
+                    const initial = course.course_title.charAt(0).toUpperCase();
+
+                    return (
+                        <Grid item xs={12} sm={6} md={6} key={course.id}>
+                          <Card
+                              sx={{
+                                borderRadius: 4,
+                                p: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                boxShadow: 3,
+                                backgroundColor: 'white',
+                              }}
                           >
-                            <School fontSize="large" />
-                          </Avatar>
-                          <Typography variant="h6" fontWeight="bold" sx={{ textTransform: 'capitalize' }}>
-                            {course.course_title}
-                          </Typography>
-                        </Box>
+                            <Avatar
+                                sx={{
+                                  bgcolor: '#2C2374',
+                                  width: 72,
+                                  height: 72,
+                                  fontSize: 28,
+                                  fontWeight: 'bold',
+                                  borderRadius: 2,
+                                  mr: 3,
+                                }}
+                            >
+                              {initial}
+                            </Avatar>
 
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          <strong>Section:</strong> {course.section || 'N/A'}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          <AccessTime fontSize="small" sx={{ mr: 0.5 }} />
-                          {course.weeks} Week{course.weeks > 1 ? 's' : ''}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          {course.description || 'No description provided.'}
-                        </Typography>
-                        <Typography variant="caption">
-                          Enrolled on:{' '}
-                          {new Date(enrollment?.enrollment_date).toLocaleDateString()}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
-      </Container>
-    </ThemeProvider>
+                            <Box flexGrow={1}>
+                              <Typography variant="h6" fontWeight="bold" sx={{ textTransform: 'uppercase' }}>
+                                {course.course_title}
+                              </Typography>
+                              <Typography variant="body2">
+                                Created: {new Date(enrollment?.enrollment_date).toLocaleDateString()}
+                              </Typography>
+                              <Typography variant="body2" fontWeight="bold">
+                                Duration: {course.weeks} weeks
+                              </Typography>
+                              <Typography variant="body2" fontWeight="bold">
+                                Section: {course.section || 'N/A'}
+                              </Typography>
+
+                              <Box display="flex" mt={2} gap={2}>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => navigate(`/student_course_week/${course.id}`)}
+                                    sx={{
+                                      backgroundColor: '#2C2374',
+                                      borderRadius: 2,
+                                      fontWeight: 'bold',
+                                      textTransform: 'none',
+                                      px: 3,
+                                    }}
+                                >
+                                  View Details
+                                </Button>
+                              </Box>
+                            </Box>
+                          </Card>
+                        </Grid>
+                    );
+                  })}
+                </Grid>
+            )}
+          </Box>
+        </Container>
+      </ThemeProvider>
   );
 };
 

@@ -80,6 +80,8 @@ const TimeSlotCalendar = () => {
   const [openActionDialog, setOpenActionDialog] = useState(false);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+
+
   const [updateForm, setUpdateForm] = useState({
     course_name: '', section: '', day: '', start_time: '', end_time: '', room_link: '', timezone: ''
   });
@@ -92,17 +94,31 @@ const TimeSlotCalendar = () => {
     const fetchSlots = async () => {
       try {
         const response = await api.get('/api/courses/slots/');
-        setTimeSlots(response.data);
-        const uniqueCourses = [...new Set(response.data.map(s => s.course_name))].sort();
-        setCourses(uniqueCourses);
+        const data = response.data;
+
+        if (Array.isArray(data)) {
+          setTimeSlots(data);
+          const uniqueCourses = [...new Set(data.map(slot => slot.course_name))].sort();
+          setCourses(uniqueCourses);
+        } else {
+          // Defensive check if API returns non-array data
+          console.error('Unexpected API response (not an array):', data);
+          setTimeSlots([]);
+          setCourses([]);
+          setError('Unexpected response from server.');
+        }
+
       } catch (error) {
-        console.error('Error fetching time slots:', error);
+        setError('Failed to load time slots.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchSlots();
   }, []);
+
+
 
   const handleSliderChange = (_, newValue) => setCourseIndex(newValue);
   const filteredTimeSlots = courseIndex === -1 ? timeSlots : timeSlots.filter(s => s.course_name === courses[courseIndex]);

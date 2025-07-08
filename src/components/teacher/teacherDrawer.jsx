@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
-import theme from "../Theme.jsx"; // your custom theme
+import theme from "../Theme.jsx";
 import {
   Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography, Divider,
   IconButton, Drawer as MuiDrawer, List, ListItem, ListItemButton,
@@ -64,7 +64,6 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
   background: "linear-gradient(90deg, #4B2E83, #1C1C3A)",
-
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
@@ -86,7 +85,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 );
 
 function TeacherPanelDrawer() {
-  const muiTheme = useTheme(); // required for drawer hover styles
+  const muiTheme = useTheme();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [courseOpen, setCourseOpen] = useState(false);
@@ -147,39 +146,38 @@ function TeacherPanelDrawer() {
                 </ListItemButton>
               </ListItem>
 
-              <ListItem button onClick={toggleCourseDrawer} sx={drawerItemStyles}>
+              <ListItemButton onClick={toggleCourseDrawer} sx={drawerItemStyles}>
                 <ListItemIcon sx={{ color: "#150b29" }}><LibraryBooksIcon /></ListItemIcon>
                 <ListItemText primary="My Courses" sx={{ color: "#280838" }} />
-              </ListItem>
+              </ListItemButton>
 
               {courseOpen && (
                   <>
-                    <ListItem button component={Link} to="/view-courses" sx={drawerItemStyles}>
+                    <ListItemButton component={Link} to="/view-courses" sx={drawerItemStyles}>
                       <ListItemIcon sx={{ color: "#150b29" }}><LibraryBooksIcon /></ListItemIcon>
                       <ListItemText primary="Courses" sx={{ color: "#280838" }} />
-                    </ListItem>
-                    <ListItem button component={Link} to="/view-assignments" sx={drawerItemStyles}>
+                    </ListItemButton>
+                    <ListItemButton component={Link} to="/view-assignments" sx={drawerItemStyles}>
                       <ListItemIcon sx={{ color: "#150b29" }}><AssignmentIcon /></ListItemIcon>
                       <ListItemText primary="Assignments" sx={{ color: "#280838" }} />
-                    </ListItem>
-                    <ListItem button component={Link} to="/grades" sx={drawerItemStyles}>
+                    </ListItemButton>
+                    <ListItemButton component={Link} to="/submission-status" sx={drawerItemStyles}>
                       <ListItemIcon sx={{ color: "#150b29" }}><GradeIcon /></ListItemIcon>
                       <ListItemText primary="Grades" sx={{ color: "#280838" }} />
-                    </ListItem>
+                    </ListItemButton>
                   </>
               )}
 
-              <ListItem button component={Link} to="/classroom" sx={drawerItemStyles}>
+              <ListItemButton component={Link} to="/classroom" sx={drawerItemStyles}>
                 <ListItemIcon sx={{ color: "#150b29" }}><PeopleIcon /></ListItemIcon>
                 <ListItemText primary="Classroom" sx={{ color: "#280838" }} />
-              </ListItem>
+              </ListItemButton>
 
-              <ListItem button component={Link} to="/viewtimeslot" sx={drawerItemStyles}>
+              <ListItemButton component={Link} to="/viewtimeslot" sx={drawerItemStyles}>
                 <ListItemIcon sx={{ color: "#150b29" }}><CalendarTodayIcon /></ListItemIcon>
                 <ListItemText primary="Schedule" sx={{ color: "#280838" }} />
-              </ListItem>
+              </ListItemButton>
             </List>
-
             <Divider />
           </Drawer>
 

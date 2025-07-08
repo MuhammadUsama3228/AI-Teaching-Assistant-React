@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import {
   Grid, Card, Typography, Box, CircularProgress, Divider, Snackbar,
   Alert, Table, TableBody, TableCell, TableContainer, TableHead,
-  TableRow, Button, useTheme
+  TableRow, Button, useTheme, useMediaQuery
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import api from '../api';
+import RecordNotFound from "./Record_not_found.jsx";
 
 export default function Teacherview() {
   const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const chartHeight = isSmallScreen ? 250 : 300;
+
   const [loading, setLoading] = useState(true);
   const [enrollmentCount, setEnrollmentCount] = useState(0);
   const [courses, setCourses] = useState([]);
@@ -63,10 +67,7 @@ export default function Teacherview() {
           };
         });
         setFeedbackAverages(feedbackSummary);
-
-        setPerformanceData(
-            feedbackSummary.map(item => ({ name: item.name, performance: item.avgRating }))
-        );
+        setPerformanceData(feedbackSummary.map(item => ({ name: item.name, performance: item.avgRating })));
 
         const marksData = submissionRes.data
             .filter(sub => sub.obtained_marks !== null)
@@ -119,15 +120,13 @@ export default function Teacherview() {
             { title: 'Total Courses', value: courses.length },
           ].map((card, i) => (
               <Grid item xs={12} sm={6} md={4} key={i}>
-                <Card
-                    sx={{
-                      height: '100%',
-                      p: 3,
-                      borderRadius: 3,
-                      backgroundColor: theme.palette.background.paper,
-                      boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
-                    }}
-                >
+                <Card sx={{
+                  height: '100%',
+                  p: 3,
+                  borderRadius: 3,
+                  backgroundColor: theme.palette.background.paper,
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+                }}>
                   <Typography variant="subtitle1" color="primary">{card.title}</Typography>
                   <Typography variant="h5" fontWeight="bold">{card.value}</Typography>
                 </Card>
@@ -135,54 +134,62 @@ export default function Teacherview() {
           ))}
         </Grid>
 
-        {/* Graphs Side by Side */}
+        {/* Graphs */}
         <Divider sx={{ my: 5 }} />
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Typography variant="h6" fontWeight="bold" mb={2} color="primary">Feedback Ratings</Typography>
             <Card sx={{ p: 3, borderRadius: 3, backgroundColor: theme.palette.background.paper, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={feedbackAverages}>
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} textAnchor="end" />
-                  <YAxis domain={[0, 5]} allowDecimals={true} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="minRating" fill={theme.palette.error.main} name="Min" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="avgRating" fill={theme.palette.primary.main} name="Avg" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="maxRating" fill={theme.palette.success.main} name="Max" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {feedbackAverages.length === 0 ? <RecordNotFound /> : (
+                  <ResponsiveContainer width="100%" height={chartHeight}>
+                    <BarChart data={feedbackAverages}>
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} textAnchor="end" />
+                      <YAxis domain={[0, 5]} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="minRating" fill={theme.palette.error.main} name="Min" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="avgRating" fill={theme.palette.primary.main} name="Avg" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="maxRating" fill={theme.palette.success.main} name="Max" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+              )}
             </Card>
           </Grid>
 
           <Grid item xs={12} md={6}>
             <Typography variant="h6" fontWeight="bold" mb={2} color="primary">Student Performance</Typography>
             <Card sx={{ p: 3, borderRadius: 3, backgroundColor: theme.palette.background.paper, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={performanceData}>
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} textAnchor="end" />
-                  <YAxis domain={[0, 5]} allowDecimals={true} />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="performance" stroke={theme.palette.success.main} strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+              {performanceData.length === 0 ? <RecordNotFound /> : (
+                  <ResponsiveContainer width="100%" height={chartHeight}>
+                    <LineChart data={performanceData}>
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} textAnchor="end" />
+                      <YAxis domain={[0, 5]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="performance" stroke={theme.palette.success.main} strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+              )}
             </Card>
           </Grid>
         </Grid>
 
+        {/* Assignment Marks */}
         <Typography variant="h6" fontWeight="bold" mt={5} mb={2} color="primary">Assignment Marks</Typography>
         <Card sx={{ p: 3, mb: 5, borderRadius: 3, backgroundColor: theme.palette.background.paper, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={assignmentMarksData}>
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} textAnchor="end" />
-              <YAxis allowDecimals={true} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="marks" fill={theme.palette.secondary.main} radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {assignmentMarksData.length === 0 ? <RecordNotFound /> : (
+              <ResponsiveContainer width="100%" height={chartHeight}>
+                <BarChart data={assignmentMarksData}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} textAnchor="end" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="marks" fill={theme.palette.secondary.main} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+          )}
         </Card>
+
         {/* Clock */}
         <Divider sx={{ my: 5 }} />
         <Typography variant="h6" fontWeight="bold" mb={2} color="primary">Current Time</Typography>
@@ -193,25 +200,17 @@ export default function Teacherview() {
           </Typography>
         </Card>
 
-        {/* Course List */}
+        {/* Courses */}
         <Typography variant="h6" fontWeight="bold" mb={2} color="primary">Your Courses</Typography>
         <Grid container spacing={3}>
           {courses.map((course) => (
               <Grid item xs={12} sm={6} md={4} key={course.id}>
                 <Link to={`/coursedetail/${course.id}`} style={{ textDecoration: 'none' }}>
-                  <Card
-                      sx={{
-                        p: 3,
-                        borderRadius: 3,
-                        backgroundColor: theme.palette.background.paper,
-                        boxShadow: '0 6px 16px rgba(0,0,0,0.05)',
-                        transition: 'all 0.3s ease-in-out',
-                        '&:hover': {
-                          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                          transform: 'scale(1.02)',
-                        },
-                      }}
-                  >
+                  <Card sx={{
+                    p: 3, borderRadius: 3, backgroundColor: theme.palette.background.paper,
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.05)', transition: 'all 0.3s ease-in-out',
+                    '&:hover': { boxShadow: '0 10px 30px rgba(0,0,0,0.1)', transform: 'scale(1.02)' },
+                  }}>
                     <Typography variant="h6" fontWeight="600">{course.course_title}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {course.description || 'No description provided.'}
@@ -222,42 +221,42 @@ export default function Teacherview() {
           ))}
         </Grid>
 
-
-
-        {/* Course Time Slots */}
+        {/* Time Slots */}
         <Divider sx={{ my: 5 }} />
         <Typography variant="h6" fontWeight="bold" mb={2} color="primary">Course Time Slots</Typography>
-        <TableContainer component={Card} sx={{ borderRadius: 3, boxShadow: '0 6px 20px rgba(0,0,0,0.05)', backgroundColor: theme.palette.background.paper }}>
-          <Table stickyHeader>
-            <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableRow>
-                {['Course', 'Section', 'Day', 'Start Time', 'End Time', 'Room Link'].map((header) => (
-                    <TableCell key={header} sx={{ fontWeight: 'bold' }}>{header}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.keys(slots).flatMap((courseId) =>
-                  slots[courseId].map((slot) => (
-                      <TableRow key={slot.id} hover>
-                        <TableCell>{slot.course_name}</TableCell>
-                        <TableCell>{slot.section}</TableCell>
-                        <TableCell>{slot.day}</TableCell>
-                        <TableCell>{slot.start_time}</TableCell>
-                        <TableCell>{slot.end_time}</TableCell>
-                        <TableCell>
-                          {slot.room_link && slot.room_link !== 'N/A' ? (
-                              <Button variant="outlined" size="small" href={slot.room_link} target="_blank" sx={{ textTransform: 'none' }}>
-                                Join Room
-                              </Button>
-                          ) : 'N/A'}
-                        </TableCell>
-                      </TableRow>
-                  ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Box sx={{ overflowX: 'auto' }}>
+          <TableContainer component={Card} sx={{ borderRadius: 3, boxShadow: '0 6px 20px rgba(0,0,0,0.05)', backgroundColor: theme.palette.background.paper }}>
+            <Table stickyHeader>
+              <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableRow>
+                  {['Course', 'Section', 'Day', 'Start Time', 'End Time', 'Room Link'].map((header) => (
+                      <TableCell key={header} sx={{ fontWeight: 'bold' }}>{header}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.keys(slots).flatMap((courseId) =>
+                    slots[courseId].map((slot) => (
+                        <TableRow key={slot.id} hover>
+                          <TableCell>{slot.course_name}</TableCell>
+                          <TableCell>{slot.section}</TableCell>
+                          <TableCell>{slot.day}</TableCell>
+                          <TableCell>{slot.start_time}</TableCell>
+                          <TableCell>{slot.end_time}</TableCell>
+                          <TableCell>
+                            {slot.room_link && slot.room_link !== 'N/A' ? (
+                                <Button variant="outlined" size="small" href={slot.room_link} target="_blank" sx={{ textTransform: 'none' }}>
+                                  Join Room
+                                </Button>
+                            ) : 'N/A'}
+                          </TableCell>
+                        </TableRow>
+                    ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
 
         {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>

@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
-
-
+import TeacherProfile from './pages/teacher/profile/teacher_profile.jsx';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import StudentPanelDashboard from './pages/student/studentdasboard.jsx';
@@ -9,13 +8,14 @@ import PageNotFound from './pages/Page404';
 import Register from './pages/registration';
 import Logout from './pages/Logout';
 import TeacherPanel from './pages/teacher/teacherpanal';
-
+import Teacher_profile_edit from "./pages/teacher/profile/teacher_profile_edit.jsx";
 import VerifyEmail from './pages/emailverifiactionsent';
 import Choicerole from './pages/rolechoice';
 import ForgotPassword from './pages/Forgetpassword';
 import ResetPassword from './pages/forgetpasswordconfirm';
 import Assignmentuploadpage from './pages/teacher/assignment/assignmentcreate';
 import Assignmentreadpage from './pages/teacher/assignment/assignmentread';
+import Student_profile_edit from "./pages/student/profile/student_profile_edit.jsx";
 
 import CourseViewPage from './pages/teacher/course/course_view_page';
 import UpdateAssignmentForm from './components/teacher/assignment/update_assignment';
@@ -38,8 +38,8 @@ import WeekAnnouncementForm from './components/teacher/courses/week_announcement
 import TimeSlotForm from './components/teacher/courses/timeslot/timeslot_create';
 import AssignmentAllread from './pages/teacher/assignment/assignment_read_all_page';
 import StudentPanel from './pages/student/student_panal';
+import StudentProfile from "./pages/student/profile/student_profile.jsx";
 
-import Profile_Page from './pages/teacher/profile/profile_view';
 import EnrollmentPage from './components/teacher/courses/enrollment/enrollment_create'
 import ButtonBar from './components/student/studentnav';
 import api from "./api.js";
@@ -47,33 +47,30 @@ import { setCsrfToken } from "./features/api/csrf_token.js";
 import CreateTeacherProfile from './components/teacher/profile/teacher_profile.jsx';
 import TeacherExperienceForm from './components/teacher/profile/teacher_experience.jsx';
 
-import ManageProfile from './pages/profile/manage-profile/ManageProfile.jsx';
-import UpdateProfile from './pages/profile/manage-profile/update_profile.jsx';
 
 import {useSelector, useDispatch} from "react-redux";
 
-import TeacherProfileView from './pages/profile/profile/profile.jsx';
+
 
 import CourseEnrollmentPage from './components/teacher/Enrollment/enroll_student.jsx';
 
 import StudentCourseweekpage from './pages/student/student_course_week_page.jsx';
 import StudentCourseWeekDetailView from './pages/student/student_course-week_detail_page.jsx';
 import EnrolledCourses from './components/student/student_course.jsx';
-import StudentDashboard from './components/student/student_dashboard.jsx'
 import StudentPanelAssignmet from './pages/student/student_assignmet.jsx';
 import StudentPanelAssignmetDetail from './pages/student/student_assignmet_detail_page.jsx';
-import UpdateStudentProfile from './components/teacher/profile/student_profile_update.jsx';
+
 import CreateStudentProfile from './components/teacher/profile/student_profile.jsx';
 import StudentProfilePage from './pages/profile/profile/Student.jsx';
 import TeacherProfileUpdate from './pages/teacher/manage_teacher_profile.jsx';
 import StudentPanelAnnouncementPgae from './pages/student/student_announcement_page.jsx';
 import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
 import AssignmentSubmissionForm from './components/student/student_assignmet_sub_page.jsx'
-import TimeSlotCalendar from './components/teacher/courses/timeslot/view_time_slot.jsx';
+
 import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
 import StudentProfileUpdate from './pages/student/manage_student_profile.jsx';
 import AboutUsPage from './pages/About.jsx'
-import EnrollmentForm from './components/teacher/Enrollment/enroll_student.jsx';
+
 import ContactUsPage from './pages/contactus.jsx';
 import EnrollmentDashboard from './components/teacher/Enrollment/class_room.jsx';
 
@@ -127,7 +124,7 @@ function App() {
                 <Route path='/confirmresetpasword' element={<ResetPassword />} />
                 <Route path='/teacherpanel' element={<TeacherPanel />} />
                 <Route path='/create_profile/:id' element={<CreateTeacherProfile />} />
-                <Route path="/profile/:slug" element={<Profile_Page />} />
+
                 <Route path='/studentpanel' element={<StudentPanel />} />
                 <Route path='/EnrollmentPage' element={<EnrollmentPage />} />
                 <Route path='/create-course' element={<CourseCreatePage />} />
@@ -155,11 +152,10 @@ function App() {
                 <Route path='/' element={<Home/>}/>
 
                  {/*                   profile api                    */}
-                
-                <Route path="/profile" element={<TeacherProfileView />} />
-
-               
-                <Route path='/teacher_profile' element={<CreateTeacherProfile/>}/>
+                Teacher_profile_edit
+                <Route path="/profile" element={<TeacherProfile />} />
+                <Route path='/edit_teacher_profile' element={<Teacher_profile_edit/>}/>
+                <Route path='/create_teacher_profile' element={<CreateTeacherProfile/>}/>
                 <Route path='/experience' element={<TeacherExperienceForm/>}/>
                 {/* CourseEnrollmentPage */}
                 <Route path='/courseEnrollmentPage' element={<CourseEnrollmentPage/>}/>
@@ -187,7 +183,8 @@ function App() {
                 <Route path='/StudentAssignment' element={<StudentPanelAssignmet/>}/>
                 <Route path="/assignment/detail/:assignmentId" element={<StudentPanelAssignmetDetail />} />
                 <Route path="/studentprofilecreate" element={<CreateStudentProfile />} />
-                <Route path="/studentprofile" element={<StudentProfilePage />} />
+                <Route path="/studentprofile" element={< StudentProfile/>} />
+                <Route path="/student_profile_edit" element={<Student_profile_edit />} />
                 <Route path="/course-weeks/:id/announcements" element={<StudentPanelAnnouncementPgae />} />
                 <Route path="/announcements/:announcementId" element={<StudentPannalAnnouncementDetailPage />} />
                 <Route path="/assignment/submit/:id" element={<AssignmentSubmissionForm />} />

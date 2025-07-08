@@ -22,7 +22,7 @@ import ListItemText from "@mui/material/ListItemText";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"; // Profile Icon
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import ProfilePage from "../../../components/teacher/profile/view_profile";
+
 
 const drawerWidth = 240;
 
@@ -168,7 +168,7 @@ export default function Profile_Page() {
         }}
       >
         <Toolbar />
-        <ProfilePage />
+
       </Box>
     </Box>
   );

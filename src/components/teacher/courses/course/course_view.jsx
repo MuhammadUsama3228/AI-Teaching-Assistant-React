@@ -17,7 +17,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../../api';
-import record_not_found from "../../../Record_not_found.jsx";
+import RecordNotFound from "../../../Record_not_found.jsx";
 
 const ReadCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -25,7 +25,7 @@ const ReadCourses = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSection, setSelectedSection] = useState('');
   const [page, setPage] = useState(1);
-  const pageSize = 6;  // Show 6 courses per page
+  const pageSize = 6;
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -47,7 +47,6 @@ const ReadCourses = () => {
     navigate(`/coursedetail/${courseId}`);
   };
 
-  // Unique sections for filter dropdown
   const sectionOptions = [...new Set(courses.map((c) => c.section).filter(Boolean))];
 
   const filteredCourses = courses.filter((course) => {
@@ -56,7 +55,6 @@ const ReadCourses = () => {
     return matchesSearch && matchesSection;
   });
 
-  // Paginate
   const paginatedCourses = filteredCourses.slice((page - 1) * pageSize, page * pageSize);
   const pageCount = Math.ceil(filteredCourses.length / pageSize);
 
@@ -67,7 +65,6 @@ const ReadCourses = () => {
             My Courses
           </Typography>
 
-          {/* Search & Filter on Top Right */}
           <Box display="flex" flexWrap="wrap" gap={2} justifyContent="flex-end">
             <TextField
                 label="Search Courses"
@@ -102,7 +99,6 @@ const ReadCourses = () => {
           </Box>
         </Box>
 
-        {/* Courses */}
         {loading ? (
             <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
               <CircularProgress color="primary" />
@@ -111,9 +107,9 @@ const ReadCourses = () => {
             <RecordNotFound message="No courses found." />
         ) : (
             <>
-              <Grid container spacing={4}>
+              <Grid container spacing={2}>
                 {paginatedCourses.map((course) => (
-                    <Grid item xs={12} md={6} key={course.id}>
+                    <Grid item xs={12} sm={6} md={6} key={course.id}>
                       <Card
                           sx={{
                             display: 'flex',
@@ -137,7 +133,7 @@ const ReadCourses = () => {
                         >
                           {course.course_title?.[0]?.toUpperCase() || '?'}
                         </Avatar>
-                        <Box sx={{ ml: 3, flexGrow: 1 }}>
+                        <Box sx={{ ml: 2, flexGrow: 1 }}>
                           <Typography variant="h6" fontWeight="bold">
                             {course.course_title}
                           </Typography>
@@ -150,7 +146,7 @@ const ReadCourses = () => {
                           <Typography variant="body2" fontWeight="bold">
                             Section: {course.section || 'N/A'}
                           </Typography>
-                          <Box mt={1}>
+                          <Box mt={1} display="flex" gap={1} flexWrap="wrap">
                             <Button
                                 variant="outlined"
                                 size="small"
@@ -159,6 +155,19 @@ const ReadCourses = () => {
                             >
                               View Details
                             </Button>
+                            <Button
+                                variant="contained"
+                                size="small"
+                                sx={{
+                                  textTransform: 'none',
+                                  bgcolor: 'error.main',
+                                  '&:hover': {
+                                    bgcolor: 'error.dark',
+                                  },
+                                }}
+                            >
+                              Delete
+                            </Button>
                           </Box>
                         </Box>
                       </Card>
@@ -166,7 +175,6 @@ const ReadCourses = () => {
                 ))}
               </Grid>
 
-              {/* Pagination at the bottom */}
               <Box mt={4} display="flex" justifyContent="center">
                 <Pagination
                     count={pageCount}
