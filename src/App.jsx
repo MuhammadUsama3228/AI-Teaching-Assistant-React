@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import TeacherProfile from './pages/teacher/profile/teacher_profile.jsx';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import  StudentCourseOverviewAccordion from './components/student/Student_course/Student_course_detail.jsx'
 import StudentPanelDashboard from './pages/student/studentdasboard.jsx';
 import PageNotFound from './pages/Page404';
 import Register from './pages/registration';
@@ -56,7 +57,7 @@ import CourseEnrollmentPage from './components/teacher/Enrollment/enroll_student
 
 import StudentCourseweekpage from './pages/student/student_course_week_page.jsx';
 import StudentCourseWeekDetailView from './pages/student/student_course-week_detail_page.jsx';
-import EnrolledCourses from './components/student/student_course.jsx';
+import EnrolledCourses from './components/student/Student_course/student_course.jsx';
 import StudentPanelAssignmet from './pages/student/student_assignmet.jsx';
 import StudentPanelAssignmetDetail from './pages/student/student_assignmet_detail_page.jsx';
 
@@ -65,7 +66,7 @@ import StudentProfilePage from './pages/profile/profile/Student.jsx';
 import TeacherProfileUpdate from './pages/teacher/manage_teacher_profile.jsx';
 import StudentPanelAnnouncementPgae from './pages/student/student_announcement_page.jsx';
 import StudentPannalAnnouncementDetailPage from './pages/student/student_announce_detail_page.jsx';
-import AssignmentSubmissionForm from './components/student/student_assignmet_sub_page.jsx'
+import AssignmentSubmissionForm from './components/student_assignmet_sub_page.jsx'
 
 import StudentPanelTimeSlotPage from './pages/student/student_time_slot_detail_page.jsx'
 import StudentProfileUpdate from './pages/student/manage_student_profile.jsx';

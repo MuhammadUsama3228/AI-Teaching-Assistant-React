@@ -5,27 +5,34 @@ import {
   Box,
   CircularProgress,
   Card,
-  CardContent,
-  Grid,
   Avatar,
   TextField,
   MenuItem,
   InputAdornment,
-  Button
+  Button,
+  Grid,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
-import { School, AccessTime, Search } from '@mui/icons-material';
-import api from '../../api';
-import theme from '../Theme';
+import { Search } from '@mui/icons-material';
+import api from '../../../api.js'
+import theme from '../../Theme.jsx';
 import { ThemeProvider } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 
 const EnrolledCourses = () => {
+
   const [courses, setCourses] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('');
   const navigate = useNavigate();
+
+  const muiTheme = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(muiTheme.breakpoints.between('sm', 'md'));
+  const isDesktop = useMediaQuery(muiTheme.breakpoints.up('md'));
 
   const courseColors = [
     'linear-gradient(135deg, #004e92, #000428)',
@@ -77,16 +84,20 @@ const EnrolledCourses = () => {
   return (
       <ThemeProvider theme={theme}>
         <Container maxWidth="lg">
-          <Box mt={6} mb={4}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#052649' }}>
+          <Box mt={isMobile ? 4 : 6} mb={4}>
+            <Typography
+                variant={isMobile ? 'h5' : 'h4'}
+                gutterBottom
+                sx={{ fontWeight: 'bold', color: '#052649' }}
+            >
               My Courses
             </Typography>
 
             <Box
                 display="flex"
-                flexDirection={{ xs: 'column', sm: 'row' }}
+                flexDirection={isMobile ? 'column' : 'row'}
                 justifyContent="space-between"
-                alignItems="center"
+                alignItems={isMobile ? 'stretch' : 'center'}
                 gap={2}
                 my={3}
             >
@@ -103,7 +114,10 @@ const EnrolledCourses = () => {
                         </InputAdornment>
                     ),
                   }}
-                  sx={{ width: { xs: '100%', sm: '60%' }, bgcolor: 'white' }}
+                  sx={{
+                    width: isMobile ? '100%' : '60%',
+                    bgcolor: 'white',
+                  }}
               />
 
               <TextField
@@ -112,7 +126,10 @@ const EnrolledCourses = () => {
                   label="Filter by"
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
-                  sx={{ width: { xs: '100%', sm: '30%' }, bgcolor: 'white' }}
+                  sx={{
+                    width: isMobile ? '100%' : '30%',
+                    bgcolor: 'white',
+                  }}
               >
                 <MenuItem value="">Default</MenuItem>
                 <MenuItem value="title">Title (A-Z)</MenuItem>
@@ -182,6 +199,9 @@ const EnrolledCourses = () => {
                                       fontWeight: 'bold',
                                       textTransform: 'none',
                                       px: 3,
+                                      '&:hover': {
+                                        backgroundColor: '#1e1b5a',
+                                      },
                                     }}
                                 >
                                   View Details

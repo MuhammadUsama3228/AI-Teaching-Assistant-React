@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Navbar from "../../components/student/studentnav";
-import StudentAnnouncementsPage from "../../components/student/student_announcemet";
+import StudentAnnouncementsPage from "../../components/student/student_announcemet/student_announcemet.jsx";
 
 function StudentPanelAnnouncementPgae() {
     const { courseId, courseWeekId } = useParams(); // ✅ call hook inside component

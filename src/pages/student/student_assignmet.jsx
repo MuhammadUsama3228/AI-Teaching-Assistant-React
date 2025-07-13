@@ -1,6 +1,6 @@
 import Navbar from "../../components/student/studentnav";
-import EnrolledCourses from "../../components/student/student_course"
-import AssignmentViewPage from "../../components/student/student_assignmet";
+import EnrolledCourses from "../../components/student/Student_course/student_course.jsx"
+import AssignmentViewPage from "../../components/student/Student Assignment/student_assignmet.jsx";
 function StudentPanelAssignmet(){
     return(
         <div>

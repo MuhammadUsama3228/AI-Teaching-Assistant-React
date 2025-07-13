@@ -1,11 +1,11 @@
 import Navbar from "../../components/student/studentnav";
-import EnrolledCourses from "../../components/student/student_course"
-import StudentCourseWeekView from "../../components/student/student_courseweek";
+import EnrolledCourses from "../../components/student/Student_course/student_course.jsx"
+import StudentCourseOverviewAccordion from "../../components/student/Student_course/Student_course_detail.jsx";
 function StudentCourseweekpage(){
     return(
         <div>
              <Navbar />
-             <StudentCourseWeekView />
+             <StudentCourseOverviewAccordion />
         </div>
         
     );

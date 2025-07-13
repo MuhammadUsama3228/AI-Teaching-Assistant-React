@@ -14,10 +14,16 @@ import {
     IconButton,
     Tooltip,
     Badge,
+    Card,
+    CardContent,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
-import { ExpandMore, Visibility } from '@mui/icons-material';
+import { ExpandMore, Visibility, InsertDriveFile } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import api from '../../api';
+import api from '../../../api.js';
+
+const THEME_COLOR = '#4B2E83';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
     marginTop: theme.spacing(10),
@@ -25,23 +31,26 @@ const StyledContainer = styled(Container)(({ theme }) => ({
     backgroundColor: '#fff',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
     borderRadius: '12px',
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
 }));
 
 const CourseAvatar = styled(Avatar)(({ theme }) => ({
     width: theme.spacing(14),
     height: theme.spacing(14),
-    color: theme.palette.common.white,
+    backgroundColor: THEME_COLOR,
     fontSize: '3rem',
     marginBottom: theme.spacing(2),
 }));
 
 const StudentCourseWeekDetail = () => {
-    const { id } = useParams(); 
+    const { id } = useParams();
     const [courseWeek, setCourseWeek] = useState(null);
     const [announcementCount, setAnnouncementCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         const fetchData = async () => {
@@ -76,10 +85,8 @@ const StudentCourseWeekDetail = () => {
                     <Skeleton variant="text" width="40%" height={30} />
                 </Box>
                 <Divider sx={{ marginY: 3 }} />
-                <Box>
-                    <Skeleton variant="rectangular" height={100} sx={{ marginBottom: 2 }} />
-                    <Skeleton variant="rectangular" height={100} />
-                </Box>
+                <Skeleton variant="rectangular" height={100} sx={{ marginBottom: 2 }} />
+                <Skeleton variant="rectangular" height={100} />
             </StyledContainer>
         );
     }
@@ -95,14 +102,16 @@ const StudentCourseWeekDetail = () => {
     return (
         <StyledContainer maxWidth="md">
             <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12} sm={4} md={3} textAlign={{ xs: 'center', sm: 'left' }}>
-                    <CourseAvatar>{courseWeek.week_title.charAt(0).toUpperCase()}</CourseAvatar>
+                <Grid item xs={12} sm={3} textAlign="center">
+                    <CourseAvatar>
+                        {courseWeek.week_title.charAt(0).toUpperCase()}
+                    </CourseAvatar>
                 </Grid>
-                <Grid item xs={12} sm={7} md={8}>
-                    <Typography variant="h4" sx={{ fontWeight: '700', marginBottom: 1 }}>
+                <Grid item xs={12} sm={8}>
+                    <Typography variant={isMobile ? "h5" : "h4"} fontWeight="700" mb={1} color={THEME_COLOR}>
                         {courseWeek.week_title}
                     </Typography>
-                    <Typography variant="subtitle1" color="textSecondary">
+                    <Typography variant="subtitle1" bgcolor: THEME_COLOR>
                         <strong>Week Number:</strong> {courseWeek.week_number || 'N/A'}
                     </Typography>
                 </Grid>
@@ -123,31 +132,59 @@ const StudentCourseWeekDetail = () => {
 
             <Divider sx={{ marginY: 3 }} />
 
-            <Accordion>
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Typography variant="h6">Course Week Details</Typography>
+            <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMore />} sx={{ backgroundColor: '#f9f9ff' }}>
+                    <Typography variant="h6" sx={{ color: THEME_COLOR }}>
+                        Course Week Details
+                    </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Box>
                         <Typography variant="body1" paragraph>
                             {courseWeek.description || 'No description available for this week.'}
                         </Typography>
-                        <Grid container spacing={2} sx={{ marginTop: 2 }}>
+
+                        {/* File Card */}
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
                             <Grid item xs={12}>
-                                <Typography variant="body2">
-                                    <strong>Uploaded File:</strong>{' '}
-                                    {courseWeek.uploaded_file ? (
-                                        <a
-                                            href={courseWeek.uploaded_file}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {courseWeek.uploaded_file}
-                                        </a>
-                                    ) : (
-                                        'No file available for this week.'
-                                    )}
-                                </Typography>
+                                {courseWeek.uploaded_file ? (
+                                    <Card
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            bgcolor: '#f0f4ff',
+                                            borderLeft: `6px solid ${THEME_COLOR}`,
+                                            borderRadius: 2,
+                                            px: 2,
+                                            py: 1.5,
+                                        }}
+                                    >
+                                        <InsertDriveFile sx={{ color: THEME_COLOR, mr: 2 }} />
+                                        <CardContent sx={{ flex: 1 }}>
+                                            <Typography variant="body2" fontWeight={600}>
+                                                Uploaded File:
+                                            </Typography>
+                                            <Typography
+                                                variant="body2"
+                                                component="a"
+                                                href={courseWeek.uploaded_file}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                sx={{
+                                                    color: THEME_COLOR,
+                                                    textDecoration: 'underline',
+                                                    wordBreak: 'break-all',
+                                                }}
+                                            >
+                                                {courseWeek.uploaded_file}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                ) : (
+                                    <Typography variant="body2">
+                                        <strong>Uploaded File:</strong> No file available for this week.
+                                    </Typography>
+                                )}
                             </Grid>
                         </Grid>
                     </Box>

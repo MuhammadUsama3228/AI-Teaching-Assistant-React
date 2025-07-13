@@ -8,10 +8,15 @@ import {
     Skeleton,
     Card,
     CardContent,
+    useTheme,
+    useMediaQuery,
+    Chip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Announcement as AnnouncementIcon } from '@mui/icons-material'; // Import your desired icon
-import api from '../../api';
+import { Announcement as AnnouncementIcon } from '@mui/icons-material';
+import api from '../../../api.js';
+
+const THEME_COLOR = "#4B2E83";
 
 const StyledContainer = styled(Container)(({ theme }) => ({
     marginTop: theme.spacing(10),
@@ -21,15 +26,20 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 const AnnouncementCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(4),
     boxShadow: theme.shadows[3],
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 2,
     overflow: 'hidden',
+    borderLeft: `6px solid ${THEME_COLOR}`,
+    backgroundColor: '#fff',
 }));
 
 const StudentAnnouncementDetailPage = () => {
     const { announcementId } = useParams();
     const [announcement, setAnnouncement] = useState(null);
-    const [courseWeek, setCourseWeek] = useState(null); // To store course week details
+    const [courseWeek, setCourseWeek] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         const fetchAnnouncement = async () => {
@@ -37,16 +47,17 @@ const StudentAnnouncementDetailPage = () => {
                 const res = await api.get(`/api/courses/course_weeks/`);
                 const courseWeeks = res.data;
 
-                // Find the course week that contains the announcement with the matching id
-                const targetAnnouncement = courseWeeks.flatMap(courseWeek => 
-                    courseWeek.week_announcements.filter(announcement => announcement.id === parseInt(announcementId))
-                )[0];
+                const targetAnnouncement = courseWeeks
+                    .flatMap(courseWeek =>
+                        courseWeek.week_announcements.filter(a => a.id === parseInt(announcementId))
+                    )[0];
 
                 if (targetAnnouncement) {
                     setAnnouncement(targetAnnouncement);
 
-                    // Now fetch the course week data for the course containing this announcement
-                    const courseWeekRes = await api.get(`/api/courses/course_weeks/${targetAnnouncement.course_week}`);
+                    const courseWeekRes = await api.get(
+                        `/api/courses/course_weeks/${targetAnnouncement.course_week}`
+                    );
                     setCourseWeek(courseWeekRes.data);
                 } else {
                     console.error('Announcement not found');
@@ -62,7 +73,13 @@ const StudentAnnouncementDetailPage = () => {
     }, [announcementId]);
 
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const options = {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
@@ -88,23 +105,57 @@ const StudentAnnouncementDetailPage = () => {
 
     return (
         <StyledContainer maxWidth="md">
-            {/* Announcement Card */}
             <AnnouncementCard>
                 <CardContent>
-                    {/* Box with icon on the left */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <AnnouncementIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
-                        <Typography variant="h5" component="div" gutterBottom>
+                    {/* Header with icon + title + badge */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            alignItems: isMobile ? 'flex-start' : 'center',
+                            gap: 2,
+                            mb: 2,
+                        }}
+                    >
+                        <AnnouncementIcon sx={{ fontSize: 40, color: THEME_COLOR }} />
+                        <Typography
+                            variant={isMobile ? 'h6' : 'h5'}
+                            fontWeight={700}
+                            sx={{ color: THEME_COLOR }}
+                        >
                             {announcement.title}
                         </Typography>
+
+                        {announcement.is_official && (
+                            <Chip
+                                label="Official"
+                                color="primary"
+                                size="small"
+                                sx={{
+                                    ml: isMobile ? 0 : 'auto',
+                                    bgcolor: THEME_COLOR,
+                                    color: '#fff',
+                                    fontWeight: 600,
+                                    textTransform: 'uppercase',
+                                }}
+                            />
+                        )}
                     </Box>
-                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+
+                    {/* Meta information */}
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         {`Published on: ${formatDate(announcement.created_at)} | Announcement Date: ${formatDate(announcement.announcement_date)}`}
                     </Typography>
+
                     <Divider sx={{ mb: 2 }} />
-                    <Typography variant="body1" paragraph>
+
+                    {/* Announcement content */}
+                    <Typography variant="body1" paragraph sx={{ color: '#333' }}>
                         {announcement.content}
                     </Typography>
+
+
+
                 </CardContent>
             </AnnouncementCard>
         </StyledContainer>

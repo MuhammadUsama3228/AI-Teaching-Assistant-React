@@ -16,103 +16,116 @@ import {
   School,
   Menu,
   ExitToApp,
-  Assignment, // Import Assignment icon
+  Assignment,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom"; // Import Link and useHistory for navigation
+import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const primaryColor = "#4B2E83";
+
   const toggleDrawer = (open) => {
     setDrawerOpen(open);
   };
 
   const handleLogout = () => {
-    // Implement your logout logic here (e.g., clearing tokens, etc.)
     console.log("Logout clicked");
   };
 
+  const buttonStyle = {
+    color: primaryColor,
+    "&:hover": { color: "#6b4fb6" },
+    textTransform: "none",
+    fontWeight: 500,
+  };
+
   return (
-    <>
-      <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <img src="src/assets/logo.png" alt="My Photo" width="50" />
-          
+      <>
+        <AppBar
+            position="static"
+            sx={{
+              backgroundColor: "#fff",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            }}
+        >
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            <img src={logo} alt="Logo" width="50" />
 
-          {isMobile ? (
-            <IconButton onClick={() => toggleDrawer(true)} sx={{ color: "#1D5FA1FF" }}>
-              <Menu />
-            </IconButton>
-          ) : (
-            <Box>
-              <Link to="/studentprofile" style={{ textDecoration: "none" }}>
-                <Button startIcon={<AccountCircle />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
-                  Profile
-                </Button>
-              </Link>
-              <Link to="/StudentDashboard" style={{ textDecoration: "none" }}>
-                <Button startIcon={<Dashboard />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
-                  Dashboard
-                </Button>
-              </Link>
-              <Link to="/studentpanel" style={{ textDecoration: "none" }}>
-                <Button startIcon={<School />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
-                  Courses
-                </Button>
-              </Link>
-              <Link to="/StudentAssignment" style={{ textDecoration: "none" }}> {/* Add Assignments Link */}
-                <Button startIcon={<Assignment />} sx={{ color: "#003366", "&:hover": { color: "#0056b3" } }}>
-                  Assignments
-                </Button>
-              </Link>
-              <Link to="/logout" onClick={handleLogout} style={{ textDecoration: "none" }}>
-                <Button
-                  startIcon={<ExitToApp />}
-                  sx={{ color: "#003366", "&:hover": { color: "#c82333" }, marginLeft: 2 }}
-                >
-                  Logout
-                </Button>
-              </Link>
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
 
-      <Drawer anchor="right" open={drawerOpen} onClose={() => toggleDrawer(false)}>
-        <Box sx={{ width: 250, padding: 2 }}>
-          <Link to="/studentprofile" style={{ textDecoration: "none" }}>
-            <Button startIcon={<AccountCircle />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
-              Profile
-            </Button>
-          </Link>
-          <Link to="/dashboard" style={{ textDecoration: "none" }}>
-            <Button startIcon={<Dashboard />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
-              Dashboard
-            </Button>
-          </Link>
-          <Link to="/studentpanel" style={{ textDecoration: "none" }}>
-            <Button startIcon={<School />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
-              Courses
-            </Button>
-          </Link>
-          <Link to="/StudentAssignment" style={{ textDecoration: "none" }}> {/* Add Assignments Link in Drawer */}
-            <Button startIcon={<Assignment />} sx={{ color: "#003366", width: "100%", marginBottom: 2 }}>
-              Assignments
-            </Button>
-          </Link>
-          <Link to="/" onClick={handleLogout} style={{ textDecoration: "none" }}>
-            <Button
-              startIcon={<ExitToApp />}
-              sx={{ color: "#003366", width: "100%" }}
-            >
-              Logout
-            </Button>
-          </Link>
-        </Box>
-      </Drawer>
-    </>
+
+            {isMobile ? (
+                <IconButton onClick={() => toggleDrawer(true)} sx={{ color: primaryColor }}>
+                  <Menu />
+                </IconButton>
+            ) : (
+                <Box>
+                  <Link to="/studentprofile" style={{ textDecoration: "none" }}>
+                    <Button startIcon={<AccountCircle />} sx={buttonStyle}>
+                      Profile
+                    </Button>
+                  </Link>
+                  <Link to="/StudentDashboard" style={{ textDecoration: "none" }}>
+                    <Button startIcon={<Dashboard />} sx={buttonStyle}>
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Link to="/studentpanel" style={{ textDecoration: "none" }}>
+                    <Button startIcon={<School />} sx={buttonStyle}>
+                      Courses
+                    </Button>
+                  </Link>
+                  <Link to="/StudentAssignment" style={{ textDecoration: "none" }}>
+                    <Button startIcon={<Assignment />} sx={buttonStyle}>
+                      Assignments
+                    </Button>
+                  </Link>
+                  <Link to="/" onClick={handleLogout} style={{ textDecoration: "none" }}>
+                    <Button
+                        startIcon={<ExitToApp />}
+                        sx={{ ...buttonStyle, "&:hover": { color: "#c82333" }, ml: 2 }}
+                    >
+                      Logout
+                    </Button>
+                  </Link>
+                </Box>
+            )}
+          </Toolbar>
+        </AppBar>
+
+        <Drawer anchor="right" open={drawerOpen} onClose={() => toggleDrawer(false)}>
+          <Box sx={{ width: 250, padding: 2 }}>
+            <Link to="/studentprofile" style={{ textDecoration: "none" }}>
+              <Button startIcon={<AccountCircle />} sx={{ ...buttonStyle, width: "100%", mb: 2 }}>
+                Profile
+              </Button>
+            </Link>
+            <Link to="/StudentDashboard" style={{ textDecoration: "none" }}>
+              <Button startIcon={<Dashboard />} sx={{ ...buttonStyle, width: "100%", mb: 2 }}>
+                Dashboard
+              </Button>
+            </Link>
+            <Link to="/studentpanel" style={{ textDecoration: "none" }}>
+              <Button startIcon={<School />} sx={{ ...buttonStyle, width: "100%", mb: 2 }}>
+                Courses
+              </Button>
+            </Link>
+            <Link to="/StudentAssignment" style={{ textDecoration: "none" }}>
+              <Button startIcon={<Assignment />} sx={{ ...buttonStyle, width: "100%", mb: 2 }}>
+                Assignments
+              </Button>
+            </Link>
+            <Link to="/" onClick={handleLogout} style={{ textDecoration: "none" }}>
+              <Button startIcon={<ExitToApp />} sx={{ ...buttonStyle, width: "100%" }}>
+                Logout
+              </Button>
+            </Link>
+          </Box>
+        </Drawer>
+      </>
   );
 };
 
