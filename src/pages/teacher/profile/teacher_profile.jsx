@@ -10,12 +10,11 @@ import {
     Divider,
     CircularProgress,
     Button,
-    IconButton,
-    Tooltip,
-    Paper
+    Paper,
+    Stack
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import { Link } from 'react-router-dom';
+import { Person, School, Email, Edit } from '@mui/icons-material';
 import api from '../../../api.js';
 
 const TeacherProfile = () => {
@@ -56,55 +55,69 @@ const TeacherProfile = () => {
     const hasTeacherProfile = teacherDetails && Object.keys(teacherDetails).length > 0;
 
     return (
-        <Box sx={{ minHeight: '100vh', backgroundColor: '#f9f9f9' }}>
+        <Box sx={{ minHeight: '100vh', backgroundColor: '#f4f6f8' }}>
             {/* Header */}
             <Box
                 sx={{
                     background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
                     color: '#fff',
-                    py: 3,
+                    py: 4,
                     px: 2,
                     textAlign: 'center',
                 }}
             >
-                <Typography variant="h5" fontWeight="bold">
-                    Profile Dashboard
+                <Typography variant="h4" fontWeight="bold">
+                    Teacher Dashboard
                 </Typography>
                 <Typography variant="subtitle1">
-                    Manage your profile and teaching details
+                    View and manage your teaching profile
                 </Typography>
             </Box>
 
             <Container maxWidth="lg" sx={{ py: 5 }}>
                 <Grid container spacing={4}>
-                    {/* Sidebar Card */}
+                    {/* Sidebar */}
                     <Grid item xs={12} md={4}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
+                        <Paper elevation={4} sx={{ p: 4, textAlign: 'center', borderRadius: 3 }}>
                             <Avatar
                                 src={profile?.profile_picture ? `${apiURL}${profile.profile_picture}` : ''}
                                 alt={profile?.username || ''}
-                                sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    mx: 'auto',
+                                    mb: 2,
+                                    border: '3px solid #6A1B9A'
+                                }}
                             />
-
-                            <Typography variant="h6" fontWeight="bold">
+                            <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
                                 {profile?.first_name} {profile?.last_name}
                             </Typography>
                             <Typography variant="body2" color="textSecondary">
-                                {profile?.email}
+                                <Email sx={{ fontSize: 16, mr: 0.5 }} /> {profile?.email}
                             </Typography>
                             <Divider sx={{ my: 2 }} />
                             <Typography variant="body2" color="textSecondary">
-                                Username: {profile?.username}
+                                <Person sx={{ fontSize: 16, mr: 0.5 }} /> {profile?.username}
                             </Typography>
                             <Typography variant="body2" color="textSecondary">
-                                Role: {profile?.role}
+                                <School sx={{ fontSize: 16, mr: 0.5 }} /> {profile?.role}
                             </Typography>
                             <Button
                                 component={Link}
-                                to="/create_teacher_profile"
+                                to={hasTeacherProfile ? "/edit_teacher_profile" : "/create_teacher_profile"}
+                                startIcon={<Edit />}
                                 variant="contained"
                                 fullWidth
-                                sx={{ mt: 2 }}
+                                sx={{
+                                    mt: 3,
+                                    background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    '&:hover': {
+                                        background: 'linear-gradient(90deg, #4527a0 0%, #8e24aa 100%)',
+                                    }
+                                }}
                             >
                                 {hasTeacherProfile ? 'Edit Profile' : 'Create Profile'}
                             </Button>
@@ -113,23 +126,14 @@ const TeacherProfile = () => {
 
                     {/* Main Section */}
                     <Grid item xs={12} md={8}>
-                        <Card elevation={3}>
+                        <Card elevation={4} sx={{ borderRadius: 3 }}>
                             <CardContent>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                    <Typography variant="h6">Teacher Details</Typography>
-                                    <Tooltip title="Edit Teacher Profile">
-                                        <IconButton
-                                            component={Link}
-                                            to="/edit_teacher_profile"
-                                            color="primary"
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                </Box>
-
+                                <Typography variant="h6" gutterBottom fontWeight="bold">
+                                    Teacher Profile Details
+                                </Typography>
+                                <Divider sx={{ mb: 2 }} />
                                 {hasTeacherProfile ? (
-                                    <>
+                                    <Stack spacing={1}>
                                         <Typography><strong>Institution:</strong> {teacherDetails.institution_name}</Typography>
                                         <Typography><strong>Institution Type:</strong> {teacherDetails.institution_type}</Typography>
                                         <Typography><strong>Designation:</strong> {teacherDetails.designation}</Typography>
@@ -143,15 +147,14 @@ const TeacherProfile = () => {
                                         <Typography><strong>Country:</strong> {teacherDetails.country}</Typography>
                                         <Typography><strong>Postal Code:</strong> {teacherDetails.postal_code}</Typography>
                                         <Typography><strong>About:</strong> {teacherDetails.about}</Typography>
-                                    </>
+                                    </Stack>
                                 ) : (
                                     <Box
                                         sx={{
-                                            backgroundColor: '#f3e5f5',
-                                            border: '2px dashed #ba68c8',
+                                            backgroundColor: '#e3f2fd',
+                                            border: '2px dashed #2196f3',
                                             borderRadius: 3,
                                             p: 4,
-                                            mt: 1,
                                             textAlign: 'center'
                                         }}
                                     >
@@ -159,7 +162,7 @@ const TeacherProfile = () => {
                                             No Teacher Profile Found
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                                            You haven't set up your teaching profile yet. Start now to access teaching features!
+                                            You haven’t created your teacher profile yet.
                                         </Typography>
                                         <Button
                                             variant="contained"
@@ -185,25 +188,28 @@ const TeacherProfile = () => {
                         </Card>
 
                         {/* Experience Section */}
-                        <Card elevation={3} sx={{ mt: 4 }}>
+                        <Card elevation={4} sx={{ mt: 4, borderRadius: 3 }}>
                             <CardContent>
-                                <Typography variant="h6" gutterBottom>
-                                    Experience
+                                <Typography variant="h6" gutterBottom fontWeight="bold">
+                                    Teaching Experience
                                 </Typography>
+                                <Divider sx={{ mb: 2 }} />
                                 {experience.length === 0 ? (
                                     <Typography color="textSecondary">No Experience Added.</Typography>
                                 ) : (
-                                    experience.map((exp) => (
-                                        <Box key={exp.id} sx={{ mb: 2 }}>
-                                            <Typography><strong>Institution:</strong> {exp.institution_name}</Typography>
-                                            <Typography><strong>Designation:</strong> {exp.designation}</Typography>
-                                            <Typography><strong>Department:</strong> {exp.department}</Typography>
-                                            <Typography><strong>Start Date:</strong> {exp.start_date}</Typography>
-                                            <Typography><strong>End Date:</strong> {exp.end_date}</Typography>
-                                            <Typography><strong>Description:</strong> {exp.description}</Typography>
-                                            <Divider sx={{ my: 2 }} />
-                                        </Box>
-                                    ))
+                                    <Stack spacing={2}>
+                                        {experience.map((exp) => (
+                                            <Box key={exp.id}>
+                                                <Typography><strong>Institution:</strong> {exp.institution_name}</Typography>
+                                                <Typography><strong>Designation:</strong> {exp.designation}</Typography>
+                                                <Typography><strong>Department:</strong> {exp.department}</Typography>
+                                                <Typography><strong>Start Date:</strong> {exp.start_date}</Typography>
+                                                <Typography><strong>End Date:</strong> {exp.end_date}</Typography>
+                                                <Typography><strong>Description:</strong> {exp.description}</Typography>
+                                                <Divider sx={{ my: 1 }} />
+                                            </Box>
+                                        ))}
+                                    </Stack>
                                 )}
                             </CardContent>
                         </Card>

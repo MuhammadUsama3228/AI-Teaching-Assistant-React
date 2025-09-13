@@ -15,23 +15,29 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  useMediaQuery,
 } from '@mui/material';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
 import { useParams } from 'react-router-dom';
 import api from '../../../../api';
-import RecordNotFound from '../../../Record_not_found.jsx';  // ✅ No record found animation
+import RecordNotFound from '../../../Record_not_found.jsx';
 
 const WeekAnnouncementView = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { courseId, courseWeekId } = useParams();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [course, setCourse] = useState(null);
   const [courseWeek, setCourseWeek] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,17 +69,49 @@ const WeekAnnouncementView = () => {
   const handleCloseDialog = () => setDialogOpen(false);
   const handleCloseSnackbar = () => setOpenSnackbar(false);
 
-  // ✅ Extra Safety Filter for Specific Course Week Announcements
+  const openDeleteDialog = (announcement) => {
+    setAnnouncementToDelete(announcement);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!announcementToDelete) return;
+    try {
+      await api.delete(`/api/courses/week_announcement/${announcementToDelete.id}/`);
+      setAnnouncements((prev) => prev.filter((a) => a.id !== announcementToDelete.id));
+      setSnackbarMessage('Announcement deleted successfully.');
+    } catch (err) {
+      console.error(err);
+      setSnackbarMessage('Failed to delete announcement.');
+    } finally {
+      setDeleteDialogOpen(false);
+      setAnnouncementToDelete(null);
+      setOpenSnackbar(true);
+    }
+  };
+
   const filteredAnnouncements = announcements.filter(
       (a) => String(a.course_week) === String(courseWeekId)
   );
 
   return (
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
+      <Container
+          maxWidth="lg"
+          sx={{
+            py: { xs: 4, sm: 6 },
+            px: { xs: 2, sm: 4 },
+          }}
+      >
+        <Typography
+            variant="h5"
+            fontWeight="bold"
+            textAlign="center"
+            gutterBottom
+            sx={{ mb: 4 }}
+        >
           {course && courseWeek
-              ? `Announcements - ${courseWeek.week_title} | ${course.course_title}`
-              : 'Announcements'}
+              ? `📢 Announcements - ${courseWeek.week_title} | ${course.course_title}`
+              : '📢 Announcements'}
         </Typography>
 
         {loading ? (
@@ -83,9 +121,9 @@ const WeekAnnouncementView = () => {
         ) : filteredAnnouncements.length === 0 ? (
             <RecordNotFound message="No announcements found for this week." />
         ) : (
-            <Grid container spacing={4}>
+            <Grid container spacing={3} justifyContent="center">
               {filteredAnnouncements.map((announcement) => (
-                  <Grid item xs={12} md={6} key={announcement.id}>
+                  <Grid item xs={12} sm={10} md={6} key={announcement.id}>
                     <Card
                         sx={{
                           display: 'flex',
@@ -94,34 +132,49 @@ const WeekAnnouncementView = () => {
                           borderRadius: 3,
                           boxShadow: theme.shadows[2],
                           backgroundColor: theme.palette.background.paper,
+                          transition: '0.3s',
+                          '&:hover': {
+                            boxShadow: theme.shadows[4],
+                            transform: 'translateY(-2px)',
+                          },
                         }}
                     >
                       <Avatar
                           sx={{
-                            width: 70,
-                            height: 70,
+                            width: 64,
+                            height: 64,
                             borderRadius: 2,
-                            bgcolor: theme.palette.primary.dark,
+                            bgcolor: theme.palette.primary.main,
+                            color: '#fff',
                           }}
                           variant="rounded"
                       >
                         <AnnouncementIcon />
                       </Avatar>
                       <Box sx={{ ml: 3, flexGrow: 1 }}>
-                        <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        <Typography variant="h6" fontWeight={600}>
                           {announcement.title}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary">
                           {new Date(announcement.announcement_date).toLocaleString()}
                         </Typography>
-                        <Box mt={1}>
+                        <Box mt={2} display="flex" gap={1} flexWrap="wrap">
                           <Button
                               variant="outlined"
                               size="small"
                               onClick={() => handleOpenDialog(announcement)}
                               sx={{ textTransform: 'none' }}
                           >
-                            View Details
+                            View
+                          </Button>
+                          <Button
+                              variant="text"
+                              size="small"
+                              color="error"
+                              onClick={() => openDeleteDialog(announcement)}
+                              sx={{ textTransform: 'none' }}
+                          >
+                            Delete
                           </Button>
                         </Box>
                       </Box>
@@ -131,7 +184,7 @@ const WeekAnnouncementView = () => {
             </Grid>
         )}
 
-        {/* Dialog for Announcement Details */}
+        {/* Details Dialog */}
         <Dialog
             open={dialogOpen}
             onClose={handleCloseDialog}
@@ -147,11 +200,11 @@ const WeekAnnouncementView = () => {
               },
             }}
         >
-          <DialogTitle sx={{ fontWeight: 600 }}>Announcement Details</DialogTitle>
+          <DialogTitle sx={{ fontWeight: 600 }}>📋 Announcement Details</DialogTitle>
           <DialogContent dividers>
             {selectedAnnouncement && (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary">
                     {new Date(selectedAnnouncement.announcement_date).toLocaleString()}
                   </Typography>
                   <Typography variant="h6" fontWeight="bold" sx={{ mt: 2 }}>
@@ -168,14 +221,29 @@ const WeekAnnouncementView = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar for Error */}
+        {/* Delete Confirmation */}
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+          <DialogTitle>🗑️ Confirm Deletion</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete this announcement?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button color="error" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar */}
         <Snackbar
             open={openSnackbar}
             autoHideDuration={5000}
             onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
-          <Alert onClose={handleCloseSnackbar} severity="error">
-            {error}
+          <Alert onClose={handleCloseSnackbar} severity="info" variant="filled">
+            {snackbarMessage || error}
           </Alert>
         </Snackbar>
       </Container>

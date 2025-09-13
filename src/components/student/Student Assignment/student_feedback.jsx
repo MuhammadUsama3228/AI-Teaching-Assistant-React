@@ -17,7 +17,7 @@ import api from '../../../api.js';
 
 const PRIMARY_COLOR = '#4B2E83';
 
-const StudentAssignmentFeedback = ({ assignmentId }) => {
+const StudentAssignmentFeedback = ({ submissionId }) => {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -31,7 +31,7 @@ const StudentAssignmentFeedback = ({ assignmentId }) => {
             try {
                 const response = await api.get('/api/courses/student_insight/');
                 const matchedFeedback = response.data.feedback.find(
-                    fb => String(fb.submission_id) === String(assignmentId)
+                    fb => String(fb.submission_id) === String(submissionId)
                 );
                 setFeedback(matchedFeedback || null);
             } catch (err) {
@@ -42,8 +42,8 @@ const StudentAssignmentFeedback = ({ assignmentId }) => {
             }
         };
 
-        if (assignmentId) fetchFeedback();
-    }, [assignmentId]);
+        if (submissionId) fetchFeedback();
+    }, [submissionId]);
 
     if (loading) return <CircularProgress sx={{ mt: 4 }} />;
 

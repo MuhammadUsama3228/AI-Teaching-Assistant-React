@@ -1,32 +1,17 @@
 import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import {
-  Box,
-  CssBaseline,
-  AppBar as MuiAppBar,
-  Toolbar,
-  Typography,
-  Divider,
-  IconButton,
-  Drawer as MuiDrawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText
+  Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography,
+  Divider, IconButton, Drawer as MuiDrawer, List, ListItem,
+  ListItemButton, ListItemIcon, ListItemText, useMediaQuery
 } from "@mui/material";
-
 import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  School as SchoolIcon,
-  AddCircleOutline as AddCircleOutlineIcon,
-  Visibility as VisibilityIcon,
-  Dashboard as DashboardIcon
+  Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
+  School as SchoolIcon, AddCircleOutline as AddCircleOutlineIcon,
+  Visibility as VisibilityIcon, Dashboard as DashboardIcon
 } from "@mui/icons-material";
-
 import { Link } from "react-router-dom";
+
 import CreateCourseForm from "../../../components/teacher/courses/course/course_create";
 import TeacherPortalFooter from "../../../components/teacher/footor";
 
@@ -72,10 +57,6 @@ const AppBar = styled(MuiAppBar, {
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
   }),
   background: "linear-gradient(90deg, #4B2E83, #1C1C3A)",
 }));
@@ -99,8 +80,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 );
 
 export default function CourseCreatePage() {
-  const muiTheme = useTheme();
-  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [open, setOpen] = useState(!isMobile);
   const [courseOpen, setCourseOpen] = useState(true);
 
   const handleDrawerOpen = () => setOpen(true);
@@ -114,22 +97,66 @@ export default function CourseCreatePage() {
     mx: 1,
     transition: "background 0.3s ease",
     "&:hover": {
-      backgroundColor: muiTheme.palette.action.hover,
+      backgroundColor: theme.palette.action.hover,
       boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
     },
   };
 
+  const drawerContent = (
+      <>
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <List>
+          <ListItem disablePadding sx={{ display: "block" }}>
+            <ListItemButton component={Link} to="/teacherpanel" sx={drawerItemStyles} onClick={() => isMobile && handleDrawerClose()}>
+              <ListItemIcon sx={{ color: "#150b29" }}><DashboardIcon /></ListItemIcon>
+              <ListItemText primary="Back to Dashboard" sx={{ color: "#280838" }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding sx={{ display: "block" }}>
+            <ListItemButton onClick={toggleCourseDrawer} sx={drawerItemStyles}>
+              <ListItemIcon sx={{ color: "#150b29" }}><SchoolIcon /></ListItemIcon>
+              <ListItemText primary="Courses" sx={{ color: "#280838" }} />
+            </ListItemButton>
+          </ListItem>
+
+          {courseOpen && (
+              <>
+                <ListItem disablePadding sx={{ display: "block" }}>
+                  <ListItemButton component={Link} to="/view-courses" sx={drawerItemStyles} onClick={() => isMobile && handleDrawerClose()}>
+                    <ListItemIcon sx={{ color: "#150b29" }}><VisibilityIcon /></ListItemIcon>
+                    <ListItemText primary="View Courses" sx={{ color: "#280838" }} />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding sx={{ display: "block" }}>
+                  <ListItemButton component={Link} to="/create-course" sx={drawerItemStyles} onClick={() => isMobile && handleDrawerClose()}>
+                    <ListItemIcon sx={{ color: "#150b29" }}><AddCircleOutlineIcon /></ListItemIcon>
+                    <ListItemText primary="Create Course" sx={{ color: "#280838" }} />
+                  </ListItemButton>
+                </ListItem>
+              </>
+          )}
+        </List>
+      </>
+  );
+
   return (
       <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
         <CssBaseline />
-        <AppBar position="fixed" open={open}>
+        <AppBar position="fixed" open={open && !isMobile}>
           <Toolbar>
             <IconButton
                 color="inherit"
                 aria-label="open drawer"
                 onClick={handleDrawerOpen}
                 edge="start"
-                sx={{ marginRight: 5, ...(open && { display: "none" }) }}
+                sx={{ mr: 2, ...(open && !isMobile && { display: "none" }) }}
             >
               <MenuIcon />
             </IconButton>
@@ -139,71 +166,40 @@ export default function CourseCreatePage() {
           </Toolbar>
         </AppBar>
 
-        <Drawer variant="permanent" open={open}>
-          <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-              {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <List>
-            {/* Dashboard Link */}
-            <ListItem disablePadding sx={{ display: "block" }}>
-              <ListItemButton component={Link} to="/teacherpanel" sx={drawerItemStyles}>
-                <ListItemIcon sx={{ color: "#150b29" }}>
-                  <DashboardIcon />
-                </ListItemIcon>
-                <ListItemText primary="Back to Dashboard" sx={{ color: "#280838" }} />
-              </ListItemButton>
-            </ListItem>
+        <Box sx={{ display: "flex", flex: 1 }}>
+          <MuiDrawer
+              variant={isMobile ? "temporary" : "permanent"}
+              open={open}
+              onClose={() => setOpen(false)}
+              ModalProps={{ keepMounted: true }}
+              sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                },
+              }}
+          >
+            {drawerContent}
+          </MuiDrawer>
 
-            {/* Course Dropdown */}
-            <ListItem disablePadding sx={{ display: "block" }}>
-              <ListItemButton onClick={toggleCourseDrawer} sx={drawerItemStyles}>
-                <ListItemIcon sx={{ color: "#150b29" }}>
-                  <SchoolIcon />
-                </ListItemIcon>
-                <ListItemText primary="Courses" sx={{ color: "#280838" }} />
-              </ListItemButton>
-            </ListItem>
-
-            {courseOpen && (
-                <>
-                  <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton component={Link} to="/view-courses" sx={drawerItemStyles}>
-                      <ListItemIcon sx={{ color: "#150b29" }}>
-                        <VisibilityIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="View Courses" sx={{ color: "#280838" }} />
-                    </ListItemButton>
-                  </ListItem>
-
-                  <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton component={Link} to="/create-course" sx={drawerItemStyles}>
-                      <ListItemIcon sx={{ color: "#150b29" }}>
-                        <AddCircleOutlineIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Create Course" sx={{ color: "#280838" }} />
-                    </ListItemButton>
-                  </ListItem>
-                </>
-            )}
-          </List>
-          <Divider />
-        </Drawer>
-
-        <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
-            }}
-        >
-          <Toolbar />
-          <CreateCourseForm />
+          <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                px: { xs: 2, sm: 3 },
+                py: 3,
+                width: {
+                  xs: "100%",
+                  sm: `calc(100% - ${open && !isMobile ? drawerWidth : 0}px)`,
+                },
+                transition: "width 0.3s ease",
+              }}
+          >
+            <Toolbar />
+            <CreateCourseForm />
+          </Box>
         </Box>
-
 
       </Box>
   );

@@ -26,6 +26,7 @@ import {
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { styled } from '@mui/material/styles';
+import chatboot_launcher from "../../../student/Student_course/Chat Boot/chatboot_launcher.jsx";
 import {
   ExpandMore,
   MoreVert,
@@ -44,6 +45,7 @@ import { useDropzone } from 'react-dropzone';
 
 import api from '../../../../api';
 import CourseUpdate from './course_update';
+import ChatBotLauncher from "../../../student/Student_course/Chat Boot/chatboot_launcher.jsx";
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(10),
@@ -478,6 +480,8 @@ const CourseDetail = () => {
   </AccordionDetails>
 </Accordion>
 
+      <ChatBotLauncher courseId={course.id} />
+
 
 
 
@@ -503,7 +507,7 @@ const CourseDetail = () => {
           <AssignmentIcon sx={{ mr: 1, color: 'red' }} /> View Assignments
         </MenuItem>
         <MenuItem onClick={handleTimeSlots}>
-          <AccessTimeIcon sx={{ mr: 1, color: 'teal' }} /> View Time Slots
+          <AccessTimeIcon sx={{ mr: 1, color: 'teal' }} /> Create Time Slots
         </MenuItem>
       </Menu>
 

@@ -74,8 +74,7 @@ import AboutUsPage from './pages/About.jsx'
 
 import ContactUsPage from './pages/contactus.jsx';
 import EnrollmentDashboard from './components/teacher/Enrollment/class_room.jsx';
-
-
+import CreateTimeViewPage from "./pages/teacher/course/timeslotpage.jsx";
 import Timeslotpage from "./pages/teacher/timeslotpage.jsx";
 function RegisterAndLogout() {
     localStorage.clear();
@@ -137,7 +136,7 @@ function App() {
                 <Route path='/courseweekdetail/:id' element={<CourseWeekDetailPage />} />
                
                 <Route path="/course/:courseId/course_week/:courseWeekId/create_announcement_view" element={<WeekAnnouncementForm />} />
-                <Route path="/courses/course/:courseId/weeks/:courseWeekId/announcements" element={<WeekAnnViewPage />} />
+                <Route path="/course/:courseId/weeks/:courseWeekId/announcements" element={<WeekAnnViewPage />} />
                 <Route path="/update-week-announcement/:id" element={<WeekAnnUpdatePage />} />
                 <Route path="/create_assignment/:id" element={<Assignmentuploadpage />} />
                 <Route path='/read_assignments/:id' element={<Assignmentreadpage />} />
@@ -145,7 +144,7 @@ function App() {
                 <Route path="/courses/assignment/:assignmentId/submissions" element={<AssignmentSubmissionStatusPage />} />
                 <Route path='/update-assignment/:id' element={< UpdateAssignmentForm />} />
                 <Route path='/view-assignments/' element={<AssignmentAllread />} />
-                <Route path='/course-time-slots/:id' element={<TimeSlotForm />} />
+                <Route path='/course-time-slots/:id' element={<CreateTimeViewPage />} />
                 <Route path='/student_manage_profile' element={<StudentProfileUpdate />} />
               
                 <Route path='/studentpanal' element={<ButtonBar />} />

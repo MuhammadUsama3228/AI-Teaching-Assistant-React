@@ -19,6 +19,7 @@ import api from '../../../api.js'
 import theme from '../../Theme.jsx';
 import { ThemeProvider } from '@mui/material/styles';
 import {useNavigate, useParams} from 'react-router-dom';
+import ChatBotLauncher from "./Chat Boot/chatboot_launcher.jsx";
 
 const EnrolledCourses = () => {
 
@@ -215,6 +216,8 @@ const EnrolledCourses = () => {
                 </Grid>
             )}
           </Box>
+
+
         </Container>
       </ThemeProvider>
   );

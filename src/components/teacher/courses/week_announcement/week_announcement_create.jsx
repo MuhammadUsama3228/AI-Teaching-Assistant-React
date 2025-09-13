@@ -50,7 +50,8 @@ const WeekAnnouncementForm = ({ courseId, courseWeekId }) => {
         setSnackbarMessage('Announcement created successfully!');
         setOpenSnackbar(true);
         setTimeout(() => {
-          navigate(`/courseweekdetail/${courseWeekId}/week_announcement_view`);
+          navigate(`/course/${courseId}/weeks/${courseWeekId}/announcements`);
+
         }, 2000);
         
       }

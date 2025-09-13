@@ -18,8 +18,16 @@ import StudentAssignmentSubmission from './student_submission.jsx';
 import StudentAssignmentSubmissionPerform from './student_submission_perform.jsx';
 import StudentAssignmentSolutions from './student_solution.jsx';
 import StudentAssignmentContent from './student_assignmet_content.jsx';
+import VariationPenalty from "./variation_panality.jsx";
+import VariationPenaltyAccordion from './variation_panality.jsx'
+import ViewPlagiarismReport from "./assignement_plagirism.jsx";
 
+import RecheckButton from "./recheck_submission.jsx";
+import AssignmentPenaltyAccordion from "./assignment_panality.jsx";
+import PenaltyAccordionWrapper from '../Student Assignment/wrapper/panality_wrapper.jsx'
+import ScannedDocumentDetails from "./assignement_plagirism.jsx";
 const PRIMARY_COLOR = '#4B2E83'; // UMT Purple
+
 
 const StudentAssignmentDetailPage = () => {
   const { assignmentId } = useParams();
@@ -28,6 +36,7 @@ const StudentAssignmentDetailPage = () => {
 
   const [assignment, setAssignment] = useState(null);
   const [submission, setSubmission] = useState(null);
+  const [variant, setVariant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -136,17 +145,32 @@ const StudentAssignmentDetailPage = () => {
                     </AccordionDetails>
                   </Accordion>
 
+                  <PenaltyAccordionWrapper assignmentId={assignmentId} />
+                  <ScannedDocumentDetails submission_id={submission.id} submission_file_id={submissionFiles.id}/>
+
                   <StudentAssignmentContent assignmentId={assignmentId} />
                   <StudentAssignmentSubmission assignmentId={assignmentId} />
+
 
                   {isDeadlinePassed() && (
                       <>
                         <StudentAssignmentSolutions assignmentId={assignmentId} />
-                        <Student_feedback assignmentId={assignmentId} />
+                        <Student_feedback submissionId={submission.id} />
+                        <ViewPlagiarismReport submissionId={submission.id} />
+                        <Box display="flex" justifyContent="center" mt={2}>
+                          <RecheckButton assignmentId={submission.assignment} />
+                        </Box>
+
+
+
+
                       </>
                   )}
 
-                  {submission?.obtained_attempts > 0 && new Date() < new Date(assignment?.due_date) && (
+                  {(
+                      submission?.obtained_attempts === null ||
+                      (submission?.obtained_attempts > 0 && new Date() < new Date(assignment?.due_date))
+                  ) && (
                       <Box mt={4} textAlign="center">
                         <Button
                             variant="contained"
@@ -191,6 +215,9 @@ const StudentAssignmentDetailPage = () => {
                       </Button>
                     </DialogActions>
                   </Dialog>
+
+
+
                 </>
             )}
 

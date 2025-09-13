@@ -1,200 +1,215 @@
 import React, { useState } from "react";
 import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
-import theme from "../../../components/Theme.jsx"; // Your custom theme
-import { Dashboard as DashboardIcon, Assignment as AssignmentIcon, CheckCircle as CheckCircleIcon } from "@mui/icons-material";
+import theme from "../../../components/Theme.jsx";
 import {
-  Box,
-  CssBaseline,
-  AppBar as MuiAppBar,
-  Toolbar,
-  Typography,
-  Divider,
-  IconButton,
-  Drawer as MuiDrawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText
+    Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography,
+    Divider, IconButton, Drawer as MuiDrawer, List, ListItem,
+    ListItemButton, ListItemIcon, ListItemText, useMediaQuery
 } from "@mui/material";
+
 import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  Visibility as VisibilityIcon
+    Menu as MenuIcon,
+    Dashboard as DashboardIcon,
+    ChevronLeft as ChevronLeftIcon,
+    ChevronRight as ChevronRightIcon,
+    Assignment as AssignmentIcon,
+    CheckCircle as CheckCircleIcon,
+    Visibility as VisibilityIcon,
 } from "@mui/icons-material";
+
 import { Link } from "react-router-dom";
 
-// Replace with your actual component
-import ReadCourses from "../../../components/teacher/courses/course/course_view";
-import AssignmentAllRead from "../../../components/teacher/assignment/all_assignemt_view.jsx";
-
+import AssignmentAllRead from "../../../components/teacher/assignment/all_assignment_view.jsx";
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.easeOut,
-    duration: theme.transitions.duration.standard,
-  }),
-  overflowX: "hidden",
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.standard,
+    }),
+    overflowX: "hidden",
 });
 
 const closedMixin = (theme) => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.shortest,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
+    transition: theme.transitions.create("width", {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.shortest,
+    }),
+    overflowX: "hidden",
+    width: `calc(${theme.spacing(7)} + 1px)`,
+    [theme.breakpoints.up("sm")]: {
+        width: `calc(${theme.spacing(8)} + 1px)`,
+    },
 });
 
 const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: theme.spacing(0, 1),
+    ...theme.mixins.toolbar,
 }));
 
-const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== "open" })(
-    ({ theme, open }) => ({
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(["width", "margin"], {
+const AppBar = styled(MuiAppBar, {
+    shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+    zIndex: theme.zIndex.drawer + 1,
+    transition: theme.transitions.create(["width", "margin"], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
-      }),
-      ...(open && {
+    }),
+    ...(open && {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(["width", "margin"], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      }),
-      background: "linear-gradient(90deg, #4B2E83, #1C1C3A)", // dark purple gradient
-    })
-);
+    }),
+    background: "linear-gradient(90deg, #4B2E83, #1C1C3A)",
+}));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
     ({ theme, open }) => ({
-      width: drawerWidth,
-      flexShrink: 0,
-      whiteSpace: "nowrap",
-      boxSizing: "border-box",
-      ...(open ? openedMixin(theme) : closedMixin(theme)),
-      "& .MuiDrawer-paper": {
-        ...(!open ? closedMixin(theme) : openedMixin(theme)),
-        backgroundColor: theme.palette.background.paper,
-        borderRight: "1px solid #e0e0e0",
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-        borderTopRightRadius: 12,
-        borderBottomRightRadius: 12,
-      },
+        width: drawerWidth,
+        flexShrink: 0,
+        whiteSpace: "nowrap",
+        boxSizing: "border-box",
+        ...(open ? openedMixin(theme) : closedMixin(theme)),
+        "& .MuiDrawer-paper": {
+            ...(!open ? closedMixin(theme) : openedMixin(theme)),
+            backgroundColor: theme.palette.background.paper,
+            borderRight: "1px solid #e0e0e0",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+            borderTopRightRadius: 0,
+            borderBottomRightRadius: 0,
+        },
     })
 );
 
 export default function TeacherPanel() {
-  const muiTheme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [courseOpen, setCourseOpen] = useState(true);
+    const muiTheme = useTheme();
+    const isMobile = useMediaQuery(muiTheme.breakpoints.down("sm"));
 
-  const handleDrawerOpen = () => setOpen(true);
-  const handleDrawerClose = () => setOpen(false);
-  const toggleAssignmentDrawer = () => setCourseOpen(!courseOpen);
+    const [open, setOpen] = useState(!isMobile);
+    const [courseOpen, setCourseOpen] = useState(true);
 
-  const drawerItemStyles = {
-    minHeight: 48,
-    px: 2.5,
-    borderRadius: 2,
-    mx: 1,
-    transition: "background 0.3s ease",
-    "&:hover": {
-      backgroundColor: muiTheme.palette.action.hover,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    },
-  };
+    const handleDrawerOpen = () => setOpen(true);
+    const handleDrawerClose = () => setOpen(false);
+    const toggleAssignmentDrawer = () => setAssignmentOpen(!assignmentOpen);
 
-  return (
-      <ThemeProvider theme={theme}>
-        <Box sx={{ display: "flex" }}>
-          <CssBaseline />
-          <AppBar position="fixed" open={open}>
-            <Toolbar>
-              <IconButton
-                  color="inherit"
-                  onClick={handleDrawerOpen}
-                  edge="start"
-                  sx={{ marginRight: 5, ...(open && { display: "none" }) }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" noWrap>
-                Course Management Panel
-              </Typography>
-            </Toolbar>
-          </AppBar>
-          <Drawer variant="permanent" open={open}>
+    const drawerItemStyles = {
+        minHeight: 48,
+        px: 2.5,
+        borderRadius: 2,
+        mx: 1,
+        transition: "background 0.3s ease",
+        "&:hover": {
+            backgroundColor: muiTheme.palette.action.hover,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        },
+    };
+
+    const drawerContent = (
+        <>
             <DrawerHeader>
-              <IconButton onClick={handleDrawerClose}>
-                {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-              </IconButton>
+                <IconButton onClick={handleDrawerClose}>
+                    {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                </IconButton>
             </DrawerHeader>
             <Divider />
             <List>
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <ListItemButton component={Link} to="/teacherpanel" sx={drawerItemStyles}>
-                  <ListItemIcon sx={{ color: "#150b29" }}>
-                    <DashboardIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Dashboard" sx={{ color: "#280838" }} />
-                </ListItemButton>
-              </ListItem>
-
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <ListItemButton onClick={toggleAssignmentDrawer} sx={drawerItemStyles}>
-                  <ListItemIcon sx={{ color: "#150b29" }}>
-                    <AssignmentIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Assignments" sx={{ color: "#280838" }} />
-                </ListItemButton>
-              </ListItem>
-
-              {courseOpen && (
-                  <>
-                    <ListItemButton component={Link} to="/view-assignments" sx={drawerItemStyles}>
-                      <ListItemIcon sx={{ color: "#150b29" }}>
-                        <VisibilityIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="View Assignments" sx={{ color: "#280838" }} />
+                <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton component={Link} to="/teacherpanel" sx={drawerItemStyles}>
+                        <ListItemIcon sx={{ color: "#150b29" }}>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Dashboard" sx={{ color: "#280838" }} />
                     </ListItemButton>
-                    <ListItemButton component={Link} to="/submission-status" sx={drawerItemStyles}>
-                      <ListItemIcon sx={{ color: "#150b29" }}>
-                        <CheckCircleIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Submission Status" sx={{ color: "#280838" }} />
+                </ListItem>
+
+                <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton onClick={toggleAssignmentDrawer} sx={drawerItemStyles}>
+                        <ListItemIcon sx={{ color: "#150b29" }}>
+                            <AssignmentIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Assignments" sx={{ color: "#280838" }} />
                     </ListItemButton>
-                  </>
-              )}
+                </ListItem>
+
+                {courseOpen && (
+                    <>
+                        <ListItemButton component={Link} to="/view-assignments" sx={drawerItemStyles}>
+                            <ListItemIcon sx={{ color: "#150b29" }}>
+                                <VisibilityIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="View Assignments" sx={{ color: "#280838" }} />
+                        </ListItemButton>
+
+                        <ListItemButton component={Link} to="/submission-status" sx={drawerItemStyles}>
+                            <ListItemIcon sx={{ color: "#150b29" }}>
+                                <CheckCircleIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Submission Status" sx={{ color: "#280838" }} />
+                        </ListItemButton>
+                    </>
+                )}
             </List>
-          </Drawer>
+        </>
+    );
 
-          <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                p: 3,
-                width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
-              }}
-          >
-            <Toolbar />
+    return (
+        <ThemeProvider theme={theme}>
+            <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+                <CssBaseline />
+                <AppBar position="fixed" open={open && !isMobile}>
+                    <Toolbar>
+                        <IconButton
+                            color="inherit"
+                            onClick={handleDrawerOpen}
+                            edge="start"
+                            sx={{ mr: 2, ...(open && !isMobile && { display: "none" }) }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography variant="h6" noWrap>
+                            Course Management Panel
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
 
-            <AssignmentAllRead />
-          </Box>
-        </Box>
-      </ThemeProvider>
-  );
+                <Box sx={{ display: "flex", flex: 1 }}>
+                    <MuiDrawer
+                        variant={isMobile ? "temporary" : "permanent"}
+                        open={open}
+                        onClose={() => setOpen(false)}
+                        ModalProps={{ keepMounted: true }}
+                        sx={{
+                            width: drawerWidth,
+                            flexShrink: 0,
+                            "& .MuiDrawer-paper": {
+                                width: drawerWidth,
+                            },
+                        }}
+                    >
+                        {drawerContent}
+                    </MuiDrawer>
+
+                    <Box
+                        component="main"
+                        sx={{
+                            flexGrow: 1,
+                            px: { xs: 2, sm: 3 },
+                            py: 3,
+                            width: {
+                                xs: "100%",
+                                sm: `calc(100% - ${open && !isMobile ? drawerWidth : 0}px)`,
+                            },
+                            transition: "width 0.3s ease",
+                        }}
+                    >
+                        <Toolbar />
+                        <AssignmentAllRead />
+                    </Box>
+                </Box>
+            </Box>
+        </ThemeProvider>
+    );
 }

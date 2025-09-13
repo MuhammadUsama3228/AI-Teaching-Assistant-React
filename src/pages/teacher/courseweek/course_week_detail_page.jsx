@@ -1,25 +1,24 @@
 import React, { useState } from "react";
 import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
-import theme from "../../../components/Theme.jsx"; // Your custom theme
 import {
   Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography, Divider,
-  IconButton, Drawer as MuiDrawer, List, ListItem, ListItemIcon, ListItemText
+  IconButton, Drawer as MuiDrawer, List, ListItem, ListItemIcon, ListItemText, useMediaQuery
 } from "@mui/material";
 import {
   Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
-  School as SchoolIcon, Visibility as VisibilityIcon,
-  ViewList as ViewListIcon, Dashboard as DashboardIcon
+  School as SchoolIcon, Visibility as VisibilityIcon, Dashboard as DashboardIcon
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import CourseWeekDetail from "../../../components/teacher/courses/course_week/course_week_view_detail";
+import theme from "../../../components/Theme.jsx";
 
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
+    easing: theme.transitions.easing.easeOut,
+    duration: theme.transitions.duration.standard,
   }),
   overflowX: "hidden",
 });
@@ -27,7 +26,7 @@ const openedMixin = (theme) => ({
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+    duration: theme.transitions.duration.shortest,
   }),
   overflowX: "hidden",
   width: `calc(${theme.spacing(7)} + 1px)`,
@@ -70,13 +69,18 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
       whiteSpace: "nowrap",
       boxSizing: "border-box",
       ...(open ? openedMixin(theme) : closedMixin(theme)),
-      "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
+      "& .MuiDrawer-paper": {
+        ...(open ? openedMixin(theme) : closedMixin(theme)),
+        backgroundColor: theme.palette.background.paper,
+        borderRight: "1px solid #e0e0e0",
+      },
     })
 );
 
 export default function CourseWeekDetailPage() {
   const muiTheme = useTheme();
-  const [open, setOpen] = useState(false);
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("sm"));
+  const [open, setOpen] = useState(!isMobile);
   const [courseOpen, setCourseOpen] = useState(false);
 
   const handleDrawerOpen = () => setOpen(true);
@@ -96,18 +100,70 @@ export default function CourseWeekDetailPage() {
     },
   };
 
+  const drawerContent = (
+      <>
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <List>
+          <ListItem
+              button
+              component={Link}
+              to="/teacherpanel"
+              sx={drawerItemStyles}
+              onClick={() => isMobile && handleDrawerClose()}
+          >
+            <ListItemIcon>
+              <DashboardIcon sx={{ color: muiTheme.palette.text.primary }} />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+
+          <ListItem
+              button
+              onClick={toggleCourseDrawer}
+              sx={drawerItemStyles}
+          >
+            <ListItemIcon>
+              <SchoolIcon sx={{ color: muiTheme.palette.text.primary }} />
+            </ListItemIcon>
+            <ListItemText primary="Courses" />
+          </ListItem>
+
+          {courseOpen && (
+              <ListItem
+                  button
+                  component={Link}
+                  to="/view-courses"
+                  sx={drawerItemStyles}
+                  onClick={() => isMobile && handleDrawerClose()}
+              >
+                <ListItemIcon>
+                  <VisibilityIcon sx={{ color: muiTheme.palette.text.primary }} />
+                </ListItemIcon>
+                <ListItemText primary="View Courses" />
+              </ListItem>
+          )}
+        </List>
+        <Divider />
+      </>
+  );
+
   return (
       <ThemeProvider theme={theme}>
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
           <CssBaseline />
-          <AppBar position="fixed" open={open}>
+          <AppBar position="fixed" open={open && !isMobile}>
             <Toolbar>
               <IconButton
                   color="inherit"
                   aria-label="open drawer"
                   onClick={handleDrawerOpen}
                   edge="start"
-                  sx={{ marginRight: 5, ...(open && { display: "none" }) }}
+                  sx={{ mr: 2, ...(open && !isMobile && { display: "none" }) }}
               >
                 <MenuIcon />
               </IconButton>
@@ -116,68 +172,38 @@ export default function CourseWeekDetailPage() {
               </Typography>
             </Toolbar>
           </AppBar>
-          <Drawer variant="permanent" open={open}>
-            <DrawerHeader>
-              <IconButton onClick={handleDrawerClose}>
-                {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-              </IconButton>
-            </DrawerHeader>
-            <Divider />
-            <List>
-              {/* Dashboard Link */}
-              <ListItem
-                  button
-                  component={Link}
-                  to="/teacherpanel"
-                  sx={drawerItemStyles}
-              >
-                <ListItemIcon>
-                  <DashboardIcon sx={{ color: muiTheme.palette.text.primary }} />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItem>
 
-              {/* Courses Section */}
-              <ListItem
-                  button
-                  onClick={toggleCourseDrawer}
-                  sx={drawerItemStyles}
-              >
-                <ListItemIcon>
-                  <SchoolIcon sx={{ color: muiTheme.palette.text.primary }} />
-                </ListItemIcon>
-                <ListItemText primary="Courses" />
-              </ListItem>
+          <Box sx={{ display: "flex", flexGrow: 1 }}>
+            <MuiDrawer
+                variant={isMobile ? "temporary" : "permanent"}
+                open={open}
+                onClose={handleDrawerClose}
+                ModalProps={{ keepMounted: true }}
+                sx={{
+                  "& .MuiDrawer-paper": {
+                    width: drawerWidth,
+                  },
+                }}
+            >
+              {drawerContent}
+            </MuiDrawer>
 
-              {courseOpen && (
-                  <>
-                    <ListItem
-                        button
-                        component={Link}
-                        to="/view-courses"
-                        sx={drawerItemStyles}
-                    >
-                      <ListItemIcon>
-                        <VisibilityIcon sx={{ color: muiTheme.palette.text.primary }} />
-                      </ListItemIcon>
-                      <ListItemText primary="View Courses" />
-                    </ListItem>
-
-                  </>
-              )}
-            </List>
-            <Divider />
-          </Drawer>
-          <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                p: 3,
-                width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
-              }}
-          >
-            <Toolbar />
-            <CourseWeekDetail />
+            <Box
+                component="main"
+                sx={{
+                  flexGrow: 1,
+                  px: { xs: 2, sm: 3 },
+                  py: 3,
+                  width: {
+                    xs: "100%",
+                    sm: `calc(100% - ${open && !isMobile ? drawerWidth : 0}px)`,
+                  },
+                  transition: "width 0.3s ease",
+                }}
+            >
+              <Toolbar />
+              <CourseWeekDetail />
+            </Box>
           </Box>
         </Box>
       </ThemeProvider>

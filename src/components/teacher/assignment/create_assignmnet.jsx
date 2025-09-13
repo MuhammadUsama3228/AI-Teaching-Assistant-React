@@ -42,9 +42,10 @@ const AssignmentModel = {
   level: 'medium',
   rubric_method: 'rubrics_by_question_only',
   rubric_called: 'after_15_minutes',
-
+  plagiarism_check: false,
   files: [],
 };
+
 
 function CreateAssignmentForm() {
   const { id } = useParams();
@@ -222,6 +223,28 @@ function CreateAssignmentForm() {
                       <MenuItem value="after_hours">After Hours</MenuItem>
                     </Select>
                   </FormControl>
+                  <FormControlLabel
+                      control={
+                        <Switch
+                            name="accept_within_due_date"
+                            checked={formData.accept_within_due_date}
+                            onChange={handleSwitchChange}
+                        />
+                      }
+                      label="Accept Submissions Within Due Date"
+                      sx={{ mt: 2 }}
+                  />
+
+                  <FormControlLabel
+                      control={
+                        <Switch
+                            name="plagiarism_check"
+                            checked={formData.plagiarism_check}
+                            onChange={handleSwitchChange}
+                        />
+                      }
+                      label="Enable Plagiarism Check"
+                  />
 
 
 

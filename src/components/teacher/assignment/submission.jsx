@@ -12,10 +12,14 @@ import {
     Grid,
     Button,
     Chip,
+    useTheme,
+    useMediaQuery,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useParams } from "react-router-dom";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import { BASE_URL } from "../../../constraints.js";
 import api from "../../../api";
 
 const AssignmentStatusSubmissions = () => {
@@ -28,6 +32,9 @@ const AssignmentStatusSubmissions = () => {
     const [filterSubmissionStatus, setFilterSubmissionStatus] = useState("all");
     const [filterStatus, setFilterStatus] = useState("all");
     const [filterCourse, setFilterCourse] = useState("all");
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     useEffect(() => {
         const fetchSubmissions = async () => {
@@ -55,6 +62,29 @@ const AssignmentStatusSubmissions = () => {
         fetchSubmissions();
         fetchCourses();
     }, [assignmentId]);
+
+    const handleDownloadAll = async () => {
+        try {
+            const response = await api.get(
+                `/api/courses/submission/download_zip/`,
+                {
+                    params: { assignment: assignmentId },
+                    responseType: "blob",
+                }
+            );
+
+            const blob = new Blob([response.data], { type: "application/zip" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `assignment_${assignmentId}_submissions.zip`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Failed to download submissions:", error);
+        }
+    };
 
     const filteredSubmissions = submissions.filter((s) => {
         const searchMatch =
@@ -90,7 +120,6 @@ const AssignmentStatusSubmissions = () => {
     const columns = [
         { field: "id", headerName: "ID", flex: 0.3 },
         { field: "assignment_title", headerName: "Assignment", flex: 1 },
-
         { field: "student_username", headerName: "Student", flex: 1 },
         {
             field: "submission_date",
@@ -104,25 +133,34 @@ const AssignmentStatusSubmissions = () => {
         {
             field: "files",
             headerName: "Files",
-            flex: 1,
+            flex: 0.5,
             renderCell: (params) =>
                 Array.isArray(params.row.files) && params.row.files.length > 0 ? (
-                    <Box>
-                        {params.row.files.map((file, index) => (
-                            <Button
-                                key={index}
-                                href={file}
-                                target="_blank"
-                                variant="outlined"
-                                size="small"
-                                sx={{ mb: 0.5 }}
-                            >
-                                View {index + 1}
-                            </Button>
-                        ))}
+                    <Box display="flex" flexWrap="wrap">
+                        {params.row.files.map((fileObj, index) => {
+                            const fileUrl =
+                                typeof fileObj === "string"
+                                    ? fileObj
+                                    : fileObj.file || "";
+                            const fullUrl = fileUrl.startsWith("http") ? fileUrl : `${BASE_URL}${fileUrl}`;
+
+                            return (
+                                <a
+                                    key={index}
+                                    href={fullUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ marginRight: 8 }}
+                                >
+                                    <InsertDriveFileIcon sx={{ fontSize: 22, color: "#4B2E83" }} />
+                                </a>
+                            );
+                        })}
                     </Box>
                 ) : (
-                    "No Files"
+                    <Typography variant="body2" color="text.secondary">
+                        —
+                    </Typography>
                 ),
         },
         {
@@ -187,6 +225,17 @@ const AssignmentStatusSubmissions = () => {
                 </Box>
             ) : (
                 <>
+                    <Box
+                        display="flex"
+                        justifyContent={isMobile ? "center" : "flex-end"}
+                        flexWrap="wrap"
+                        gap={2}
+                        mb={2}
+                    >
+
+                    </Box>
+
+                    {/* Filters */}
                     <Grid container spacing={2} mb={3}>
                         <Grid item xs={12} sm={6} md={3}>
                             <TextField
@@ -198,7 +247,6 @@ const AssignmentStatusSubmissions = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </Grid>
-
                         <Grid item xs={12} sm={6} md={3}>
                             <FormControl fullWidth size="small">
                                 <InputLabel>Course</InputLabel>
@@ -216,7 +264,6 @@ const AssignmentStatusSubmissions = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-
                         <Grid item xs={12} sm={6} md={2}>
                             <FormControl fullWidth size="small">
                                 <InputLabel>Feedback</InputLabel>
@@ -231,7 +278,6 @@ const AssignmentStatusSubmissions = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-
                         <Grid item xs={12} sm={6} md={2}>
                             <FormControl fullWidth size="small">
                                 <InputLabel>Submission</InputLabel>
@@ -246,7 +292,6 @@ const AssignmentStatusSubmissions = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-
                         <Grid item xs={12} sm={6} md={2}>
                             <FormControl fullWidth size="small">
                                 <InputLabel>Status</InputLabel>
@@ -273,21 +318,23 @@ const AssignmentStatusSubmissions = () => {
                     </Box>
 
                     <Box sx={{ width: "100%", overflowX: "auto" }}>
-                        <DataGrid
-                            rows={filteredSubmissions}
-                            columns={columns}
-                            pageSize={10}
-                            rowsPerPageOptions={[5, 10, 20]}
-                            disableSelectionOnClick
-                            autoHeight
-                            sx={{
-                                border: "none",
-                                boxShadow: 2,
-                                borderRadius: 2,
-                                minWidth: 600,
-                                backgroundColor: "#fff",
-                            }}
-                        />
+                        <Box sx={{ minWidth: 800 }}>
+                            <DataGrid
+                                rows={filteredSubmissions}
+                                columns={columns}
+                                pageSize={10}
+                                rowsPerPageOptions={[5, 10, 20]}
+                                disableSelectionOnClick
+                                autoHeight
+                                loading={loading}
+                                sx={{
+                                    border: "none",
+                                    boxShadow: 2,
+                                    borderRadius: 2,
+                                    backgroundColor: "#fff",
+                                }}
+                            />
+                        </Box>
                     </Box>
                 </>
             )}

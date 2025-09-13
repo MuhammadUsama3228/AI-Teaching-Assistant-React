@@ -33,12 +33,14 @@ import api from '../../../api';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Snackbar, Alert } from '@mui/material';
-
-
-
+import PenaltyAccordionWrapper from '../../student/Student Assignment/wrapper/panality_wrapper.jsx'
+import { purple } from '@mui/material/colors';
+import PlagiarismForm from "./plagirisim_panality.jsx";
+import GavelIcon from '@mui/icons-material/Gavel';
+import PlagiarismDialogWrapper from './plagirismformwrapper.jsx';
 import UpdateAssignmentForm from './update_assignment';
 import UpdateSolutionForm from './solution.jsx';
-
+import PlagiarismPenaltyList from './plag_accrodon.jsx'
 import CreatePenaltyForm from './simple_panality';
 import CreateVariationPenaltyForm from './variation_panality';
 
@@ -192,6 +194,41 @@ const AssignmentDetailPage = () => {
     }
   };
 
+  const handleRubricDownload = () => {
+    try {
+      // Parse if rubric is a string
+      const parsed =
+          typeof assignment.rubric === 'string'
+              ? JSON.parse(assignment.rubric)
+              : assignment.rubric;
+
+      // Confirm rubrics array exists
+      if (!parsed?.rubrics || !Array.isArray(parsed.rubrics)) {
+        throw new Error('Rubric data is missing or invalid.');
+      }
+
+      const text = parsed.rubrics
+          .map((r, idx) => {
+            const criteriaText = r.criteria
+                .map((c, i) => `   ${i + 1}. ${c.description} (${c.criteria_marks} marks)`)
+                .join('\n');
+            return `Q${idx + 1}: ${r.question}\nTotal Marks: ${r.rubric_marks}\nCriteria:\n${criteriaText}`;
+          })
+          .join('\n\n');
+
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rubric-${assignmentId}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Rubric download failed:', error);
+      alert('Rubric data is invalid or could not be downloaded.');
+    }
+  };
+
 
   const handleUpdateClick = () => {
     handleMenuClose();
@@ -284,7 +321,10 @@ const AssignmentDetailPage = () => {
             <InfoOutlined fontSize="small" />
             Created at: {new Date(assignment.created_at).toLocaleString()}
           </Typography>
+
+
         </Grid>
+        <PlagiarismDialogWrapper assignmentId={assignment.id} statusColor="error" />
 
 
         {/* Action buttons */}
@@ -306,13 +346,17 @@ const AssignmentDetailPage = () => {
 
 
 
-
       <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <AccordionSummary
+            expandIcon={<ExpandMoreIcon sx={{ color:purple[700] }} />}
+            sx={{ backgroundColor: '#f3eafc' }}
+        >
+          <Typography variant="h6" sx={{ color: "#4B2E83",fontWeight: "bold",
+            mb: 2, }}>
             Assignment Details
           </Typography>
         </AccordionSummary>
+
         <AccordionDetails>
           <Box>
             <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-line' }}>
@@ -346,45 +390,18 @@ const AssignmentDetailPage = () => {
         </AccordionDetails>
       </Accordion>
 
+
+
+
+      {assignment?.id && (
+          <PenaltyAccordionWrapper assignmentId={assignment.id} />
+      )}
       <Accordion>
-        <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>Penalty Information</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Stack spacing={2}>
-            {simplePenalty ? (
-                <Box>
-                  <Typography><strong>Type:</strong> Simple Penalty</Typography>
-                  <Typography><strong>Penalty:</strong> {simplePenalty.penalty}%</Typography>
-                </Box>
-            ) : variationPenalty ? (
-                <Box>
-                  <Typography><strong>Type:</strong> Variation Penalty</Typography>
-                  <Typography><strong>Allowed Late Days:</strong> {variationPenalty.late_submission}</Typography>
-
-                  {/* Fetch variation ranges (optional) */}
-                  {variationPenalty.ranges && variationPenalty.ranges.length > 0 && (
-                      <Box mt={2}>
-                        <Typography variant="subtitle1"><strong>Ranges:</strong></Typography>
-                        {variationPenalty.ranges.map((range, idx) => (
-                            <Typography key={idx}>
-                              - {range.days_late} day(s): {range.penalty * 100}%
-                            </Typography>
-                        ))}
-                      </Box>
-                  )}
-                </Box>
-            ) : (
-                <Typography color="textSecondary">No penalty applied.</Typography>
-            )}
-          </Stack>
-        </AccordionDetails>
-      </Accordion>
-
-
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color:purple[700] }} />}
+                          sx={{ backgroundColor: '#f3eafc' }}
+        >
+          <Typography variant="h6" sx={{ color: "#4B2E83",fontWeight: "bold",
+            mb: 2, }}>
             Rubric Information
           </Typography>
         </AccordionSummary>
@@ -413,20 +430,15 @@ const AssignmentDetailPage = () => {
                   sx={{ ml: 1 }}
               />
             </Typography>
-
             {assignment.rubric ? (
-                <Box>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    <strong>Download Rubric (JSON):</strong>
-                  </Typography>
+                <Box sx={{ mt: 2 }}>
                   <Button
                       variant="contained"
-                      size="small"
                       color="secondary"
-                      href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(assignment.rubric, null, 2))}`}
-                      download={`rubric-${assignmentId}.json`}
+                      size="small"
+                      onClick={handleRubricDownload}
                   >
-                    Download Rubric
+                    Download Rubric (.txt)
                   </Button>
                 </Box>
             ) : (
@@ -434,6 +446,7 @@ const AssignmentDetailPage = () => {
                   No rubric data available.
                 </Typography>
             )}
+
           </Stack>
         </AccordionDetails>
       </Accordion>
@@ -441,8 +454,11 @@ const AssignmentDetailPage = () => {
 
 
       <Accordion>
-        <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color:purple[700] }} />}
+                          sx={{ backgroundColor: '#f3eafc' }}
+        >
+          <Typography variant="h6" sx={{ color: "#4B2E83",fontWeight: "bold",
+            mb: 2, }}>
             Assignment Contents ({assignment.assignment_files?.length || 0})
           </Typography>
         </AccordionSummary>
@@ -529,8 +545,11 @@ const AssignmentDetailPage = () => {
 
       {solutions.map((sol) => (
           <Accordion key={sol.id}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color:purple[700] }} />}
+                              sx={{ backgroundColor: '#f3eafc' }}
+            >
+              <Typography variant="h6" sx={{ color: "#4B2E83" ,fontWeight: "bold",
+                mb: 2}}>
                 Assignment Solution
               </Typography>
             </AccordionSummary>
@@ -719,6 +738,8 @@ const AssignmentDetailPage = () => {
           Rubric has been generated and is available for download.
         </Alert>
       </Snackbar>
+
+
 
     </StyledContainer>
   );

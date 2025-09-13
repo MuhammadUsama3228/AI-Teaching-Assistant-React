@@ -10,9 +10,11 @@ import {
     Divider,
     CircularProgress,
     Button,
-    Paper
+    Paper,
+    Stack
 } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { Person, School, Email, Edit } from '@mui/icons-material';
 import api from '../../../api.js';
 
 const StudentProfile = () => {
@@ -50,22 +52,22 @@ const StudentProfile = () => {
     const hasStudentProfile = studentDetails && Object.keys(studentDetails).length > 0;
 
     return (
-        <Box sx={{ minHeight: '100vh', backgroundColor: '#f9f9f9' }}>
+        <Box sx={{ minHeight: '100vh', backgroundColor: '#f4f6f8' }}>
             {/* Header */}
             <Box
                 sx={{
                     background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
                     color: '#fff',
-                    py: 3,
+                    py: 4,
                     px: 2,
                     textAlign: 'center',
                 }}
             >
-                <Typography variant="h5" fontWeight="bold">
+                <Typography variant="h4" fontWeight="bold">
                     Student Dashboard
                 </Typography>
                 <Typography variant="subtitle1">
-                    View your academic profile
+                    View and manage your academic profile
                 </Typography>
             </Box>
 
@@ -73,31 +75,46 @@ const StudentProfile = () => {
                 <Grid container spacing={4}>
                     {/* Sidebar */}
                     <Grid item xs={12} md={4}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
+                        <Paper elevation={4} sx={{ p: 4, textAlign: 'center', borderRadius: 3 }}>
                             <Avatar
                                 src={profile?.profile_picture ? `${apiURL}${profile.profile_picture}` : ''}
                                 alt={profile?.username || ''}
-                                sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    mx: 'auto',
+                                    mb: 2,
+                                    border: '3px solid #6A1B9A'
+                                }}
                             />
-                            <Typography variant="h6" fontWeight="bold">
+                            <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
                                 {profile?.first_name} {profile?.last_name}
                             </Typography>
                             <Typography variant="body2" color="textSecondary">
-                                {profile?.email}
+                                <Email sx={{ fontSize: 16, mr: 0.5 }} /> {profile?.email}
                             </Typography>
                             <Divider sx={{ my: 2 }} />
                             <Typography variant="body2" color="textSecondary">
-                                Username: {profile?.username}
+                                <Person sx={{ fontSize: 16, mr: 0.5 }} /> {profile?.username}
                             </Typography>
                             <Typography variant="body2" color="textSecondary">
-                                Role: {profile?.role}
+                                <School sx={{ fontSize: 16, mr: 0.5 }} /> {profile?.role}
                             </Typography>
                             <Button
                                 component={Link}
                                 to="/student_profile_edit"
+                                startIcon={<Edit />}
                                 variant="contained"
                                 fullWidth
-                                sx={{ mt: 2 }}
+                                sx={{
+                                    mt: 3,
+                                    background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    '&:hover': {
+                                        background: 'linear-gradient(90deg, #4527a0 0%, #8e24aa 100%)',
+                                    }
+                                }}
                             >
                                 {hasStudentProfile ? 'Edit Profile' : 'Create Profile'}
                             </Button>
@@ -106,13 +123,14 @@ const StudentProfile = () => {
 
                     {/* Main Section */}
                     <Grid item xs={12} md={8}>
-                        <Card elevation={3}>
+                        <Card elevation={4} sx={{ borderRadius: 3 }}>
                             <CardContent>
-                                <Typography variant="h6" gutterBottom>
+                                <Typography variant="h6" gutterBottom fontWeight="bold">
                                     Student Profile Details
                                 </Typography>
+                                <Divider sx={{ mb: 2 }} />
                                 {hasStudentProfile ? (
-                                    <>
+                                    <Stack spacing={1}>
                                         <Typography><strong>Institution:</strong> {studentDetails.institution_name}</Typography>
                                         <Typography><strong>Institution Type:</strong> {studentDetails.institution_type}</Typography>
                                         <Typography><strong>Level:</strong> {studentDetails.level}</Typography>
@@ -126,7 +144,7 @@ const StudentProfile = () => {
                                         <Typography><strong>Country:</strong> {studentDetails.country}</Typography>
                                         <Typography><strong>Postal Code:</strong> {studentDetails.postal_code}</Typography>
                                         <Typography><strong>Bio:</strong> {studentDetails.bio}</Typography>
-                                    </>
+                                    </Stack>
                                 ) : (
                                     <Box
                                         sx={{
@@ -134,7 +152,6 @@ const StudentProfile = () => {
                                             border: '2px dashed #2196f3',
                                             borderRadius: 3,
                                             p: 4,
-                                            mt: 1,
                                             textAlign: 'center'
                                         }}
                                     >

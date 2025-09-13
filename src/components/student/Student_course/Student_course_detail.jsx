@@ -12,9 +12,13 @@ import {
     Chip,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Chatboot_launcher from "./Chat Boot/chatboot_launcher.jsx";
 import api from "../../../api.js";
 import StudentCourseWeekView from "../Student_course/student_courseweek.jsx";
+import CourseTimeSlotsAccordion from "../Student_course/timeslot.jsx";
+import CourseContent from "./student_course_content.jsx";
 import {useParams} from "react-router-dom";
+import ChatBotLauncher from "./Chat Boot/chatboot_launcher.jsx";
 
 const THEME_COLOR = "#4B2E83";
 
@@ -69,6 +73,7 @@ const StudentCourseOverviewAccordion = () => {
                     const assignmentCount = data.assignment.filter((a) => a.course === course.id).length;
 
                     return (
+
                         <Accordion
                             key={course.id}
                             sx={{ mb: 2, borderRadius: 2 }}
@@ -121,12 +126,21 @@ const StudentCourseOverviewAccordion = () => {
                                     </Grid>
                                 </Grid>
 
+                                <CourseContent courseId={course.id}/>
                                 {/* StudentCourseWeekView for this course */}
                                 <StudentCourseWeekView courseId={course.id} />
+                                <CourseTimeSlotsAccordion courseId={course.id} />
+
+                                <ChatBotLauncher courseId={course.id} />
+
+
+
                             </AccordionDetails>
                         </Accordion>
                     );
                 })}
+
+
 
         </Box>
     );

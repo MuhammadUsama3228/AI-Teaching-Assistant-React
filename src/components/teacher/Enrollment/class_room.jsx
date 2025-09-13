@@ -121,7 +121,20 @@ const EnrollmentDashboard = () => {
       field: "enrollment_date",
       headerName: "Enrollment Date",
       flex: 1,
-      valueFormatter: (params) => new Date(params.value).toLocaleString(),
+      valueFormatter: (params) => {
+        const raw = params.value;
+        const cleaned = raw?.split(".")[0] + "Z";
+        const date = new Date(cleaned);
+        return isNaN(date)
+            ? "Invalid Date"
+            : date.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
+      }
+      ,
+
     },
   ];
 
@@ -148,8 +161,8 @@ const EnrollmentDashboard = () => {
           boxShadow: 3,
         }}
       >
-        <Typography variant="h5" sx={{ mb: 2, color: "#150b29" }}>Dashboard</Typography>
-        <Divider sx={{ bgcolor: "#280838", mb: 2 }} />
+        <Typography variant="h5" sx={{ mb: 2, color: "#4B2E83" }}>Dashboard</Typography>
+        <Divider sx={{ bgcolor: "#4B2E83", mb: 2 }} />
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" color="#104E81FF">Registered Courses</Typography>
           <Tabs
@@ -173,7 +186,7 @@ const EnrollmentDashboard = () => {
 
       {/* Main Content */}
       <Box sx={{ flexGrow: 1, p: 4 }}>
-        <AppBar position="sticky" sx={{ mb: 3, bgcolor: "#280838" }}>
+        <AppBar position="sticky" sx={{ mb: 3, bgcolor: "#4B2E83" }}>
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
             <Typography variant="h4" sx={{ color: "#fff" }}>
               Enrollment Dashboard
@@ -208,7 +221,7 @@ const EnrollmentDashboard = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Card elevation={3} sx={{ borderRadius: 3, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: '#280838' }}>
+              <Card elevation={3} sx={{ borderRadius: 3, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: '#4B2E83' }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ color: "#fff" }}>
                     Total Students Enrolled in <strong>{selectedCourse}</strong>:{" "}
@@ -252,7 +265,7 @@ const EnrollmentDashboard = () => {
                             borderRadius: 2,
                             "& .MuiDataGrid-root": { border: "none" },
                             "& .MuiDataGrid-columnHeader": {
-                              backgroundColor: "#280838",
+                              backgroundColor: "#4B2E83",
                               color: "#fff",
                             },
                           }}

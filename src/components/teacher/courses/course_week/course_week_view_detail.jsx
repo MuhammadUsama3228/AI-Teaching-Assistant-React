@@ -17,6 +17,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 const StyledContainer = styled(Container)(({ theme }) => ({
     marginTop: theme.spacing(10),
     marginBottom: theme.spacing(6),
+    marginRight: theme.spacing(8),
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.shape.borderRadius * 2,
     padding: theme.spacing(4),
@@ -25,6 +26,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
         padding: theme.spacing(2),
         marginTop: theme.spacing(8),
         marginBottom: theme.spacing(4),
+        marginRight: theme.spacing(1),
     },
 }));
 
@@ -100,7 +102,7 @@ const CourseWeekDetail = () => {
     }
 
     return (
-        <StyledContainer maxWidth="md">
+        <StyledContainer  maxWidth="md">
             <IconButton
                 onClick={() => setOpenSidebar(true)}
                 sx={{
@@ -294,7 +296,7 @@ const CourseWeekDetail = () => {
                     <ListItem
                         button
                         onClick={() => {
-                            navigate(`/courses/course/${courseWeek.course}/weeks/${courseWeek.id}/announcements`);
+                            navigate(`/course/${courseWeek.course}/weeks/${courseWeek.id}/announcements`);
                             setOpenSidebar(false);
                         }}
                         sx={{

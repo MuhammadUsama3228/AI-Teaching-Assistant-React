@@ -75,7 +75,7 @@ const EnrollmentForm = ({ selectedCourse }) => {
                 borderRadius: '8px', // Rounded corners
               },
               '& .Mui-focused': {
-                borderColor: '#0C4572FF', // Blue border on focus
+                borderColor: '#4B2E83', // Blue border on focus
               },
               '& .MuiInputLabel-root': {
                 color: '#555', // Lighter label color
@@ -97,7 +97,7 @@ const EnrollmentForm = ({ selectedCourse }) => {
               size="small"
               margin="normal"
               InputProps={{
-                startAdornment: <School sx={{ color: '#0F4571FF', marginRight: '8px' }} />
+                startAdornment: <School sx={{ color: '#4B2E83', marginRight: '8px' }} />
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -129,7 +129,7 @@ const EnrollmentForm = ({ selectedCourse }) => {
                 textTransform: 'none',
                 borderRadius: '30px', // Rounded button
                 '&:hover': {
-                  backgroundColor: '#073564FF', // Darker blue hover effect
+                  backgroundColor: '#4B2E83', // Darker blue hover effect
                   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Adding shadow on hover
                 },
               }}

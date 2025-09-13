@@ -54,7 +54,10 @@ const CourseWeekUpdate = () => {
 
       if (response.status === 200) {
         setSuccess('Course week updated successfully!');
-        navigate('/course_week_view');
+        setTimeout(() => {
+          navigate(`/courseweekdetail/${id}`);
+        }, 2000);
+
       }
     } catch {
       setError('Failed to update course week.');

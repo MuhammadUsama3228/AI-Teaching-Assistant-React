@@ -13,6 +13,7 @@ import {
     useMediaQuery,
     useTheme
 } from '@mui/material';
+import {BASE_URL} from "../../../constraints.js";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import api from '../../../api.js';
@@ -68,7 +69,7 @@ const StudentAssignmentContent = ({ assignmentId }) => {
                                     const fileUrl = fileObj.file;
                                     const fullUrl = fileUrl.startsWith('http')
                                         ? fileUrl
-                                        : `http://localhost:8000${fileUrl}`;
+                                        : `${BASE_URL}${fileUrl}`;
                                     const filename = fileUrl.split('/').pop();
 
                                     return (

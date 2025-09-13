@@ -91,10 +91,10 @@ function TimeSlotForm() {
       navigate(`/viewtimeslot`); // Modify this URL as per your routing setup
     } catch (err) {
       setErrors(err.response.data); // Capture and display validation errors
-      setSnackbarMessage('Error creating time slot');
+      setSnackbarMessage('Error creating timeslot.jsx');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
-      console.error('Error creating time slot:', err);
+      console.error('Error creating timeslot.jsx:', err);
     } finally {
       setLoading(false);
     }

@@ -14,6 +14,8 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+
+
 import {
   School,
   EventNote,
@@ -22,13 +24,18 @@ import {
   Campaign as AnnouncementIcon,
   AccessTime as TimeIcon,
 } from '@mui/icons-material';
+
+import GradeIcon from '@mui/icons-material/Grade';
 import { Calendar } from 'react-calendar';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
+import {BASE_URL} from "../../constraints.js";
 import 'react-calendar/dist/Calendar.css';
 import { Line, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import profile from "../../pages/profile/profile/profile.jsx";
+
 
 const customTheme = createTheme({
   palette: {
@@ -103,9 +110,10 @@ const customTheme = createTheme({
 const StudentDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState('');
+  const [UserName, setUserName] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
   const [value, setValue] = useState(new Date());
+  const [feedbacks, setFeedback] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [assignmentMarks, setAssignmentMarks] = useState([]);
   const studentId = 5;
@@ -114,21 +122,29 @@ const StudentDashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    api.get('/api/manage_profile/').then((res) => {
-      setUserName(res.data.name);
-      setUserAvatar(res.data.avatar);
-    });
+    const fetchData = async () => {
+      try {
+        const profile = await api.get(`/api/manage_profile/`);
+        setUserName(profile.data.username);
+        setUserAvatar(`${BASE_URL}${profile.data.profile_picture}`);
+        console.log(profile.data.username);
+        console.log(profile.data.profile_picture);
 
-    api.get('/api/courses/student_insight/').then((res) => {
-      setData(res.data);
-      setLoading(false);
-      calculateAverageMarks(res.data);
-    });
+        const res1 = await api.get('/api/courses/student_insight/');
+        setData(res1.data);
+        setLoading(false);
+        calculateAverageMarks(res1.data);
 
-    api.get('/api/courses/week_announcement/').then((res) => {
-      setAnnouncements(res.data);
-    });
+        const res2 = await api.get('/api/courses/week_announcement/');
+        setAnnouncements(res2.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
+
 
   const calculateAverageMarks = (data) => {
     const marksData = data.assignment_submission.map((submission) => {
@@ -172,7 +188,13 @@ const StudentDashboard = () => {
   });
 
   const userSubmissions = assignment_submission.filter((s) => s.student === studentId);
-  const userFeedback = feedback.filter((f) => userSubmissions.find((sub) => sub.id === f.submission_id));
+  const userFeedback = data.feedback.map((f) => ({
+    id: f.id,
+    title: f.submission_title,
+    feedback: f.feedback_text,
+    checked: f.checked_status,
+    rating: f.rating,
+  }));
 
   const primaryColor = theme.palette.primary.main;
 
@@ -183,10 +205,10 @@ const StudentDashboard = () => {
         label: 'Average Marks per Course (Line)',
         data: assignmentMarks.map((item) => item.avgMarks),
         fill: false,
-        borderColor: primaryColor,
+        borderColor: "#4B2E83",
         tension: 0.1,
         borderWidth: 2,
-        pointBackgroundColor: primaryColor,
+        pointBackgroundColor: "#4B2E83",
       },
     ],
   };
@@ -197,27 +219,42 @@ const StudentDashboard = () => {
       {
         label: 'Average Marks per Course (Bar)',
         data: assignmentMarks.map((item) => item.avgMarks),
-        backgroundColor: `${primaryColor}80`,
-        borderColor: primaryColor,
+        backgroundColor: `${'#4B2E83'}80`,
+        borderColor: '#4B2E83',
         borderWidth: 1,
       },
     ],
   };
 
+  const chartDataRatings = {
+    labels: userFeedback.map((f) => f.title),
+    datasets: [
+      {
+        label: 'Grade Points (Ratings)',
+        data: userFeedback.map((f) => parseFloat(f.rating)),
+        backgroundColor: '#4B2E83',
+        borderColor: '#311b92',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+
   return (
       <ThemeProvider theme={customTheme}>
         <Container maxWidth="lg" sx={{ mt: isMobile ? 2 : 4, mb: 4 }}>
           <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} alignItems="center" mb={3}>
-            <Avatar alt={userName} src={userAvatar} sx={{ width: 56, height: 56, mr: isMobile ? 0 : 2, mb: isMobile ? 1 : 0 }} />
-            <Typography variant={isMobile ? 'h5' : 'h4'} sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-              Welcome, {userName}!
+            <Avatar alt={UserName} src={userAvatar} sx={{ width: 56, height: 56, mr: isMobile ? 0 : 2, mb: isMobile ? 1 : 0 }} />
+            <Typography variant={isMobile ? 'h5' : 'h4'} sx={{ fontWeight: 'bold', color: '#4B2E83' }}>
+              Welcome,{UserName} !
             </Typography>
           </Box>
 
-          <Card sx={{ mb: 3, backgroundColor: '#e8f0fe', boxShadow: 1 }}>
+          <Card sx={{ mb: 3, backgroundColor: '#cdb5d8', boxShadow: 1 }}>
             <CardContent>
               <Box display="flex" alignItems="center" gap={1}>
-                <AnnouncementIcon sx={{ color: primaryColor }} />
+                <AnnouncementIcon sx={{ color: "#4B2E83" +
+                      "" }} />
                 <Typography variant="h6">Announcements</Typography>
               </Box>
               <Typography variant="body1" sx={{ mt: 1 }}>
@@ -233,7 +270,7 @@ const StudentDashboard = () => {
               <Card variant="outlined">
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1} mb={2}>
-                    <School sx={{ color: primaryColor }} />
+                    <School sx={{ color: '#4B2E83' }} />
                     <Typography variant="h6">Registered Courses</Typography>
                   </Box>
                   <List>
@@ -247,6 +284,8 @@ const StudentDashboard = () => {
                     ))}
                   </List>
                 </CardContent>
+
+
               </Card>
             </Grid>
 
@@ -254,19 +293,23 @@ const StudentDashboard = () => {
               <Card variant="outlined">
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1} mb={2}>
-                    <Assignment sx={{ color: primaryColor }} />
+                    <Assignment sx={{ color: "#4B2E83"}} />
                     <Typography variant="h6">Assignments</Typography>
                   </Box>
                   <List>
-                    {assignment.map((a) => (
-                        <ListItem key={a.id} divider>
-                          <ListItemText
-                              primary={a.title}
-                              secondary={`Due: ${new Date(a.due_date).toLocaleDateString()}`}
-                          />
-                        </ListItem>
-                    ))}
+                    {assignment
+                        .filter((a) => new Date(a.due_date) >= new Date()) // Only future or today
+                        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date)) // Sort by earliest
+                        .map((a) => (
+                            <ListItem key={a.id} divider>
+                              <ListItemText
+                                  primary={a.title}
+                                  secondary={`Due: ${new Date(a.due_date).toLocaleDateString()}`}
+                              />
+                            </ListItem>
+                        ))}
                   </List>
+
                 </CardContent>
               </Card>
             </Grid>
@@ -275,7 +318,7 @@ const StudentDashboard = () => {
               <Card variant="outlined">
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1} mb={2}>
-                    <EventNote sx={{ color: primaryColor }} />
+                    <EventNote sx={{ color: "#4B2E83" }} />
                     <Typography variant="h6">Calendar</Typography>
                   </Box>
                   <Calendar
@@ -288,7 +331,7 @@ const StudentDashboard = () => {
                         return assignmentsDue.length > 0 && (
                             <Box
                                 sx={{
-                                  backgroundColor: primaryColor,
+                                  backgroundColor: "#4B2E83",
                                   borderRadius: '50%',
                                   width: 20,
                                   height: 20,
@@ -328,36 +371,28 @@ const StudentDashboard = () => {
               </Card>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <Card variant="outlined">
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1} mb={2}>
-                    <FeedbackIcon sx={{ color: primaryColor }} />
-                    <Typography variant="h6">Feedback</Typography>
+                    <GradeIcon sx={{ color: '#4B2E83' }} />
+                    <Typography variant="h6">Grade Points by Submission</Typography>
                   </Box>
-                  {userFeedback.length > 0 ? (
-                      <List>
-                        {userFeedback.map((f) => (
-                            <ListItem key={f.id} divider>
-                              <ListItemText
-                                  primary={`Assignment: ${f.submission_title}`}
-                                  secondary={f.feedback_text}
-                              />
-                            </ListItem>
-                        ))}
-                      </List>
-                  ) : (
-                      <Typography>No feedback available yet.</Typography>
-                  )}
+
+                  <Bar data={chartDataRatings} />
                 </CardContent>
               </Card>
             </Grid>
+
+
+
+
 
             <Grid item xs={12}>
               <Card variant="outlined">
                 <CardContent>
                   <Box display="flex" alignItems="center" mb={2} gap={1}>
-                    <TimeIcon sx={{ color: primaryColor }} />
+                    <TimeIcon sx={{ color: "#4B2E83" }} />
                     <Typography variant="h6">Time Slots</Typography>
                   </Box>
 
@@ -382,14 +417,14 @@ const StudentDashboard = () => {
                                   minWidth: 160,
                                   p: 2,
                                   borderRadius: 2,
-                                  backgroundColor: '#e3f2fd',
+                                  backgroundColor: '#cdb5d8',
                                   border: '1px solid #90caf9',
                                   boxShadow: 1,
                                   scrollSnapAlign: 'start',
                                   cursor: 'pointer',
                                   transition: 'all 0.2s ease-in-out',
                                   '&:hover': {
-                                    backgroundColor: '#bbdefb',
+                                    backgroundColor: '#cdb5d8',
                                     boxShadow: 3,
                                   },
                                 }}

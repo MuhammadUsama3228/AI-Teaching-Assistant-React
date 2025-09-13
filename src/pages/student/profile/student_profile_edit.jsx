@@ -16,19 +16,46 @@ import {
     Paper
 } from '@mui/material';
 import api from '../../../api';
+import { FormControlLabel, Switch } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Person, Email, School } from '@mui/icons-material';
+const textFieldStyles = {
+    size: 'small',
+    fullWidth: true,
+    sx: {
+        '& label.Mui-focused': {
+            color: '#6A1B9A',
+        },
+        '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+                borderColor: '#4B2E83',
+            },
+            '&:hover fieldset': {
+                borderColor: '#6A1B9A',
+            },
+            '&.Mui-focused fieldset': {
+                borderColor: '#6A1B9A',
+                borderWidth: 2,
+            },
+        },
+    },
+};
 
 const StudentProfileEdit = () => {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(null);
     const [studentDetails, setStudentDetails] = useState(null);
     const [tabIndex, setTabIndex] = useState(0);
+    const [previewImage, setPreviewImage] = useState(null);
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [profileRes, studentRes] = await Promise.all([
                     api.get('/api/manage_profile/'),
-                    api.get('/api/student-profiles/'),
+                    api.get('/api/student-profiles/')
                 ]);
                 setProfile(profileRes.data);
                 setStudentDetails(studentRes.data);
@@ -43,35 +70,35 @@ const StudentProfileEdit = () => {
 
     const handleTabChange = (_, newValue) => setTabIndex(newValue);
 
-    const handleProfileSave = async () => {
+    const handleProfilePictureUpload = async () => {
         try {
-            const formData = new FormData();
-            formData.append('first_name', profile.first_name);
-            formData.append('last_name', profile.last_name);
-            if (profile.profile_picture instanceof File) {
-                formData.append('profile_picture', profile.profile_picture);
-            }
+            if (!(profile.profile_picture instanceof File)) return;
 
-            await api.patch('/api/manage_profile/', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+            const formData = new FormData();
+            formData.append('profile_picture', profile.profile_picture);
+
+            await api.patch('/api/profile_picture/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            alert('Profile updated successfully!');
+            alert('Profile picture updated!');
         } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('Failed to update profile.');
+            console.error('Failed to update picture:', error);
+            alert('Profile picture update failed!');
         }
     };
 
     const handleStudentDetailsSave = async () => {
         try {
             await api.patch(`/api/student-profiles/${studentDetails.id}/`, studentDetails);
-            alert('Student Details updated successfully!');
+            alert('Student Details updated!');
+            navigate('/studentprofile');
         } catch (error) {
-            console.error('Error updating student details:', error);
-            alert('Failed to update student details.');
+            console.error('Failed to update student details:', error);
+            alert('Update failed!');
         }
     };
+
 
     if (loading) {
         return (
@@ -82,55 +109,104 @@ const StudentProfileEdit = () => {
     }
 
     const apiURL = import.meta.env.VITE_API_URL || '';
+    const avatarSrc = previewImage
+        ? previewImage
+        : profile?.profile_picture
+            ? `${apiURL}${profile.profile_picture}`
+            : '';
 
     return (
         <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+            {/* Header */}
             <Box
                 sx={{
                     background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
                     py: 4,
-                    px: 2,
                     color: '#fff',
                     textAlign: 'center',
                     borderBottomLeftRadius: 30,
                     borderBottomRightRadius: 30,
                     boxShadow: 3,
-                    mb: 4,
+                    mb: 4
                 }}
             >
                 <Typography variant="h4" fontWeight="bold">
                     Student Profile Management
                 </Typography>
                 <Typography variant="subtitle1">
-                    Update your personal and academic information
+                    Manage your personal and academic information
                 </Typography>
             </Box>
 
             <Container maxWidth="lg">
                 <Grid container spacing={4}>
+                    {/* Sidebar */}
                     <Grid item xs={12} md={4}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
+                        <Paper elevation={4} sx={{ p: 3, textAlign: 'center', borderRadius: 3 }}>
                             <Avatar
-                                src={profile.profile_picture ? `${apiURL}${profile.profile_picture}` : ''}
+                                src={avatarSrc}
                                 alt={profile.username}
-                                sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    mx: 'auto',
+                                    mb: 2,
+                                    border: '3px solid #6A1B9A'
+                                }}
                             />
-                            <Typography variant="h6">
+                            <Typography variant="h6" fontWeight="bold">
+                                <Person sx={{ fontSize: 20, mr: 0.5 }} />
                                 {profile.first_name} {profile.last_name}
                             </Typography>
+
                             <Divider sx={{ my: 2 }} />
-                            <Typography variant="body2">Email: {profile.email}</Typography>
-                            <Typography variant="body2">Institution: {studentDetails.institution_name}</Typography>
+
+                            <Typography variant="body2" color="textSecondary">
+                                <Email sx={{ fontSize: 16, mr: 0.5 }} />
+                                {profile.email}
+                            </Typography>
+
+                            <Typography variant="body2" color="textSecondary">
+                                <School sx={{ fontSize: 16, mr: 0.5 }} />
+                                {profile.role}
+                            </Typography>
+
+                            <Typography variant="body2" color="textSecondary">
+                                <School sx={{ fontSize: 16, mr: 0.5 }} />
+                                {studentDetails.institution_name}
+                            </Typography>
+
                         </Paper>
                     </Grid>
 
+                    {/* Main Form */}
                     <Grid item xs={12} md={8}>
-                        <Card>
+                        <Card elevation={4} sx={{ borderRadius: 3 }}>
                             <CardContent>
-                                <Tabs value={tabIndex} onChange={handleTabChange} variant="fullWidth">
-                                    <Tab label="Profile Info" />
+
+                                <Tabs
+                                    value={tabIndex}
+                                    onChange={handleTabChange}
+                                    variant="fullWidth"
+                                    TabIndicatorProps={{
+                                        style: {
+                                            backgroundColor: '#6A1B9A',
+                                        },
+                                    }}
+                                    sx={{
+                                        '& .MuiTab-root': {
+                                            color: '#4B2E83',
+                                            fontWeight: 'bold',
+                                        },
+                                        '& .Mui-selected': {
+                                            color: '#6A1B9A !important',
+                                        },
+                                    }}
+                                >
+                                    <Tab label="Profile Picture" />
                                     <Tab label="Student Details" />
                                 </Tabs>
+
 
                                 {tabIndex === 0 && (
                                     <Box mt={3}>
@@ -140,9 +216,9 @@ const StudentProfileEdit = () => {
                                                     fullWidth
                                                     label="First Name"
                                                     value={profile.first_name}
-                                                    onChange={(e) =>
-                                                        setProfile({ ...profile, first_name: e.target.value })
-                                                    }
+                                                    InputProps={{ readOnly: true }}
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
@@ -150,9 +226,10 @@ const StudentProfileEdit = () => {
                                                     fullWidth
                                                     label="Last Name"
                                                     value={profile.last_name}
-                                                    onChange={(e) =>
-                                                        setProfile({ ...profile, last_name: e.target.value })
-                                                    }
+                                                    InputProps={{ readOnly: true }}
+                                                    {...textFieldStyles}
+
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
@@ -161,6 +238,8 @@ const StudentProfileEdit = () => {
                                                     label="Username"
                                                     value={profile.username}
                                                     InputProps={{ readOnly: true }}
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
@@ -169,27 +248,58 @@ const StudentProfileEdit = () => {
                                                     label="Email"
                                                     value={profile.email}
                                                     InputProps={{ readOnly: true }}
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
-                                                <Button variant="outlined" component="label" fullWidth>
+                                                <Button
+                                                    variant="outlined"
+                                                    component="label"
+                                                    fullWidth
+                                                    sx={{
+                                                        mt: 1,
+                                                        fontWeight: 'bold',
+                                                        borderColor: '#6A1B9A',
+                                                        color: '#6A1B9A',
+                                                        '&:hover': {
+                                                            borderColor: '#4B2E83',
+                                                            backgroundColor: '#f3e5f5'
+                                                        }
+                                                    }}
+                                                >
                                                     Upload Profile Picture
                                                     <input
                                                         type="file"
                                                         hidden
                                                         accept="image/*"
-                                                        onChange={(e) =>
+                                                        onChange={(e) => {
+                                                            const file = e.target.files[0];
                                                             setProfile({
                                                                 ...profile,
-                                                                profile_picture: e.target.files[0],
-                                                            })
-                                                        }
+                                                                profile_picture: file
+                                                            });
+                                                            setPreviewImage(URL.createObjectURL(file));
+                                                        }}
                                                     />
                                                 </Button>
                                             </Grid>
                                         </Grid>
-                                        <Button variant="contained" sx={{ mt: 3 }} onClick={handleProfileSave}>
-                                            Save Profile Info
+
+                                        <Button
+                                            variant="contained"
+                                            sx={{
+                                                mt: 3,
+                                                background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
+                                                color: '#fff',
+                                                fontWeight: 'bold',
+                                                '&:hover': {
+                                                    background: 'linear-gradient(90deg, #4527a0 0%, #8e24aa 100%)'
+                                                }
+                                            }}
+                                            onClick={handleProfilePictureUpload}
+                                        >
+                                            Save Profile Picture
                                         </Button>
                                     </Box>
                                 )}
@@ -203,38 +313,108 @@ const StudentProfileEdit = () => {
                                                     label="Institution Name"
                                                     value={studentDetails.institution_name}
                                                     onChange={(e) =>
-                                                        setStudentDetails({ ...studentDetails, institution_name: e.target.value })
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            institution_name: e.target.value
+                                                        })
                                                     }
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     fullWidth
-                                                    label="Student ID"
-                                                    value={studentDetails.student_id}
+                                                    label="Institution Type"
+                                                    value={studentDetails.institution_type}
                                                     onChange={(e) =>
-                                                        setStudentDetails({ ...studentDetails, student_id: e.target.value })
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            institution_type: e.target.value
+                                                        })
+
+
                                                     }
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     fullWidth
-                                                    label="Program"
-                                                    value={studentDetails.program}
+                                                    label="Level"
+                                                    value={studentDetails.level}
                                                     onChange={(e) =>
-                                                        setStudentDetails({ ...studentDetails, program: e.target.value })
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            level: e.target.value
+                                                        })
                                                     }
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     fullWidth
-                                                    label="Department"
-                                                    value={studentDetails.department}
+                                                    label="Degree"
+                                                    value={studentDetails.degree}
                                                     onChange={(e) =>
-                                                        setStudentDetails({ ...studentDetails, department: e.target.value })
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            degree: e.target.value
+                                                        })
                                                     }
+                                                    {...textFieldStyles}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    type="number"
+                                                    label="Year of Study"
+                                                    value={studentDetails.year_of_study}
+                                                    onChange={(e) =>
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            year_of_study: parseInt(e.target.value, 10)
+                                                        })
+                                                    }
+                                                    {...textFieldStyles}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Date of Birth"
+                                                    type="date"
+                                                    InputLabelProps={{ shrink: true }}
+                                                    value={studentDetails.date_of_birth}
+                                                    onChange={(e) =>
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            date_of_birth: e.target.value
+                                                        })
+                                                    }
+                                                    {...textFieldStyles}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Gender"
+                                                    value={studentDetails.gender}
+                                                    onChange={(e) =>
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            gender: e.target.value
+                                                        })
+                                                    }
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
@@ -243,26 +423,136 @@ const StudentProfileEdit = () => {
                                                     label="Phone Number"
                                                     value={studentDetails.phone_number}
                                                     onChange={(e) =>
-                                                        setStudentDetails({ ...studentDetails, phone_number: e.target.value })
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            phone_number: e.target.value
+                                                        })
                                                     }
+                                                    {...textFieldStyles}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={studentDetails.phone_hide}
+                                                            onChange={(e) =>
+                                                                setStudentDetails({ ...studentDetails, phone_hide: e.target.checked })
+                                                            }
+                                                            sx={{
+                                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                    color: '#6A1B9A',
+                                                                },
+                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                    backgroundColor: '#6A1B9A',
+                                                                },
+                                                            }}
+                                                        />
+                                                    }
+                                                    label="Hide Phone Number"
+                                                />
+
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={studentDetails.address_hide}
+                                                            onChange={(e) =>
+                                                                setStudentDetails({ ...studentDetails, address_hide: e.target.checked })
+                                                            }
+                                                            sx={{
+                                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                    color: '#6A1B9A',
+                                                                },
+                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                    backgroundColor: '#6A1B9A',
+                                                                },
+                                                            }}
+                                                        />
+                                                    }
+                                                    label="Hide Address"
+                                                />  </Grid>
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="City"
+                                                    value={studentDetails.city}
+                                                    onChange={(e) =>
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            city: e.target.value
+                                                        })
+                                                    }
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <TextField
                                                     fullWidth
-                                                    label="Address"
-                                                    value={studentDetails.address}
+                                                    label="Country"
+                                                    value={studentDetails.country}
                                                     onChange={(e) =>
-                                                        setStudentDetails({ ...studentDetails, address: e.target.value })
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            country: e.target.value
+                                                        })
                                                     }
+                                                    {...textFieldStyles}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Postal Code"
+                                                    value={studentDetails.postal_code}
+                                                    onChange={(e) =>
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            postal_code: e.target.value
+                                                        })
+                                                    }
+                                                    {...textFieldStyles}
+
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Bio"
+                                                    multiline
+                                                    minRows={3}
+                                                    value={studentDetails.bio}
+                                                    onChange={(e) =>
+                                                        setStudentDetails({
+                                                            ...studentDetails,
+                                                            bio: e.target.value
+                                                        })
+                                                    }
+                                                    {...textFieldStyles}
+
                                                 />
                                             </Grid>
                                         </Grid>
-                                        <Button variant="contained" sx={{ mt: 3 }} onClick={handleStudentDetailsSave}>
+                                        <Button
+                                            variant="contained"
+                                            sx={{
+                                                mt: 3,
+                                                background: 'linear-gradient(90deg, #4B2E83 0%, #6A1B9A 100%)',
+                                                color: '#fff',
+                                                fontWeight: 'bold',
+                                                '&:hover': {
+                                                    background: 'linear-gradient(90deg, #4527a0 0%, #8e24aa 100%)'
+                                                }
+                                            }}
+                                            onClick={handleStudentDetailsSave}
+                                        >
                                             Save Student Details
                                         </Button>
                                     </Box>
                                 )}
+
                             </CardContent>
                         </Card>
                     </Grid>

@@ -12,7 +12,8 @@ import {
     Grid,
     Button,
     useMediaQuery,
-    useTheme
+    useTheme,
+    Paper
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
@@ -53,40 +54,40 @@ const StudentAssignmentSubmissionFeedback = ({ assignmentId }) => {
     return (
         <>
             {submission ? (
-                <Accordion defaultExpanded sx={{ mt: 3 }}>
+                <Accordion defaultExpanded sx={{ mt: 3, borderRadius: 2, boxShadow: 3 }}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon sx={{ color: PRIMARY_COLOR }} />}
                         sx={{ backgroundColor: '#f3eafc' }}
                     >
                         <Typography variant="h6" sx={{ color: PRIMARY_COLOR }}>
-                            Assignment Submission
+                            Assignment Submission Feedback
                         </Typography>
                     </AccordionSummary>
 
                     <AccordionDetails sx={{ backgroundColor: '#f9fafb' }}>
-                        <Box sx={{ mb: 2 }}>
-                            <Typography variant="subtitle2">
+                        <Paper elevation={1} sx={{ p: isSmallScreen ? 2 : 3, mb: 2, borderRadius: 2 }}>
+                            <Typography variant="subtitle1" gutterBottom>
                                 <strong>Assignment Title:</strong> {submission.assignment_title}
                             </Typography>
                             <Typography variant="subtitle2">
-                                <strong>Attempts:</strong> {submission.obtained_attempts}
+                                <strong>Attempts:</strong> {submission?.obtained_attempts ?? 'Undefined'}
                             </Typography>
                             <Typography variant="subtitle2">
-                                <strong>Marks:</strong> {submission.obtained_marks ?? 'N/A'}
+                                <strong>Marks:</strong> {submission.obtained_marks ?? 'Not Graded'}
                             </Typography>
                             <Typography variant="subtitle2">
-                                <strong>Date:</strong> {new Date(submission.submission_date).toLocaleString()}
+                                <strong>Submitted On:</strong> {new Date(submission.submission_date).toLocaleString()}
                             </Typography>
                             <Typography variant="body1" sx={{ mt: 2 }}>
                                 <strong>Feedback:</strong><br />
-                                {submission.feedback || 'Awaiting feedback...'}
+                                {submission.feedback || 'Awaiting feedback from instructor.'}
                             </Typography>
-                        </Box>
+                        </Paper>
 
                         {submission.files?.length > 0 ? (
                             <Box mt={2}>
-                                <Typography variant="subtitle2" gutterBottom>
-                                    Attached Files:
+                                <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                                    Submitted Files
                                 </Typography>
                                 <Grid container spacing={2}>
                                     {submission.files.map((fileObj, index) => {
@@ -130,6 +131,7 @@ const StudentAssignmentSubmissionFeedback = ({ assignmentId }) => {
                                                         variant="outlined"
                                                         size="small"
                                                         fullWidth
+                                                        sx={{ color: PRIMARY_COLOR, borderColor: PRIMARY_COLOR }}
                                                     >
                                                         View File
                                                     </Button>
@@ -140,7 +142,7 @@ const StudentAssignmentSubmissionFeedback = ({ assignmentId }) => {
                                 </Grid>
                             </Box>
                         ) : (
-                            <Typography mt={2}>No files attached.</Typography>
+                            <Typography mt={2}>No files attached for this submission.</Typography>
                         )}
                     </AccordionDetails>
                 </Accordion>
