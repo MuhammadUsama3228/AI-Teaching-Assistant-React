@@ -1,0 +1,60 @@
+/* StudentDashboard.css */
+
+:root {
+  --theme-color: #4B2E83; /* Define a CSS variable for theme color */
+}
+
+/* General styles for the custom calendar */
+.custom-calendar {
+  background-color: #0a192f;
+  color: white;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* Header of the calendar */
+.custom-calendar .react-calendar__navigation {
+  background-color: #1c2541;
+  color: white;
+  border-radius: 10px;
+}
+
+/* Month and year day cells */
+.custom-calendar .react-calendar__month-view__days__day {
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Tiles (calendar cells) */
+.custom-calendar .react-calendar__tile {
+  background: transparent;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+/* Tile hover effect */
+.custom-calendar .react-calendar__tile:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Assignment badge with theme color */
+.assignment-badge {
+  background-color: var(--theme-color); /* Use theme color here */
+  border-radius: 50%;
+  padding: 4px 8px;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+}
+
+/* Selected (active) day */
+.custom-calendar .react-calendar__tile--active {
+  background: var(--theme-color);
+  color: white;
+}
+
+/* Today’s date */
+.custom-calendar .react-calendar__tile--now {
+  border: 2px solid var(--theme-color);
+  border-radius: 8px;
+}

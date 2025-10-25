@@ -1,172 +1,252 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import {
   Typography,
   Container,
-  Box,
   CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  Paper,
+  Box,
+  Card,
+  Grid,
+  Button,
+  Avatar,
+  useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Snackbar,
   Alert,
+  useMediaQuery,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
+import { useParams } from 'react-router-dom';
 import api from '../../../../api';
-
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  marginTop: theme.spacing(2),
-}));
+import RecordNotFound from '../../../Record_not_found.jsx';
 
 const WeekAnnouncementView = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { courseId, courseWeekId } = useParams();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('announcement_date');
   const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [course, setCourse] = useState(null);
   const [courseWeek, setCourseWeek] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
 
   useEffect(() => {
-    const fetchAnnouncements = async () => {
-      setLoading(true);
+    const fetchData = async () => {
       try {
-        const response = await api.get(`/api/courses/week_announcement/`, {
-          params: {
-            course_week: courseWeekId,
-          },
-        });
-        if (response.status === 200) {
-          setAnnouncements(response.data || []);
-        }
-      } catch (error) {
-        console.error('Error fetching announcements:', error);
-        setError('Failed to load announcements. Please try again.');
+        const [announcementRes, courseRes, weekRes] = await Promise.all([
+          api.get('/api/courses/week_announcement/', { params: { course_week: courseWeekId } }),
+          api.get(`/api/courses/course/${courseId}/`),
+          api.get(`/api/courses/course_weeks/${courseWeekId}/`),
+        ]);
+        setAnnouncements(announcementRes.data || []);
+        setCourse(courseRes.data);
+        setCourseWeek(weekRes.data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to fetch announcements.');
         setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
     };
-
-    const fetchCourseDetails = async () => {
-      try {
-        const response = await api.get(`/api/courses/course/${courseId}/`);
-        if (response.status === 200) {
-          setCourse(response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching course:', error);
-        setError('Failed to load course details. Please try again.');
-        setOpenSnackbar(true);
-      }
-    };
-
-    const fetchCourseWeekDetails = async () => {
-      try {
-        const response = await api.get(`/api/courses/course_weeks/${courseWeekId}/`);
-        if (response.status === 200) {
-          setCourseWeek(response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching course week:', error);
-        setError('Failed to load course week details. Please try again.');
-        setOpenSnackbar(true);
-      }
-    };
-
-    fetchAnnouncements();
-    fetchCourseDetails();
-    fetchCourseWeekDetails();
+    fetchData();
   }, [courseId, courseWeekId]);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
+  const handleOpenDialog = (announcement) => {
+    setSelectedAnnouncement(announcement);
+    setDialogOpen(true);
   };
 
-  const sortedAnnouncements = [...announcements].sort((a, b) => {
-    const isAsc = order === 'asc';
-    if (orderBy === 'announcement_date') {
-      return isAsc
-        ? new Date(a.announcement_date) - new Date(b.announcement_date)
-        : new Date(b.announcement_date) - new Date(a.announcement_date);
+  const handleCloseDialog = () => setDialogOpen(false);
+  const handleCloseSnackbar = () => setOpenSnackbar(false);
+
+  const openDeleteDialog = (announcement) => {
+    setAnnouncementToDelete(announcement);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!announcementToDelete) return;
+    try {
+      await api.delete(`/api/courses/week_announcement/${announcementToDelete.id}/`);
+      setAnnouncements((prev) => prev.filter((a) => a.id !== announcementToDelete.id));
+      setSnackbarMessage('Announcement deleted successfully.');
+    } catch (err) {
+      console.error(err);
+      setSnackbarMessage('Failed to delete announcement.');
+    } finally {
+      setDeleteDialogOpen(false);
+      setAnnouncementToDelete(null);
+      setOpenSnackbar(true);
     }
-    return 0;
-  });
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
+
+  const filteredAnnouncements = announcements.filter(
+      (a) => String(a.course_week) === String(courseWeekId)
+  );
 
   return (
-    <Container maxWidth="lg" sx={{ marginTop: '2rem', padding: '2rem', backgroundColor: '#fff', borderRadius: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-       
-      </Typography>
-
-      {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-          <CircularProgress />
-        </Box>
-      ) : error ? (
-        <Alert severity="error">{error}</Alert>
-      ) : announcements.length === 0 ? (
-        <Typography variant="h6" color="textSecondary" align="center">
-          No announcements found for this week.
+      <Container
+          maxWidth="lg"
+          sx={{
+            py: { xs: 4, sm: 6 },
+            px: { xs: 2, sm: 4 },
+          }}
+      >
+        <Typography
+            variant="h5"
+            fontWeight="bold"
+            textAlign="center"
+            gutterBottom
+            sx={{ mb: 4 }}
+        >
+          {course && courseWeek
+              ? `📢 Announcements - ${courseWeek.week_title} | ${course.course_title}`
+              : '📢 Announcements'}
         </Typography>
-      ) : (
-        <>
-          {course && courseWeek && (
-            <Typography variant="h4" gutterBottom>
-              Announcements for Week {courseWeek.week_title} in Course {course.course_title}
-            </Typography>
-          )}
-          <StyledTableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    <TableSortLabel
-                      active={orderBy === 'announcement_date'}
-                      direction={orderBy === 'announcement_date' ? order : 'asc'}
-                      onClick={() => handleRequestSort('announcement_date')}
-                    >
-                      Date
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Content</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {sortedAnnouncements.map((announcement) => (
-                  <TableRow key={announcement.id}>
-                    <TableCell>{new Date(announcement.announcement_date).toLocaleString()}</TableCell>
-                    <TableCell>{announcement.title}</TableCell>
-                    <TableCell>{announcement.content}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </StyledTableContainer>
-        </>
-      )}
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error">
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </Container>
+        {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+              <CircularProgress color="primary" />
+            </Box>
+        ) : filteredAnnouncements.length === 0 ? (
+            <RecordNotFound message="No announcements found for this week." />
+        ) : (
+            <Grid container spacing={3} justifyContent="center">
+              {filteredAnnouncements.map((announcement) => (
+                  <Grid item xs={12} sm={10} md={6} key={announcement.id}>
+                    <Card
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          p: 2,
+                          borderRadius: 3,
+                          boxShadow: theme.shadows[2],
+                          backgroundColor: theme.palette.background.paper,
+                          transition: '0.3s',
+                          '&:hover': {
+                            boxShadow: theme.shadows[4],
+                            transform: 'translateY(-2px)',
+                          },
+                        }}
+                    >
+                      <Avatar
+                          sx={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: 2,
+                            bgcolor: theme.palette.primary.main,
+                            color: '#fff',
+                          }}
+                          variant="rounded"
+                      >
+                        <AnnouncementIcon />
+                      </Avatar>
+                      <Box sx={{ ml: 3, flexGrow: 1 }}>
+                        <Typography variant="h6" fontWeight={600}>
+                          {announcement.title}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(announcement.announcement_date).toLocaleString()}
+                        </Typography>
+                        <Box mt={2} display="flex" gap={1} flexWrap="wrap">
+                          <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => handleOpenDialog(announcement)}
+                              sx={{ textTransform: 'none' }}
+                          >
+                            View
+                          </Button>
+                          <Button
+                              variant="text"
+                              size="small"
+                              color="error"
+                              onClick={() => openDeleteDialog(announcement)}
+                              sx={{ textTransform: 'none' }}
+                          >
+                            Delete
+                          </Button>
+                        </Box>
+                      </Box>
+                    </Card>
+                  </Grid>
+              ))}
+            </Grid>
+        )}
+
+        {/* Details Dialog */}
+        <Dialog
+            open={dialogOpen}
+            onClose={handleCloseDialog}
+            fullWidth
+            maxWidth="sm"
+            PaperProps={{
+              sx: {
+                borderRadius: 4,
+                background:
+                    theme.palette.mode === 'dark'
+                        ? theme.palette.background.paper
+                        : '#f9f9fb',
+              },
+            }}
+        >
+          <DialogTitle sx={{ fontWeight: 600 }}>📋 Announcement Details</DialogTitle>
+          <DialogContent dividers>
+            {selectedAnnouncement && (
+                <>
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(selectedAnnouncement.announcement_date).toLocaleString()}
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mt: 2 }}>
+                    {selectedAnnouncement.title}
+                  </Typography>
+                  <Typography variant="body1" sx={{ mt: 2 }}>
+                    {selectedAnnouncement.content}
+                  </Typography>
+                </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Close</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Delete Confirmation */}
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+          <DialogTitle>🗑️ Confirm Deletion</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete this announcement?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button color="error" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar */}
+        <Snackbar
+            open={openSnackbar}
+            autoHideDuration={5000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="info" variant="filled">
+            {snackbarMessage || error}
+          </Alert>
+        </Snackbar>
+      </Container>
   );
 };
 

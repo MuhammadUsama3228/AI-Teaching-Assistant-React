@@ -1,188 +1,262 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
-    Container,
-    TextField,
-    Button,
-    MenuItem,
-    Typography,
-    Box,
-    CircularProgress,
-} from "@mui/material";
-import api from "../../../../api"; // Adjust import path as needed
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Box,
+  CircularProgress,
+  ThemeProvider,
+  Skeleton,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  FormHelperText,
+  Select,
+  Snackbar,
+  Alert
+} from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const daysOfWeek = [
-    { value: "monday", label: "Monday" },
-    { value: "tuesday", label: "Tuesday" },
-    { value: "wednesday", label: "Wednesday" },
-    { value: "thursday", label: "Thursday" },
-    { value: "friday", label: "Friday" },
-    { value: "saturday", label: "Saturday" },
-];
+import api from '../../../../api';
+import theme from '../../../Theme';
 
-const timezones = [
-    "UTC", "America/New_York", "Europe/London", "Asia/Karachi", "Asia/Tokyo"
-];
+const TimeSlotModel = {
+  course: '',
+  day: '',
+  start_time: '',
+  end_time: '',
+  room_link: '',
+  timezone: 'UTC',
+};
 
 function TimeSlotForm() {
-    const [formData, setFormData] = useState({
-        course: "",
-        day: "",
-        start_time: "",
-        end_time: "",
-        room_link: "",
-        timezone: "UTC",
-    });
+  const { id } = useParams();
+  const navigate = useNavigate(); // Initialize the navigate hook
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [formData, setFormData] = useState({ ...TimeSlotModel, course: id || '' });
+  const [success, setSuccess] = useState('');
+  const [errors, setErrors] = useState({});
+  const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbar open state
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const [courses, setCourses] = useState([]);
+  const daysOfWeek = [
+    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+  ];
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const response = await api.get("/api/courses/course/");
-                setCourses(response.data);
-            } catch (err) {
-                console.error("Error fetching courses:", err);
-                setError("Failed to load courses.");
-            }
-        };
-
-        fetchCourses();
-    }, []);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError("");
-        setSuccess("");
+  // Fetch the courses when the component mounts
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await api.get('/api/courses/course/');
+        setCourses(response.data);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setCoursesLoading(false);
+      }
     };
+    fetchCourses();
+  }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, course: id }));
+  }, [id]);
 
-        try {
-            const response = await api.post("/api/courses/slots/", formData, {
-                headers: { "Content-Type": "application/json" },
-            });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-            if (response.status === 201) {
-                setSuccess("Time slot created successfully!");
-                setFormData({ course: "", day: "", start_time: "", end_time: "", room_link: "", timezone: "UTC" });
-            }
-        } catch (err) {
-            console.error("Error creating time slot:", err);
-            setError(err.response?.data?.error || "Failed to create time slot.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    if (success) setSuccess('');
+  };
 
-    return (
-        <Container maxWidth="sm">
-            <Box sx={{ p: 3, boxShadow: 3, borderRadius: 2, backgroundColor: "background.paper", mt: 4 }}>
-                <Typography variant="h6" gutterBottom>
-                    Create Time Slot
-                </Typography>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess('');
+    setErrors({});
 
-                {success && <Typography color="primary">{success}</Typography>}
-                {error && <Typography color="error">{error}</Typography>}
+    try {
+      await api.post('api/courses/slots/', formData);
+      setSuccess('Time Slot created successfully!');
+      setFormData({ ...TimeSlotModel, course: id || '' });
+      setSnackbarMessage('Time Slot created successfully!');
+      setSnackbarSeverity('success');
+      setOpenSnackbar(true);
 
-                <form onSubmit={handleSubmit}>
-                    {/* Course Dropdown */}
-                    <TextField
-                        select
-                        label="Course"
-                        name="course"
-                        value={formData.course}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                    >
-                        {courses.map((course) => (
-                            <MenuItem key={course.id} value={course.id}>
-                                {course.course_title}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+      // After successful submission, navigate to "View Time Slot" page
+      navigate(`/viewtimeslot`); // Modify this URL as per your routing setup
+    } catch (err) {
+      setErrors(err.response.data); // Capture and display validation errors
+      setSnackbarMessage('Error creating timeslot.jsx');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      console.error('Error creating timeslot.jsx:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                    {/* Day Dropdown */}
-                    <TextField
-                        select
-                        label="Day"
-                        name="day"
-                        value={formData.day}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                    >
-                        {daysOfWeek.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+  // Find the course name based on the `id`
+  const courseName = courses.find((course) => course.id === formData.course)?.name;
 
-                    <TextField
-                        label="Start Time"
-                        name="start_time"
-                        type="time"
-                        value={formData.start_time}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                        InputLabelProps={{ shrink: true }}
-                    />
+  return (
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="sm" sx={{ mt: 5 }}>
+        <Box
+          sx={{
+            p: 4,
+            boxShadow: 3,
+            borderRadius: 2,
+            backgroundColor: 'background.paper',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="h5" gutterBottom color="primary">
+            Create Time Slot
+          </Typography>
 
-                    <TextField
-                        label="End Time"
-                        name="end_time"
-                        type="time"
-                        value={formData.end_time}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                        InputLabelProps={{ shrink: true }}
-                    />
+          {/* Skeleton loader for form content */}
+          {coursesLoading ? (
+            <>
+              <Skeleton variant="text" width="100%" height={40} />
+              <Skeleton variant="text" width="60%" height={40} sx={{ my: 2 }} />
+              <Skeleton variant="rectangular" width="100%" height={100} sx={{ mb: 3 }} />
+            </>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+              {/* Day selection */}
+              <FormControl fullWidth required error={Boolean(errors.day)} sx={{ mb: 3 }}>
+                <InputLabel>Day</InputLabel>
+                <Select
+                  value={formData.day}
+                  name="day"
+                  onChange={handleInputChange}
+                  label="Day"
+                  variant="outlined"
+                  sx={{ backgroundColor: '#f4f6f8' }}
+                >
+                  {daysOfWeek.map((day) => (
+                    <MenuItem key={day} value={day}>
+                      {day.charAt(0).toUpperCase() + day.slice(1)}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.day && <FormHelperText>{errors.day}</FormHelperText>}
+              </FormControl>
 
-                    <TextField
-                        label="Room Link (Optional)"
-                        name="room_link"
-                        value={formData.room_link}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                    />
+              {/* Start Time */}
+              <TextField
+                label="Start Time"
+                name="start_time"
+                type="time"
+                value={formData.start_time}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                required
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                error={Boolean(errors.start_time)}
+                helperText={errors.start_time ? 'This field is required' : ''}
+                sx={{ backgroundColor: '#f4f6f8' }}
+              />
 
-                    <TextField
-                        select
-                        label="Timezone"
-                        name="timezone"
-                        value={formData.timezone}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        required
-                    >
-                        {timezones.map((tz) => (
-                            <MenuItem key={tz} value={tz}>
-                                {tz}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+              {/* End Time */}
+              <TextField
+                label="End Time"
+                name="end_time"
+                type="time"
+                value={formData.end_time}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                required
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                error={Boolean(errors.end_time)}
+                helperText={errors.end_time ? 'This field is required' : ''}
+                sx={{ backgroundColor: '#f4f6f8' }}
+              />
 
-                    <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }} disabled={loading}>
-                        {loading ? <CircularProgress size={24} /> : "Create Time Slot"}
-                    </Button>
-                </form>
-            </Box>
-        </Container>
-    );
+              {/* Room Link */}
+              <TextField
+                label="Room Link"
+                name="room_link"
+                value={formData.room_link}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                error={Boolean(errors.room_link)}
+                helperText={errors.room_link ? 'This field is required' : ''}
+                sx={{ backgroundColor: '#f4f6f8' }}
+              />
+
+              {/* Timezone */}
+              <FormControl fullWidth required error={Boolean(errors.timezone)} sx={{ mb: 3 }}>
+                <InputLabel>Timezone</InputLabel>
+                <Select
+                  value={formData.timezone}
+                  name="timezone"
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  label="Timezone"
+                  sx={{ backgroundColor: '#f4f6f8' }}
+                >
+                  <MenuItem value="UTC">UTC</MenuItem>
+                  {/* Add more timezone options as needed */}
+                </Select>
+                {errors.timezone && <FormHelperText>{errors.timezone}</FormHelperText>}
+              </FormControl>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                sx={{ mt: 3 }}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    Submitting
+                    <CircularProgress size={20} sx={{ ml: 2 }} />
+                  </>
+                ) : (
+                  'Create Time Slot'
+                )}
+              </Button>
+            </form>
+          )}
+        </Box>
+      </Container>
+
+      {/* Snackbar to show success/error message */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </ThemeProvider>
+  );
 }
 
 export default TimeSlotForm;

@@ -1,30 +1,19 @@
 import React, { useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
+import theme from "../../../components/Theme.jsx"; // your custom them
+import {
+  Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography, Divider,
+  IconButton, Drawer as MuiDrawer, List, ListItem, ListItemButton,
+  ListItemIcon, ListItemText
+} from "@mui/material";
+import {
+  Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
+  Dashboard as DashboardIcon, School as SchoolIcon,
+  Visibility as VisibilityIcon, ListAlt as ListAltIcon
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import SchoolIcon from "@mui/icons-material/School";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EventNoteIcon from "@mui/icons-material/EventNote";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import AssignmentIcon from "@mui/icons-material/Assignment"; // For WeekAnnouncement
-import ListAltIcon from "@mui/icons-material/ListAlt"; // Changed icon for View Course Weeks
 import CourseWeekView from "../../../components/teacher/courses/course_week/course_week_view";
+
 
 const drawerWidth = 240;
 
@@ -73,128 +62,109 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background:"rgb(10, 72, 109)",
+  background: "linear-gradient(90deg, #4B2E83, #1C1C3A)",
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })( 
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
-  })
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
+    ({ theme, open }) => ({
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+      boxSizing: "border-box",
+      ...(open ? openedMixin(theme) : closedMixin(theme)),
+      "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
+    })
 );
 
 export default function CourseWeekViewPage() {
-  const theme = useTheme();
+  const muiTheme = useTheme();
   const [open, setOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  const handleDrawerOpen = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
+  const toggleCourseDrawer = () => setCourseOpen(!courseOpen);
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const toggleCourseDrawer = () => {
-    setCourseOpen(!courseOpen);
+  const drawerItemStyles = {
+    minHeight: 48,
+    px: 2.5,
+    borderRadius: 2,
+    mx: 1,
+    transition: "background 0.3s ease",
+    '&:hover': {
+      backgroundColor: muiTheme.palette.action.hover,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    },
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
+      <ThemeProvider theme={theme}>
+        <Box sx={{ display: "flex" }}>
+          <CssBaseline />
+          <AppBar position="fixed" open={open}>
+            <Toolbar>
+              <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ marginRight: 5, ...(open && { display: "none" }) }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">
+                Course Management Panel
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader>
+              <IconButton onClick={handleDrawerClose}>
+                {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              </IconButton>
+            </DrawerHeader>
+            <Divider />
+            <List>
+              {/* Dashboard Link */}
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton component={Link} to="/dashboard" sx={drawerItemStyles}>
+                  <ListItemIcon><DashboardIcon /></ListItemIcon>
+                  <ListItemText primary="Dashboard" />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Courses Dropdown */}
+              <ListItem button onClick={toggleCourseDrawer} sx={drawerItemStyles}>
+                <ListItemIcon><SchoolIcon /></ListItemIcon>
+                <ListItemText primary="Courses" />
+              </ListItem>
+              {courseOpen && (
+                  <>
+                    <ListItem button component={Link} to="/view-courses" sx={drawerItemStyles}>
+                      <ListItemIcon><VisibilityIcon /></ListItemIcon>
+                      <ListItemText primary="View Courses" />
+                    </ListItem>
+                    <ListItem button component={Link} to="/course_week_view" sx={drawerItemStyles}>
+                      <ListItemIcon><ListAltIcon /></ListItemIcon>
+                      <ListItemText primary="View Course Weeks" />
+                    </ListItem>
+                  </>
+              )}
+            </List>
+            <Divider />
+          </Drawer>
+          <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: 3,
+                width: { sm: `calc(100% - ${open ? drawerWidth : 60}px)` },
+              }}
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Course Management Panel
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem button onClick={toggleCourseDrawer}>
-            <ListItemIcon>
-              <SchoolIcon />
-            </ListItemIcon>
-            <ListItemText primary="Courses" />
-          </ListItem>
-          {courseOpen && (
-            <>
-              <ListItem button component={Link} to="/view-courses">
-                <ListItemIcon>
-                  <VisibilityIcon />
-                </ListItemIcon>
-                <ListItemText primary="View Courses" />
-              </ListItem>
-              <ListItem button component={Link} to="/create-course">
-                <ListItemIcon>
-                  <AddCircleOutlineIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course" />
-              </ListItem>
-              <ListItem button component={Link} to="/course_week_create">
-                <ListItemIcon>
-                  <EventNoteIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course Week" />
-              </ListItem>
-              <ListItem button component={Link} to="/course_week_view">
-                <ListItemIcon>
-                  <ListAltIcon /> {/* Changed Icon */}
-                </ListItemIcon>
-                <ListItemText primary="View Course Weeks" />
-              </ListItem>
-            </>
-          )}
-          {/* Add Week Announcement Links */}
-          <ListItem button component={Link} to="/week-announcement-create">
-            <ListItemIcon>
-              <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Create Announcement" />
-          </ListItem>
-          <ListItem button component={Link} to="/week_announcement_view">
-            <ListItemIcon>
-              <VisibilityIcon />
-            </ListItemIcon>
-            <ListItemText primary="View Announcements" />
-          </ListItem>
-        </List>
-        <Divider />
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
-        }}
-      >
-        <Toolbar />
-        <CourseWeekView />
-      </Box>
-    </Box>
+            <Toolbar />
+            <CourseWeekView />
+          </Box>
+        </Box>
+      </ThemeProvider>
   );
 }

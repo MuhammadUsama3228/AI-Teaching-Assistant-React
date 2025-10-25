@@ -1,31 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import {
+    Typography,
+    Container,
+    Box,
+    CircularProgress,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Container, Box, CircularProgress, Card, CardContent, CardActions, Button, Grid, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import api from '../../../../api';
-
-const StyledCard = styled(Card)(({ theme }) => ({
-    borderRadius: '16px',
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 3px rgba(0, 0, 0, 0.07)',
-    transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, opacity 0.3s ease-in-out',
-    '&:hover': {
-        transform: 'translateY(-8px)',
-        boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
-        opacity: 0.9,
-    },
-    backgroundColor: theme.palette.background.paper,
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-    textTransform: 'none',
-    borderRadius: '20px',
-    fontWeight: '600',
-    padding: '10px 20px',
-    '&:hover': {
-        backgroundColor: theme.palette.primary.dark,
-        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-    },
-}));
 
 const CourseWeekView = () => {
     const [courseWeeks, setCourseWeeks] = useState([]);
@@ -38,14 +24,9 @@ const CourseWeekView = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-              
                 const courseWeeksResponse = await api.get('api/courses/course_weeks/');
-                console.log('Course Weeks:', courseWeeksResponse.data); 
-               
                 const coursesResponse = await api.get('api/courses/course/');
-                console.log('Courses:', coursesResponse.data); 
-              
-                
+
                 const coursesMap = coursesResponse.data.reduce((acc, course) => {
                     acc[course.id] = course.course_title;
                     return acc;
@@ -54,6 +35,7 @@ const CourseWeekView = () => {
                 const enrichedCourseWeeks = courseWeeksResponse.data.map((week) => ({
                     ...week,
                     courseTitle: coursesMap[week.course] || 'Unknown Course',
+                    id: week.id,
                 }));
 
                 setCourseWeeks(enrichedCourseWeeks);
@@ -81,37 +63,75 @@ const CourseWeekView = () => {
         }
     };
 
-    const handleViewDetails = (id) => {
-        navigate(`/courseweekdetail/${id}`);
-    };
+    const columns = [
+        {
+            field: 'week_number',
+            headerName: 'Week #',
+            width: 100,
+        },
+        {
+            field: 'week_title',
+            headerName: 'Title',
+            flex: 1,
+        },
+        {
+            field: 'courseTitle',
+            headerName: 'Course',
+            flex: 1,
+        },
+        {
+            field: 'description',
+            headerName: 'Description',
+            flex: 2,
+            renderCell: (params) =>
+                params.value ? (
+                    <Typography variant="body2">{params.value}</Typography>
+                ) : (
+                    <Typography variant="body2" sx={{ fontStyle: 'italic', color: '#888' }}>
+                        No description
+                    </Typography>
+                ),
+        },
+        {
+            field: 'action',
+            headerName: 'Action',
+            width: 150,
+            sortable: false,
+            renderCell: (params) => (
+                <Box>
+                    <button
+                        onClick={() => navigate(`/courseweekdetail/${params.row.id}`)}
+                        style={{
+                            backgroundColor: '#1976d2',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        View Details
+                    </button>
+                </Box>
+            ),
+        },
+    ];
 
     return (
-        <Container component="main" maxWidth="lg" sx={{ padding: '3rem 1rem', borderRadius: '12px', position: 'relative' }}>
-            <Typography variant="h4" gutterBottom textAlign="center" sx={{ fontWeight: '600', color: '#333', marginBottom: '2rem' }}>
+        <Container maxWidth="lg" sx={{ mt: 5, mb: 5 }}>
+            <Typography variant="h4" textAlign="center" sx={{ mb: 4, fontWeight: '600' }}>
                 Course Weeks
             </Typography>
 
-            {/* Filter in the top-right corner */}
-            <Box sx={{
-                position: 'absolute',
-                top: '3rem',
-                right: '2rem',
-                zIndex: 10,
-                padding: '1rem',
-                borderRadius: '12px',
-                width: '200px'
-            }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: '600', color: '#333' }}>
-                    Filter by Course
-                </Typography>
-                <FormControl fullWidth>
-                    <InputLabel id="course-filter-label">Course</InputLabel>
+            {/* Filter Dropdown */}
+            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <FormControl sx={{ width: 250 }}>
+                    <InputLabel id="filter-label">Filter by Course</InputLabel>
                     <Select
-                        labelId="course-filter-label"
-                        id="course-filter"
+                        labelId="filter-label"
                         value={selectedCourse}
                         onChange={handleFilterChange}
-                        label="Course"
+                        label="Filter by Course"
                     >
                         <MenuItem value="">
                             <em>All Courses</em>
@@ -125,50 +145,29 @@ const CourseWeekView = () => {
                 </FormControl>
             </Box>
 
-            <Grid container spacing={4} sx={{ marginTop: '4rem' }}>
-                {/* Course Weeks */}
-                <Grid item xs={12}>
-                    {loading ? (
-                        <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
-                            <CircularProgress />
-                        </Box>
-                    ) : filteredCourseWeeks.length === 0 ? (
-                        <Typography variant="h6" color="textSecondary" textAlign="center" sx={{ color: '#999' }}>
-                            No course weeks available for the selected course.
-                        </Typography>
-                    ) : (
-                        <Grid container spacing={4}>
-                            {filteredCourseWeeks.map((week) => (
-                                <Grid item xs={12} sm={6} md={4} key={week.id}>
-                                    <StyledCard>
-                                        <CardContent>
-                                            <Typography variant="h6" gutterBottom sx={{ fontWeight: '600', color: '#333' }}>
-                                                Week {week.week_number}: {week.week_title}
-                                            </Typography>
-                                            <Typography variant="subtitle2" color="textSecondary" sx={{ marginBottom: 1 }}>
-                                                <strong>Course:</strong> {week.courseTitle}
-                                            </Typography>
-                                            <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
-                                                {week.description || 'No description provided.'}
-                                            </Typography>
-                                        </CardContent>
-                                        <CardActions sx={{ justifyContent: 'center', paddingBottom: 2 }}>
-                                            <StyledButton
-                                                size="small"
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={() => handleViewDetails(week.id)}
-                                            >
-                                                View Details
-                                            </StyledButton>
-                                        </CardActions>
-                                    </StyledCard>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    )}
-                </Grid>
-            </Grid>
+            {/* DataGrid Table */}
+            {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <Box sx={{ height: 600, width: '100%', backgroundColor: 'white', borderRadius: '12px', boxShadow: 3 }}>
+                    <DataGrid
+                        rows={filteredCourseWeeks}
+                        columns={columns}
+                        pageSize={8}
+                        rowsPerPageOptions={[8, 16, 24]}
+                        disableSelectionOnClick
+                        sx={{
+                            borderRadius: '12px',
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: '#f5f5f5',
+                                fontWeight: 'bold',
+                            },
+                        }}
+                    />
+                </Box>
+            )}
         </Container>
     );
 };

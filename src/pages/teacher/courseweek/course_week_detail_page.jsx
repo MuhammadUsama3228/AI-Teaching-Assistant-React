@@ -1,39 +1,24 @@
 import React, { useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+import { styled, useTheme, ThemeProvider } from "@mui/material/styles";
+import {
+  Box, CssBaseline, AppBar as MuiAppBar, Toolbar, Typography, Divider,
+  IconButton, Drawer as MuiDrawer, List, ListItem, ListItemIcon, ListItemText, useMediaQuery
+} from "@mui/material";
+import {
+  Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon,
+  School as SchoolIcon, Visibility as VisibilityIcon, Dashboard as DashboardIcon
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import SchoolIcon from "@mui/icons-material/School";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
 import CourseWeekDetail from "../../../components/teacher/courses/course_week/course_week_view_detail";
-
-import EventNoteIcon from "@mui/icons-material/EventNote";
-import ViewListIcon from "@mui/icons-material/ViewList";
-
+import theme from "../../../components/Theme.jsx";
 
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
+    easing: theme.transitions.easing.easeOut,
+    duration: theme.transitions.duration.standard,
   }),
   overflowX: "hidden",
 });
@@ -41,7 +26,7 @@ const openedMixin = (theme) => ({
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+    duration: theme.transitions.duration.shortest,
   }),
   overflowX: "hidden",
   width: `calc(${theme.spacing(7)} + 1px)`,
@@ -74,119 +59,153 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  background:"rgb(10, 72, 109)",
+  background: "linear-gradient(90deg, #4B2E83, #1C1C3A)",
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    ...(open ? openedMixin(theme) : closedMixin(theme)),
-    "& .MuiDrawer-paper": open ? openedMixin(theme) : closedMixin(theme),
-  })
+    ({ theme, open }) => ({
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+      boxSizing: "border-box",
+      ...(open ? openedMixin(theme) : closedMixin(theme)),
+      "& .MuiDrawer-paper": {
+        ...(open ? openedMixin(theme) : closedMixin(theme)),
+        backgroundColor: theme.palette.background.paper,
+        borderRight: "1px solid #e0e0e0",
+      },
+    })
 );
 
 export default function CourseWeekDetailPage() {
-  const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const muiTheme = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("sm"));
+  const [open, setOpen] = useState(!isMobile);
   const [courseOpen, setCourseOpen] = useState(false);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
+  const handleDrawerOpen = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
+  const toggleCourseDrawer = () => setCourseOpen(!courseOpen);
+
+  const drawerItemStyles = {
+    minHeight: 48,
+    px: 2.5,
+    borderRadius: 2,
+    mx: 1,
+    transition: "background 0.3s ease",
+    color: muiTheme.palette.text.primary,
+    '&:hover': {
+      backgroundColor: muiTheme.palette.action.hover,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    },
   };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const toggleCourseDrawer = () => {
-    setCourseOpen(!courseOpen);
-  };
-
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Course Management Panel
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
+  const drawerContent = (
+      <>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {muiTheme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem button onClick={toggleCourseDrawer}>
+          <ListItem
+              button
+              component={Link}
+              to="/teacherpanel"
+              sx={drawerItemStyles}
+              onClick={() => isMobile && handleDrawerClose()}
+          >
             <ListItemIcon>
-              <SchoolIcon />
+              <DashboardIcon sx={{ color: muiTheme.palette.text.primary }} />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+
+          <ListItem
+              button
+              onClick={toggleCourseDrawer}
+              sx={drawerItemStyles}
+          >
+            <ListItemIcon>
+              <SchoolIcon sx={{ color: muiTheme.palette.text.primary }} />
             </ListItemIcon>
             <ListItemText primary="Courses" />
           </ListItem>
+
           {courseOpen && (
-            <>
-              <ListItem button component={Link} to="/view-courses">
+              <ListItem
+                  button
+                  component={Link}
+                  to="/view-courses"
+                  sx={drawerItemStyles}
+                  onClick={() => isMobile && handleDrawerClose()}
+              >
                 <ListItemIcon>
-                  <VisibilityIcon />
+                  <VisibilityIcon sx={{ color: muiTheme.palette.text.primary }} />
                 </ListItemIcon>
                 <ListItemText primary="View Courses" />
               </ListItem>
-              <ListItem button component={Link} to="/create-course">
-                <ListItemIcon>
-                  <AddCircleOutlineIcon />
-                </ListItemIcon>
-                <ListItemText primary="Create Course" />
-              </ListItem>
-
-              <ListItem button component={Link} to="/course_week_create">
-              <ListItemIcon>
-                <EventNoteIcon />
-              </ListItemIcon>
-              <ListItemText primary="Create Course Week" />
-            </ListItem>
-            <ListItem button component={Link} to="/course_week_view">
-              <ListItemIcon>
-                <ViewListIcon />
-              </ListItemIcon>
-              <ListItemText primary="View Course Weeks" />
-            </ListItem>
-
-             
-            </>
           )}
         </List>
         <Divider />
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${open ? drawerWidth : 20}px)` },
-        }}
-      >
-        <Toolbar />
-        <CourseWeekDetail />
-     
-      </Box>
-    </Box>
+      </>
+  );
+
+  return (
+      <ThemeProvider theme={theme}>
+        <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
+          <CssBaseline />
+          <AppBar position="fixed" open={open && !isMobile}>
+            <Toolbar>
+              <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ mr: 2, ...(open && !isMobile && { display: "none" }) }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">
+                Course Management Panel
+              </Typography>
+            </Toolbar>
+          </AppBar>
+
+          <Box sx={{ display: "flex", flexGrow: 1 }}>
+            <MuiDrawer
+                variant={isMobile ? "temporary" : "permanent"}
+                open={open}
+                onClose={handleDrawerClose}
+                ModalProps={{ keepMounted: true }}
+                sx={{
+                  "& .MuiDrawer-paper": {
+                    width: drawerWidth,
+                  },
+                }}
+            >
+              {drawerContent}
+            </MuiDrawer>
+
+            <Box
+                component="main"
+                sx={{
+                  flexGrow: 1,
+                  px: { xs: 2, sm: 3 },
+                  py: 3,
+                  width: {
+                    xs: "100%",
+                    sm: `calc(100% - ${open && !isMobile ? drawerWidth : 0}px)`,
+                  },
+                  transition: "width 0.3s ease",
+                }}
+            >
+              <Toolbar />
+              <CourseWeekDetail />
+            </Box>
+          </Box>
+        </Box>
+      </ThemeProvider>
   );
 }
